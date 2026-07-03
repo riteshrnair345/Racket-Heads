@@ -44,7 +44,17 @@ export default function Register() {
     const draft = localStorage.getItem('twb_register_draft');
     if (draft) {
       try {
-        setFormData(JSON.parse(draft));
+        const parsed = JSON.parse(draft);
+        setFormData({
+          name: parsed.name || '',
+          email: parsed.email || '',
+          phone: parsed.phone || '+91 ',
+          age: parsed.age || '',
+          proficiency: parsed.proficiency || '',
+          duration: parsed.duration || '',
+          shoes: parsed.shoes || '',
+          heardFrom: parsed.heardFrom || '',
+        });
       } catch (e) {
         console.error('Failed to parse draft form data');
       }
@@ -191,7 +201,7 @@ export default function Register() {
               We are full! 😔
             </h1>
             <p className="text-brand-purple/70 text-sm font-medium">
-              We have already reached our maximum capacity of 6 players for this event. 
+              We have already reached our maximum capacity of 28 players for this event. 
             </p>
           </div>
 
@@ -238,12 +248,7 @@ export default function Register() {
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-brand-purple mb-3 text-center">
             RacketHeads Kochi
           </h1>
-          {spotsLeft !== null && spotsLeft <= 5 && spotsLeft > 0 && (
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-sm font-semibold shadow-sm">
-              <Sparkles className="w-4 h-4" />
-              Only {spotsLeft} {spotsLeft === 1 ? 'spot' : 'spots'} left!
-            </div>
-          )}
+
         </header>
 
         {/* Form Container */}

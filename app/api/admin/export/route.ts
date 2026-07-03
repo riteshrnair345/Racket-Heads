@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     
     // We will do this sequentially to avoid rate limits from the qrserver, 
     // or we can use Promise.all if the player count is small. 
-    // Since max is 6 players, Promise.all is fine and fast.
+    // Since max is 28 players, Promise.all is fine and fast.
     const rows = await Promise.all(players.map(async (player) => {
       // Create a clean filename for the user: RHK_[name of the player]
       const cleanName = player.name.replace(/\s+/g, '_');

@@ -20,12 +20,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // Enforce 6 player limit
+    // Enforce 28 player limit
     const playersList = await getPlayers();
     const isExisting = playersList.some(p => p.email.toLowerCase() === email.toLowerCase());
     
-    if (playersList.length >= 6 && !isExisting) {
-      return NextResponse.json({ success: false, error: 'Registration is full. We have reached the 6 player limit.' }, { status: 403 });
+    if (playersList.length >= 28 && !isExisting) {
+      return NextResponse.json({ success: false, error: 'Registration is full. We have reached the 28 player limit.' }, { status: 403 });
     }
 
     // Check if player already exists

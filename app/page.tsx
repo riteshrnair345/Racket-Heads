@@ -1,111 +1,184 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Trophy, Zap, Users } from 'lucide-react';
-import Footer from '@/components/Footer';
+import { ArrowRight, Trophy, Zap, Users, Check, MapPin, Search } from 'lucide-react';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-brand-dark text-brand-light selection:bg-brand-green/20 flex flex-col font-sans">
-      {/* Background elements */}
-      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none mix-blend-screen" />
-      <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-yellow/10 blur-[100px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-brand-green/10 blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-white text-brand-purple selection:bg-brand-pink/20 flex flex-col font-sans">
+      
+      {/* Top Navbar */}
+      <header className="w-full flex justify-between items-center px-6 py-4 bg-white sticky top-0 z-50">
+        <div className="flex items-center">
+          <div className="bg-brand-yellow p-2 rounded-lg">
+            <img src="/logo.jpg" alt="RacketHeads Kochi" className="h-8 object-contain mix-blend-multiply" />
+          </div>
+        </div>
+        <Link 
+          href="/register" 
+          className="bg-brand-purple text-white font-heading font-bold px-6 py-3 rounded-full text-sm hover:scale-105 transition-transform"
+        >
+          BOOK YOUR SPOT
+        </Link>
+      </header>
 
-      {/* Main Content */}
-      <main className="flex-grow relative z-10 flex flex-col items-center">
+      <main className="flex-grow w-full flex flex-col">
         
         {/* Hero Section */}
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 sm:py-32 flex flex-col items-center text-center">
-          <img 
-            src="/logo.jpg" 
-            alt="RacketHeads Kochi Logo" 
-            className="h-28 w-auto rounded-3xl shadow-[0_8px_30px_rgb(244,228,9,0.2)] mb-8 rotate-3 hover:rotate-6 transition-transform object-contain" 
-          />
+        <section className="relative w-full bg-brand-yellow py-20 px-4 md:px-12 flex justify-center border-b-4 border-white">
+          {/* Dot pattern overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-20" style={{
+            backgroundImage: 'radial-gradient(#ffffff 2px, transparent 2px)',
+            backgroundSize: '24px 24px'
+          }} />
           
-          <h1 className="text-5xl sm:text-7xl font-heading font-bold tracking-tight text-brand-light mb-6 drop-shadow-sm">
-            RacketHeads <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-yellow to-brand-green">Kochi</span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl text-brand-light/80 font-medium max-w-2xl mb-12 leading-relaxed">
-            A Badminton Community — Play, Compete, Connect.
-          </p>
-          
-          <Link 
-            href="/register" 
-            className="group relative inline-flex items-center justify-center gap-3 bg-brand-yellow text-brand-dark font-heading font-bold text-lg px-8 py-4 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-[0_20px_40px_rgba(244,228,9,0.3)] active:scale-95"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Book Your Spot <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-yellow to-brand-green opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </Link>
-        </section>
-
-        {/* About Section */}
-        <section className="w-full bg-white/5 backdrop-blur-xl border-y border-white/10 py-20">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-heading font-bold text-brand-yellow mb-4">Why Join Us?</h2>
-              <p className="text-brand-light/70 font-medium">Everything you need for a perfect session.</p>
+          <div className="relative z-10 w-full max-w-5xl bg-brand-cream rounded-[3rem] px-8 py-20 flex flex-col items-center text-center shadow-lg border-2 border-transparent">
+            {/* Tag */}
+            <div className="bg-brand-pink text-white font-heading text-xs font-bold px-4 py-2 rounded-full mb-8 uppercase tracking-wide flex items-center gap-2">
+              <span>🕒</span> NEXT SESSION: SAT 7AM
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { icon: Trophy, title: "All Skill Levels", desc: "Whether you're an amateur or a seasoned pro, we match you with the right players." },
-                { icon: Zap, title: "Premium Courts", desc: "Play on high-quality synthetic mats with excellent lighting and ventilation." },
-                { icon: Users, title: "Great Community", desc: "Meet like-minded individuals, network, and enjoy a healthy weekend activity." }
-              ].map((feature, i) => (
-                <div key={i} className="bg-brand-dark/60 border border-brand-yellow/20 p-8 rounded-3xl text-center hover:shadow-lg transition-shadow">
-                  <div className="w-14 h-14 bg-brand-green/10 text-brand-green rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <feature.icon className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-heading font-bold text-brand-light mb-3">{feature.title}</h3>
-                  <p className="text-brand-light/70 font-medium leading-relaxed">{feature.desc}</p>
-                </div>
-              ))}
+            {/* Heading */}
+            <h1 className="text-5xl md:text-7xl font-heading font-bold uppercase tracking-tight leading-none mb-12 max-w-4xl">
+              <span className="text-brand-purple block mb-2">A Badminton</span>
+              <span className="text-brand-purple block mb-2">Community</span>
+              <span className="text-brand-pink block">— Play, Compete,</span>
+              <span className="text-brand-pink block">Connect.</span>
+            </h1>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+              <Link 
+                href="/register" 
+                className="bg-brand-purple text-white font-heading font-bold text-lg px-8 py-4 rounded-full transition-transform hover:scale-105"
+              >
+                BOOK YOUR SPOT
+              </Link>
+              <Link 
+                href="#schedule" 
+                className="bg-transparent text-brand-purple border-2 border-brand-purple font-heading font-bold text-lg px-8 py-4 rounded-full transition-transform hover:scale-105 hover:bg-brand-purple/5"
+              >
+                VIEW SCHEDULE
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 text-center">
-          <h2 className="text-3xl font-heading font-bold text-brand-yellow mb-4">Session Details</h2>
-          <p className="text-brand-light/70 font-medium mb-12">Everything you get when you book a slot.</p>
+        {/* Features Section */}
+        <section className="w-full bg-white py-24 px-4 flex flex-col items-center text-center border-b-4 border-brand-purple">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-brand-purple mb-16 uppercase tracking-tight">
+            Why <span className="border-b-[6px] border-brand-pink pb-1">Join</span> Us
+          </h2>
           
-          <div className="max-w-md mx-auto bg-brand-dark rounded-[2.5rem] p-8 sm:p-12 shadow-[0_8px_40px_rgba(145,215,138,0.1)] border border-brand-green/20 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-yellow to-brand-green" />
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+            {/* Card 1 */}
+            <div className="bg-brand-yellow border-4 border-brand-purple p-10 rounded-2xl flex flex-col items-center text-center shadow-[4px_4px_0_#401878]">
+              <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mb-6 text-brand-yellow">
+                <Search className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-heading font-bold text-brand-purple mb-4 uppercase">All Skill Levels</h3>
+              <p className="text-brand-purple/80 font-medium">Whether you're a seasoned pro or just picking up a racket, find opponents that match your pace.</p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-brand-pink border-4 border-brand-purple p-10 rounded-2xl flex flex-col items-center text-center shadow-[4px_4px_0_#401878]">
+              <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mb-6 text-brand-pink">
+                <Trophy className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-heading font-bold text-white mb-4 uppercase">Premium Courts</h3>
+              <p className="text-white/90 font-medium">High-grade synthetic courts with professional lighting designed to minimize glare and maximize performance.</p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-brand-yellow border-4 border-brand-purple p-10 rounded-2xl flex flex-col items-center text-center shadow-[4px_4px_0_#401878]">
+              <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mb-6 text-brand-yellow">
+                <Users className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-heading font-bold text-brand-purple mb-4 uppercase">Great Community</h3>
+              <p className="text-brand-purple/80 font-medium">Connect with local players, track rankings, and join exclusive tournaments in a high-energy environment.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing / Inclusions Section */}
+        <section className="w-full bg-brand-purple py-24 px-4 flex justify-center">
+          <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            <h3 className="text-2xl font-heading font-bold text-brand-light mb-8">Session Inclusions</h3>
-            <ul className="text-left space-y-4 mb-10">
-              {[
-                "2hrs court time",
-                "Shuttles and refreshments included.",
-                "Opponent matchmaking.",
-                "Access to community.",
-                "Fun games and challenges."
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-brand-light/80 font-medium">
-                  <div className="w-6 h-6 rounded-full bg-brand-yellow/10 text-brand-yellow flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {/* Left Side */}
+            <div className="text-left">
+              <h2 className="text-4xl md:text-5xl font-heading font-bold uppercase leading-tight mb-6">
+                <span className="text-white block">Everything You</span>
+                <span className="text-white block">Get When You</span>
+                <span className="text-brand-yellow block">Book A Slot</span>
+              </h2>
+              <p className="text-white/80 font-medium text-lg mb-12 max-w-md">
+                We provide the arena, the shuttles, and the competition. You just bring the sweat.
+              </p>
+              <Link 
+                href="/register" 
+                className="inline-block bg-brand-yellow text-brand-purple font-heading font-bold text-lg px-8 py-4 rounded-full transition-transform hover:scale-105"
+              >
+                BOOK NOW
+              </Link>
+            </div>
+
+            {/* Right Side Card */}
+            <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl">
+              <ul className="space-y-6">
+                {[
+                  "2hrs Court Time",
+                  "Shuttles & Refreshments",
+                  "Opponent Matchmaking",
+                  "Community Access",
+                  "Fun Games/Challenges"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-4 border-b border-gray-100 last:border-0 pb-6 last:pb-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-pink text-white flex items-center justify-center shrink-0">
+                      <Check className="w-5 h-5" strokeWidth={3} />
+                    </div>
+                    <span className="text-xl font-heading font-bold text-brand-purple">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             
-            <Link 
-              href="/register" 
-              className="block w-full bg-brand-green hover:opacity-90 text-brand-dark font-heading font-bold py-4 rounded-2xl transition-opacity"
-            >
-              Book Now
-            </Link>
           </div>
         </section>
 
       </main>
 
-      <Footer />
+      {/* Footer Section */}
+      <footer className="w-full bg-white py-12 px-6 flex flex-col md:flex-row justify-between items-start md:items-center max-w-7xl mx-auto gap-8">
+        <div className="flex flex-col gap-4">
+          <div className="bg-brand-yellow p-2 rounded-lg w-fit">
+            <img src="/logo.jpg" alt="RacketHeads Kochi" className="h-10 object-contain mix-blend-multiply" />
+          </div>
+          <p className="text-brand-purple text-xs font-bold font-heading uppercase max-w-xs">
+            © 2024 RACKETHEADS KOCHI. SMASH THE LIMITS.
+          </p>
+        </div>
+
+        <div className="flex flex-row gap-20">
+          <div className="flex flex-col gap-3">
+            <h4 className="text-brand-pink text-xs font-bold font-heading uppercase mb-2">Legal</h4>
+            <a href="#" className="text-brand-purple text-sm font-medium hover:underline">Terms</a>
+            <a href="#" className="text-brand-purple text-sm font-medium hover:underline">Privacy</a>
+            <a href="#" className="text-brand-purple text-sm font-medium hover:underline">Cancellation</a>
+            <a href="#" className="text-brand-purple text-sm font-medium hover:underline">Service</a>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <h4 className="text-brand-pink text-xs font-bold font-heading uppercase mb-2">Connect</h4>
+            <a href="#" className="bg-brand-yellow text-brand-purple font-heading font-bold px-4 py-2 rounded-full text-sm hover:scale-105 transition-transform flex items-center gap-2">
+              Instagram
+            </a>
+            <a href="#" className="bg-brand-yellow text-brand-purple font-heading font-bold px-4 py-2 rounded-full text-sm hover:scale-105 transition-transform flex items-center gap-2">
+              WhatsApp Join Broadcast
+            </a>
+          </div>
+        </div>
+      </footer>
+      
     </div>
   );
 }

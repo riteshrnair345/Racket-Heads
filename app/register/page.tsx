@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle, Smile, Trophy, Clock, Zap, Phone, Mail, User, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft } from 'lucide-react';
 import Script from 'next/script';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -128,30 +129,33 @@ export default function Register() {
 
   if (ticketData) {
     return (
-      <div className="min-h-screen bg-brand-yellow text-brand-purple flex flex-col items-center justify-center p-4 selection:bg-brand-pink/20 relative overflow-hidden">
-        <div className="max-w-md w-full bg-[#202020] border-2 border-[#333] rounded-3xl p-8 text-center space-y-6 shadow-[12px_12px_0_#131313] relative z-10">
+      <div className="min-h-screen bg-brand-yellow-light text-brand-purple flex flex-col items-center justify-center p-4 selection:bg-brand-pink/20 relative overflow-hidden">
+        {/* Soft Background Image */}
+        <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none mix-blend-multiply" />
+
+        <div className="max-w-md w-full bg-white/90 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 text-center space-y-6 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative z-10">
           
-          <div className="mx-auto w-20 h-20 bg-[#131313] rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="w-10 h-10 text-brand-yellow" />
+          <div className="mx-auto w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4 shadow-sm border border-emerald-100">
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
           
           <div>
-            <h1 className="text-3xl font-heading font-bold tracking-tight mb-2 text-white">
+            <h1 className="text-3xl font-extrabold tracking-tight mb-2 text-brand-purple">
               You're In, {ticketData.name}! 🎉
             </h1>
-            <p className="text-white/70 text-sm font-sans font-medium mb-3">
+            <p className="text-brand-purple/70 text-sm font-medium mb-3">
               We've successfully registered you for the session!
             </p>
-            <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-4 inline-block mb-4">
-              <h2 className="text-brand-yellow text-sm font-heading font-bold uppercase tracking-wider mb-2">🎟️ Ticket Sent to Email</h2>
-              <p className="text-white/90 text-sm font-sans font-medium">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 inline-block mb-4">
+              <h2 className="text-emerald-700 text-sm font-extrabold uppercase tracking-wider mb-2">🎟️ Ticket Sent to Email</h2>
+              <p className="text-emerald-800 text-sm font-medium">
                 We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!
               </p>
             </div>
-            <div className="bg-[#3a1a1a] border border-red-500/30 rounded-xl p-3 inline-block">
-              <p className="text-red-400 text-xs font-heading font-bold uppercase tracking-wider mb-1">Important</p>
-              <p className="text-white/80 text-sm font-sans font-medium">
-                Please check your <strong className="font-heading font-bold text-white">Spam or Junk folder</strong> if you don't see the email in your main inbox!
+            <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 inline-block">
+              <p className="text-rose-600 text-xs font-bold uppercase tracking-wider mb-1">Important</p>
+              <p className="text-rose-700 text-sm font-medium">
+                Please check your <strong className="font-extrabold">Spam or Junk folder</strong> if you don't see the email in your main inbox!
               </p>
             </div>
           </div>
@@ -163,7 +167,7 @@ export default function Register() {
               setFormData(blankForm);
               localStorage.removeItem('twb_register_draft');
             }}
-            className="w-full bg-brand-yellow hover:bg-brand-yellow/90 text-black font-heading font-bold py-4 rounded-xl transition-all shadow-sm"
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-4 rounded-2xl transition-all shadow-sm"
           >
             Register another player
           </button>
@@ -174,38 +178,41 @@ export default function Register() {
 
   if (isCheckingStatus) {
     return (
-      <div className="min-h-screen bg-brand-yellow flex items-center justify-center p-4">
-        <Loader2 className="w-16 h-16 text-black animate-spin" />
+      <div className="min-h-screen bg-brand-yellow-light flex items-center justify-center p-4">
+        <Loader2 className="w-16 h-16 text-brand-purple animate-spin" />
       </div>
     );
   }
 
   if (isFull) {
     return (
-      <div className="min-h-screen bg-brand-yellow text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
-        <div className="max-w-md w-full bg-[#202020] border-2 border-[#333] rounded-3xl p-8 text-center space-y-6 shadow-[12px_12px_0_#131313] relative z-10">
+      <div className="min-h-screen bg-brand-yellow-light text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
+        {/* Soft Background Image */}
+        <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none mix-blend-multiply" />
+        
+        <div className="max-w-md w-full bg-white/90 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 text-center space-y-6 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative z-10">
           
-          <div className="mx-auto w-20 h-20 bg-[#131313] rounded-full flex items-center justify-center mb-4">
-            <User className="w-10 h-10 text-red-500" />
+          <div className="mx-auto w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-4 shadow-sm border border-rose-100">
+            <User className="w-10 h-10 text-rose-500" />
           </div>
           
           <div>
-            <h1 className="text-3xl font-heading font-bold tracking-tight mb-2 text-white">
+            <h1 className="text-3xl font-extrabold tracking-tight mb-2 text-brand-purple">
               We are full! 😔
             </h1>
-            <p className="text-white/70 text-sm font-sans font-medium">
-              We have already reached our maximum capacity for this event. 
+            <p className="text-brand-purple/70 text-sm font-medium">
+              We have already reached our maximum capacity of 28 players for this event. 
             </p>
           </div>
 
-          <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-4 text-center">
-            <p className="text-white text-sm font-sans font-medium leading-relaxed">
+          <div className="bg-brand-pink/10 border border-brand-pink/20 rounded-2xl p-4 text-center">
+            <p className="text-brand-purple text-sm font-medium leading-relaxed">
               Stay tuned to our Instagram page for announcements regarding the next event!
             </p>
           </div>
 
           <Link href="/">
-            <button className="w-full mt-4 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-heading font-bold py-4 rounded-xl transition-all shadow-sm">
+            <button className="w-full mt-4 bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-bold py-4 rounded-2xl transition-all shadow-sm">
               Return Home
             </button>
           </Link>
@@ -215,56 +222,60 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-yellow p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-black/20 relative overflow-hidden">
+    <div className="min-h-screen bg-brand-yellow-light text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      
+      {/* Soft Background Image */}
+      <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none mix-blend-multiply" />
 
       {/* Back Button */}
       <div className="absolute top-6 left-4 sm:left-8 z-20">
-        <Link href="/" className="inline-flex items-center gap-2 px-5 py-3 bg-[#1a1a1a] hover:bg-black text-brand-yellow rounded-md font-heading font-bold text-xs uppercase tracking-widest transition-all shadow-sm">
+        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 hover:bg-white text-brand-purple rounded-xl font-bold text-sm transition-all shadow-sm border border-brand-purple/10 backdrop-blur-sm hover:shadow-md hover:-translate-x-1">
           <ArrowLeft className="w-4 h-4" />
-          GO BACK
+          Go Back
         </Link>
       </div>
 
-      <div className="max-w-3xl w-full relative z-10 pt-12 pb-12">
+      <div className="max-w-2xl w-full relative z-10 pt-4">
         
         {/* Header */}
-        <header className="mb-8 flex flex-col items-center justify-center">
+        <header className="mb-10 flex flex-col items-center justify-center">
           <img 
             src="/logo.jpg" 
             alt="RacketHeads Kochi Logo" 
-            className="h-28 w-auto mb-4 object-contain mix-blend-multiply" 
+            className="h-24 w-auto rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] mb-6 rotate-3 hover:rotate-6 transition-transform object-contain" 
           />
-          <h1 className="text-4xl sm:text-5xl font-heading font-bold tracking-tight text-black mb-3 text-center uppercase">
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-brand-purple mb-3 text-center">
             RacketHeads Kochi
           </h1>
+
         </header>
 
         {/* Form Container */}
-        <div className="bg-[#202020] rounded-[1.5rem] p-8 md:p-12 shadow-[12px_12px_0_#131313] relative">
+        <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 sm:p-10 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative">
           
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-heading font-bold mb-2 flex items-center justify-center gap-3 text-brand-yellow">
-              <Smile className="w-6 h-6" /> Let's get to know you
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-purple">
+              <Smile className="w-6 h-6 text-brand-pink" /> Let's get to know you
             </h2>
-            <p className="text-white/70 text-sm font-sans font-medium">
+            <p className="text-brand-purple/70 text-sm font-medium">
               We just need a few details to customize your experience.
             </p>
           </div>
 
           {error && (
-            <div className="mb-8 p-4 bg-red-950/40 border border-red-500/30 text-red-400 rounded-xl text-sm font-sans font-medium flex items-center gap-3 shadow-sm">
+            <div className="mb-8 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-sm font-medium flex items-center gap-3 shadow-sm">
               <span>⚠️</span> {error}
             </div>
           )}
 
-          <form onSubmit={handlePayment} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+          <form onSubmit={handlePayment} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
               
               {/* 1. Full Name */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <User className="w-3 h-3" /> WHAT'S YOUR FULL NAME? <span className="text-white">*</span>
+              <div className="space-y-3 md:col-span-2">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <User className="w-4 h-4 text-brand-pink" /> What's your full name? <span className="text-brand-pink">*</span>
                 </label>
                 <input
                   type="text"
@@ -272,14 +283,14 @@ export default function Register() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g. Jane Doe"
-                  className="w-full bg-[#2a2a2a] border border-[#444] rounded-md px-5 py-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-yellow focus:border-brand-yellow transition-all placeholder:text-white/30 font-sans font-medium"
+                  className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all placeholder:text-brand-purple/40 shadow-sm font-medium"
                 />
               </div>
 
               {/* 2. Email */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <Mail className="w-3 h-3" /> EMAIL ADDRESS <span className="text-white">*</span>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-brand-pink" /> Email address <span className="text-brand-pink">*</span>
                 </label>
                 <input
                   type="email"
@@ -287,29 +298,29 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="hello@example.com"
-                  className="w-full bg-[#2a2a2a] border border-[#444] rounded-md px-5 py-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-yellow focus:border-brand-yellow transition-all placeholder:text-white/30 font-sans font-medium"
+                  className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all placeholder:text-brand-purple/40 shadow-sm font-medium"
                 />
               </div>
 
               {/* 3. Phone Number */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <Phone className="w-3 h-3" /> PHONE NUMBER <span className="text-white">*</span>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-brand-pink" /> Phone number <span className="text-brand-pink">*</span>
                 </label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 00000 00000"
-                  className="w-full bg-[#2a2a2a] border border-[#444] rounded-md px-5 py-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-yellow focus:border-brand-yellow transition-all placeholder:text-white/30 font-sans font-medium"
+                  placeholder="+91 99999 99999"
+                  className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all placeholder:text-brand-purple/40 shadow-sm font-medium"
                 />
               </div>
 
               {/* 3b. Age */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <User className="w-3 h-3" /> AGE <span className="text-white">*</span>
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <User className="w-4 h-4 text-brand-pink" /> Age <span className="text-brand-pink">*</span>
                 </label>
                 <input
                   type="number"
@@ -319,73 +330,63 @@ export default function Register() {
                   placeholder="e.g. 24"
                   min="1"
                   max="100"
-                  className="w-full bg-[#2a2a2a] border border-[#444] rounded-md px-5 py-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-yellow focus:border-brand-yellow transition-all placeholder:text-white/30 font-sans font-medium"
+                  className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all placeholder:text-brand-purple/40 shadow-sm font-medium"
                 />
               </div>
 
               {/* 4. Proficiency - Card Selection */}
-              <div className="space-y-3 md:col-span-2 mt-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <Trophy className="w-3 h-3" /> HOW WOULD YOU RATE YOUR SKILLS? <span className="text-white">*</span>
+              <div className="space-y-4 md:col-span-2">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-brand-pink" /> How would you rate your skills? <span className="text-brand-pink">*</span>
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['BEGINNER', 'AMATEUR', 'ADVANCED', 'PROFESSIONAL'].map((level) => (
+                  {['Beginner', 'Amateur', 'Advanced', 'Professional'].map((level) => (
                     <div
                       key={level}
                       onClick={() => handleSelect('proficiency', level)}
-                      className={`cursor-pointer rounded-sm p-4 text-center border transition-all duration-200 font-heading font-bold text-[11px] uppercase tracking-wider ${
+                      className={`cursor-pointer rounded-2xl p-4 text-center border-2 transition-all duration-200 font-bold ${
                         formData.proficiency === level 
-                        ? 'border-brand-yellow bg-brand-yellow text-black' 
-                        : 'border-[#444] bg-[#2a2a2a] text-white/70 hover:bg-[#333] hover:text-white'
+                        ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
+                        : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
                       }`}
                     >
-                      {level}
+                      <span className="text-sm">{level}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* 5. Duration - Card Selection */}
-              <div className="space-y-3 md:col-span-2 mt-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                  <Clock className="w-3 h-3" /> HOW LONG HAVE YOU BEEN PLAYING? <span className="text-white">*</span>
+              <div className="space-y-4 md:col-span-2">
+                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-brand-pink" /> How long have you been playing? <span className="text-brand-pink">*</span>
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['< 1 YEAR', '1-3 YEARS', '3-5 YEARS', '5-10 YEARS'].map((time) => (
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {['< 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'].map((time) => (
                     <div
                       key={time}
                       onClick={() => handleSelect('duration', time)}
-                      className={`cursor-pointer rounded-sm p-3 text-center border transition-all duration-200 flex items-center justify-center font-heading font-bold text-[11px] uppercase tracking-wider ${
+                      className={`cursor-pointer rounded-2xl p-3 text-center border-2 transition-all duration-200 flex items-center justify-center font-bold ${
                         formData.duration === time 
-                        ? 'border-brand-yellow bg-brand-yellow text-black' 
-                        : 'border-[#444] bg-[#2a2a2a] text-white/70 hover:bg-[#333] hover:text-white'
+                        ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
+                        : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
                       }`}
                     >
-                      {time}
+                      <span className="text-xs sm:text-sm">{time}</span>
                     </div>
                   ))}
-                  <div
-                    onClick={() => handleSelect('duration', '10+ YEARS')}
-                    className={`col-span-2 md:col-span-4 cursor-pointer rounded-sm p-3 text-center border transition-all duration-200 flex items-center justify-center font-heading font-bold text-[11px] uppercase tracking-wider ${
-                      formData.duration === '10+ YEARS' 
-                      ? 'border-brand-yellow bg-brand-yellow text-black' 
-                      : 'border-[#444] bg-[#2a2a2a] text-white/70 hover:bg-[#333] hover:text-white'
-                    }`}
-                  >
-                    10+ YEARS
-                  </div>
                 </div>
               </div>
 
               {/* 6. Non-marking shoes - Disclaimer */}
-              <div className="space-y-3 md:col-span-2 mt-2">
-                <div className="bg-[#2a1313] border border-red-900/50 rounded-sm p-5 flex items-start gap-4 text-left">
-                  <Zap className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="space-y-4 md:col-span-2">
+                <div className="bg-brand-pink/10 border border-brand-pink/20 rounded-2xl p-5 flex items-start gap-4 text-left shadow-sm">
+                  <Zap className="w-6 h-6 text-brand-pink shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="text-red-500 font-heading font-bold text-xs uppercase tracking-widest mb-1">
-                      COMPULSORY NON-MARKING SHOES REQUIRED <span className="text-white">*</span>
+                    <h3 className="text-brand-purple font-extrabold text-base mb-1">
+                      Compulsory non-marking shoes required <span className="text-brand-pink">*</span>
                     </h3>
-                    <p className="text-white/80 text-xs font-sans font-medium">
+                    <p className="text-brand-purple/70 text-sm font-medium leading-relaxed">
                       To protect the courts, all players must bring non-marking shoes to participate. 
                     </p>
                   </div>
@@ -393,46 +394,46 @@ export default function Register() {
               </div>
 
               {/* 7. Heard From */}
-              <div className="space-y-3 md:col-span-2 mt-2">
-                <label className="text-[10px] font-heading font-bold uppercase tracking-widest text-brand-yellow">
-                  HOW DID YOU FIND US? <span className="text-white">*</span>
+              <div className="space-y-3 md:col-span-2">
+                <label className="text-sm font-bold text-brand-purple ml-1">
+                  How did you find us? <span className="text-brand-pink">*</span>
                 </label>
                 <div className="relative">
                   <select
                     name="heardFrom"
                     value={formData.heardFrom}
                     onChange={handleChange}
-                    className="w-full bg-[#2a2a2a] border border-[#444] rounded-sm px-5 py-4 text-white font-sans font-medium focus:outline-none focus:ring-1 focus:ring-brand-yellow focus:border-brand-yellow transition-all appearance-none cursor-pointer"
+                    className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple font-medium focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all appearance-none cursor-pointer shadow-sm"
                   >
-                    <option value="" disabled className="text-white/30">Select an option...</option>
+                    <option value="" disabled className="text-brand-purple/40">Select an option...</option>
                     <option value="Friend/Word of Mouth">Friend / Word of Mouth</option>
                     <option value="Instagram">Instagram</option>
                     <option value="Facebook">Facebook</option>
                     <option value="Other">Other</option>
                   </select>
                   <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg className="w-5 h-5 text-brand-purple/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            <div className="pt-6 mt-8">
+            <div className="pt-8 mt-10 border-t border-brand-purple/10">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-5 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-heading font-bold text-base tracking-widest uppercase rounded-sm transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-5 bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-extrabold text-lg rounded-2xl transition-all shadow-[0_8px_20px_rgba(58,26,93,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_12px_25px_rgba(58,26,93,0.4)] hover:-translate-y-1"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                     Securing your spot...
                   </>
                 ) : (
                   <>
-                    <User className="w-5 h-5" />
-                    REGISTER NOW
+                    <User className="w-6 h-6" />
+                    Register
                   </>
                 )}
               </button>
@@ -440,41 +441,9 @@ export default function Register() {
           </form>
         </div>
       </div>
-      
-      {/* Footer Section */}
-      <footer className="w-full bg-[#131313] py-12 px-6 flex flex-col md:flex-row justify-between items-start md:items-center max-w-none mt-20 gap-8 absolute bottom-0">
-        <div className="flex flex-col gap-4 max-w-7xl mx-auto w-full md:flex-row justify-between">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-brand-yellow text-3xl font-bold font-heading uppercase italic leading-tight max-w-[200px]">
-              RACKETHEADS KOCHI
-            </h1>
-            <p className="text-white/60 text-[10px] font-bold font-heading uppercase max-w-xs mt-2 tracking-wider">
-              © 2024 RACKETHEADS KOCHI. SMASH THE LIMITS.
-            </p>
-          </div>
-
-          <div className="flex flex-row gap-16">
-            <div className="flex flex-col gap-3">
-              <h4 className="text-brand-pink text-[10px] font-bold font-heading uppercase mb-2 tracking-widest">LEGAL</h4>
-              <a href="#" className="text-white/80 text-xs font-sans hover:text-white transition-colors">Terms</a>
-              <a href="#" className="text-white/80 text-xs font-sans hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="text-white/80 text-xs font-sans hover:text-white transition-colors">Cancellation</a>
-              <a href="#" className="text-white/80 text-xs font-sans hover:text-white transition-colors">Service</a>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <h4 className="text-brand-pink text-[10px] font-bold font-heading uppercase mb-2 tracking-widest">CONNECT</h4>
-              <a href="#" className="bg-brand-yellow text-black font-heading font-bold px-4 py-1.5 rounded-full text-xs hover:scale-105 transition-transform flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full border border-black flex items-center justify-center shrink-0">📷</span> Instagram
-              </a>
-              <a href="#" className="bg-brand-yellow text-black font-heading font-bold px-4 py-1.5 rounded-full text-xs hover:scale-105 transition-transform flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full border border-black flex items-center justify-center shrink-0">💬</span> WhatsApp Join Broadcast
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-      
+      <div className="w-full mt-20">
+        <Footer />
+      </div>
     </div>
   );
 }

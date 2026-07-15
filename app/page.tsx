@@ -53,7 +53,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 { icon: Trophy, title: "All Skill Levels", desc: "Whether you're an amateur or a seasoned pro, we match you with the right players." },
-                { icon: Zap, title: "Premium Courts", desc: "Play on high-quality synthetic mats with excellent lighting and ventilation." },
+                { icon: Zap, title: "Premium Courts", desc: "Play on high-quality courts with excellent lighting and ventilation." },
                 { icon: Users, title: "Great Community", desc: "Meet like-minded individuals, network, and enjoy a healthy weekend activity." }
               ].map((feature, i) => (
                 <div key={i} className="bg-white/60 border border-brand-purple/10 p-8 rounded-3xl text-center hover:shadow-lg transition-shadow">

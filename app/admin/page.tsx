@@ -88,7 +88,7 @@ export default function WeekendBaddieApp() {
               </h1>
             </div>
             
-            <nav className="flex items-center gap-4 overflow-x-auto">
+            <nav className="flex items-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide pb-1">
               <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50 min-w-max">
                 <button onClick={() => setActiveTab("dashboard")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "dashboard" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
                   <Users className="w-4 h-4" /> <span className="hidden sm:inline">Dashboard</span>
@@ -811,8 +811,8 @@ function EventsView() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-1">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+      <div className="lg:col-span-1 min-w-0">
         <div className="bg-white rounded-[2rem] p-6 border border-brand-purple/10 shadow-[0_8px_30px_rgba(58,26,93,0.04)]">
           <h2 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
             <CalendarPlus className="text-brand-purple" /> Create Event
@@ -837,7 +837,7 @@ function EventsView() {
         </div>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 min-w-0">
         <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
             <h2 className="text-lg font-black text-slate-800">Manage Events</h2>
@@ -1308,8 +1308,8 @@ function GalleryView() {
         <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-brand-pink" /> Add Media to Gallery
         </h2>
-        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
-          <div className="lg:col-span-2">
+        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end min-w-0">
+          <div className="lg:col-span-2 min-w-0">
             <label className="block text-sm font-bold text-slate-500 mb-1">Local File (Overrides URL)</label>
             <input 
               type="file" 
@@ -1349,7 +1349,7 @@ function GalleryView() {
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
             />
           </div>
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 min-w-0">
             <label className="block text-sm font-bold text-slate-500 mb-1">OR Media URL</label>
             <input 
               type="url" 
@@ -1360,7 +1360,7 @@ function GalleryView() {
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50" 
             />
           </div>
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <label className="block text-sm font-bold text-slate-500 mb-1">Alt Text (Optional)</label>
             <input 
               type="text" 
@@ -1370,7 +1370,7 @@ function GalleryView() {
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
             />
           </div>
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 min-w-0">
             <button disabled={adding || converting} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50">
               {adding ? "Adding..." : converting ? "Converting..." : "Add Media"}
             </button>

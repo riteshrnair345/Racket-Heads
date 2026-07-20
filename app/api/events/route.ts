@@ -81,7 +81,14 @@ export async function PUT(request: Request) {
     if (date) events[eventIndex].date = date;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
-    if (typeof isFeedbackOpen === 'boolean') events[eventIndex].isFeedbackOpen = isFeedbackOpen;
+    if (typeof isFeedbackOpen === 'boolean') {
+      events[eventIndex].isFeedbackOpen = isFeedbackOpen;
+      if (isFeedbackOpen) {
+        events.forEach((e, i) => {
+          if (i !== eventIndex) e.isFeedbackOpen = false;
+        });
+      }
+    }
 
     await saveEvents(events);
 

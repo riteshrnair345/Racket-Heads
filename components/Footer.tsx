@@ -32,9 +32,6 @@ export default function Footer() {
             <li>
               <Link href="/refunds" className="hover:text-brand-pink transition-colors">Cancellation Policy</Link>
             </li>
-            <li>
-              <Link href="/terms#delivery" className="hover:text-brand-pink transition-colors">Service Delivery Policy</Link>
-            </li>
           </ul>
         </div>
 

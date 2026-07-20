@@ -29,7 +29,7 @@ export default function Register() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ticketData, setTicketData] = useState<{ qrId: string; name: string } | null>(null);
+  const [ticketData, setTicketData] = useState<{ qrId: string; name: string; isWaitlisted: boolean } | null>(null);
   
   // Registration limit states
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
@@ -131,7 +131,7 @@ export default function Register() {
 
       if (data.success && data.qrId) {
         // Show success state instantly
-        setTicketData({ qrId: data.qrId, name: data.name });
+        setTicketData({ qrId: data.qrId, name: data.name, isWaitlisted: data.isWaitlisted || false });
         setIsLoading(false);
       } else {
         setError(data.error || "Failed to register. Please try again.");
@@ -158,15 +158,19 @@ export default function Register() {
           
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight mb-2 text-brand-purple">
-              You're In, {ticketData.name}! 🎉
+              {ticketData.isWaitlisted ? `You're on the Waitlist, ${ticketData.name}! ⏳` : `You're In, ${ticketData.name}! 🎉`}
             </h1>
             <p className="text-brand-purple/70 text-sm font-medium mb-3">
-              We've successfully registered you for the session!
+              {ticketData.isWaitlisted ? "The event is currently full, but we've saved your spot in line." : "We've successfully registered you for the session!"}
             </p>
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 inline-block mb-4">
-              <h2 className="text-emerald-700 text-sm font-extrabold uppercase tracking-wider mb-2">🎟️ Ticket Sent to Email</h2>
-              <p className="text-emerald-800 text-sm font-medium">
-                We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!
+            <div className={`border rounded-xl p-4 inline-block mb-4 ${ticketData.isWaitlisted ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'}`}>
+              <h2 className={`${ticketData.isWaitlisted ? 'text-amber-700' : 'text-emerald-700'} text-sm font-extrabold uppercase tracking-wider mb-2`}>
+                {ticketData.isWaitlisted ? '⏳ Waitlist Confirmation Sent' : '🎟️ Ticket Sent to Email'}
+              </h2>
+              <p className={`${ticketData.isWaitlisted ? 'text-amber-800' : 'text-emerald-800'} text-sm font-medium`}>
+                {ticketData.isWaitlisted 
+                  ? "We've emailed your waitlist confirmation. Keep an eye on your inbox—if a spot opens up, we will contact you immediately to upgrade you!"
+                  : "We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!"}
               </p>
             </div>
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 inline-block">
@@ -442,7 +446,7 @@ export default function Register() {
             <div className="pt-8 mt-10 border-t border-brand-purple/10">
               <button
                 type="submit"
-                disabled={isLoading || (selectedEvent && selectedEvent.isFull) || false}
+                disabled={isLoading || false}
                 className="w-full py-5 bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-extrabold text-lg rounded-2xl transition-all shadow-[0_8px_20px_rgba(58,26,93,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_12px_25px_rgba(58,26,93,0.4)] hover:-translate-y-1"
               >
                 {isLoading ? (
@@ -453,7 +457,7 @@ export default function Register() {
                 ) : selectedEvent?.isFull ? (
                   <>
                     <User className="w-6 h-6" />
-                    Event Full
+                    Join Waitlist
                   </>
                 ) : (
                   <>

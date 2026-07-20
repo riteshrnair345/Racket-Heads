@@ -7,6 +7,7 @@ import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
 type RosterItem = {
+  id: string;
   name: string;
   email: string;
   phone?: string;
@@ -15,6 +16,7 @@ type RosterItem = {
   shoes?: string;
   checkInTime: string | null;
   status: "Checked In" | "Pending";
+  registrationStatus?: "Confirmed" | "Waitlisted";
 };
 
 type EventItem = {
@@ -501,7 +503,7 @@ function DashboardView() {
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Participant</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs hidden md:table-cell">Details</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Status</th>
-                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs hidden sm:table-cell">Check-in Time</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs hidden sm:table-cell">Check-in / Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -535,7 +537,12 @@ function DashboardView() {
                         <div className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-emerald-400"/> <span className="text-slate-700">{person.shoes || '-'}</span></div>
                       </td>
                       <td className="px-6 py-5">
-                        {person.status === "Checked In" ? (
+                        {person.registrationStatus === "Waitlisted" ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100 shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            Waitlisted
+                          </span>
+                        ) : person.status === "Checked In" ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             Checked In
@@ -543,12 +550,37 @@ function DashboardView() {
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
                             <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                            Pending
+                            Confirmed (Pending)
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-5 hidden sm:table-cell text-slate-600 font-medium text-sm">
-                        {person.checkInTime ? new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}
+                        {person.registrationStatus === "Waitlisted" ? (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch('/api/promote', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${ADMIN_PIN}`
+                                  },
+                                  body: JSON.stringify({ playerId: person.id, eventId: selectedEventId })
+                                });
+                                if (res.ok) {
+                                  fetchRoster();
+                                } else {
+                                  alert("Failed to promote player");
+                                }
+                              } catch (e) {
+                                alert("Failed to promote player");
+                              }
+                            }}
+                            className="bg-brand-purple text-brand-yellow-light px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-purple/90 transition-colors"
+                          >
+                            Promote
+                          </button>
+                        ) : person.checkInTime ? new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}
                       </td>
                     </tr>
                   ))

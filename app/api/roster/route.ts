@@ -20,6 +20,7 @@ export async function GET(request: Request) {
     const roster = eventPlayers.map(player => {
       const registration = player.registrations.find(r => r.eventId === eventId)!;
       return {
+        id: player.id,
         name: player.name,
         email: player.email,
         phone: player.phone,
@@ -27,12 +28,16 @@ export async function GET(request: Request) {
         duration: player.duration,
         shoes: player.shoes,
         checkInTime: registration.timeWhenCheckedIn,
-        status: registration.checkInStatus
+        status: registration.checkInStatus,
+        registrationStatus: registration.registrationStatus || 'Confirmed'
       };
     });
     
-    // Sort so checked-in players appear first or sort by time
+    // Sort so checked-in players appear first, then confirmed, then waitlisted
     roster.sort((a, b) => {
+      if (a.registrationStatus === 'Confirmed' && b.registrationStatus === 'Waitlisted') return -1;
+      if (a.registrationStatus === 'Waitlisted' && b.registrationStatus === 'Confirmed') return 1;
+      
       if (a.status === 'Checked In' && b.status === 'Pending') return -1;
       if (a.status === 'Pending' && b.status === 'Checked In') return 1;
       return 0;

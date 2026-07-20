@@ -21,6 +21,7 @@ export interface PlayerRegistration {
   eventId: string;
   checkInStatus: 'Pending' | 'Checked In';
   timeWhenCheckedIn: string | null;
+  registrationStatus?: 'Confirmed' | 'Waitlisted';
 }
 
 // Define the player interface

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -855,6 +855,12 @@ function EventsView() {
 function MasterDBView() {
   const [db, setDb] = useState<MasterDBItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [sendEmail, setSendEmail] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     const fetchDb = async () => {
@@ -875,15 +881,87 @@ function MasterDBView() {
     fetchDb();
   }, []);
 
+  const handleOpenModal = async () => {
+    setIsModalOpen(true);
+    try {
+      const res = await fetch('/api/events');
+      const data = await res.json();
+      if (data.success && data.events.length > 0) {
+        setEvents(data.events);
+        setSelectedEventId(data.events[0].id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEventId || selectedIds.size === 0) return;
+    setIsImporting(true);
+    try {
+      const res = await fetch('/api/admin/import-participants', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        },
+        body: JSON.stringify({
+          eventId: selectedEventId,
+          playerIds: Array.from(selectedIds),
+          sendEmail
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        setSelectedIds(new Set());
+        setIsModalOpen(false);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === db.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(db.map(p => p.id)));
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
-          Master Database
-        </h1>
-        <p className="text-slate-500 font-medium text-lg">
-          Complete history of all {db.length} registered players.
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
+            Master Database
+          </h1>
+          <p className="text-slate-500 font-medium text-lg">
+            Complete history of all {db.length} registered players.
+          </p>
+        </div>
+        {selectedIds.size > 0 && (
+          <button
+            onClick={handleOpenModal}
+            className="bg-brand-purple hover:bg-[#2A1244] text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
+          >
+            <Users className="w-5 h-5" />
+            Bulk Add to Event ({selectedIds.size})
+          </button>
+        )}
       </div>
 
       <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
@@ -891,6 +969,14 @@ function MasterDBView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
               <tr>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={db.length > 0 && selectedIds.size === db.length}
+                    onChange={toggleAll}
+                    className="w-4 h-4 text-brand-purple rounded border-slate-300 focus:ring-brand-purple"
+                  />
+                </th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Player</th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Contact</th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">First Seen</th>
@@ -900,10 +986,23 @@ function MasterDBView() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-16 text-center">Loading...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-16 text-center">Loading...</td></tr>
               ) : (
                 db.map(person => (
-                  <tr key={person.id} className="hover:bg-slate-50/80">
+                  <tr key={person.id} className="hover:bg-slate-50/80 cursor-pointer" onClick={(e) => {
+                    // Prevent double toggle if clicking the checkbox directly
+                    if ((e.target as HTMLElement).tagName.toLowerCase() !== 'input') {
+                      toggleSelection(person.id);
+                    }
+                  }}>
+                    <td className="px-6 py-5 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(person.id)}
+                        onChange={() => toggleSelection(person.id)}
+                        className="w-4 h-4 text-brand-purple rounded border-slate-300 focus:ring-brand-purple"
+                      />
+                    </td>
                     <td className="px-6 py-5">
                       <div className="font-bold text-slate-800 text-base">{person.name}</div>
                     </td>
@@ -927,6 +1026,59 @@ function MasterDBView() {
           </table>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-xl font-black text-brand-purple mb-1">Import to Event</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6">Select the destination event for {selectedIds.size} players.</p>
+            
+            <form onSubmit={handleImport} className="space-y-5">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1 block">Target Event</label>
+                {events.length === 0 ? (
+                  <p className="text-rose-500 text-sm font-medium px-1">No events found. Create one first.</p>
+                ) : (
+                  <div className="relative">
+                    <select
+                      required
+                      value={selectedEventId}
+                      onChange={e => setSelectedEventId(e.target.value)}
+                      className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 pr-10 focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+                    >
+                      {events.map(ev => (
+                        <option key={ev.id} value={ev.id}>{ev.name} ({ev.isActive ? "Active" : "Paused"})</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                )}
+              </div>
+              
+              <label className="flex items-center gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={sendEmail}
+                  onChange={(e) => setSendEmail(e.target.checked)}
+                  className="w-5 h-5 text-brand-purple rounded border-slate-300 focus:ring-brand-purple"
+                />
+                <div>
+                  <div className="font-bold text-slate-800">Send Welcome Emails</div>
+                  <div className="text-xs font-medium text-slate-500 mt-0.5">They will receive their QR code tickets.</div>
+                </div>
+              </label>
+
+              <button disabled={isImporting || events.length === 0} type="submit" className="w-full mt-2 bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 rounded-xl transition-all shadow-md flex justify-center items-center gap-2">
+                {isImporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Users className="w-5 h-5" />}
+                {isImporting ? "Importing..." : `Import ${selectedIds.size} Players`}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

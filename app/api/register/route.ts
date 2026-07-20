@@ -45,11 +45,18 @@ export async function POST(request: Request) {
     const confirmedCount = eventPlayers.filter(p => p.registrations?.some(r => r.eventId === targetEventId && r.registrationStatus !== 'Waitlisted')).length;
     const isExisting = eventPlayers.some(p => p.email.toLowerCase() === email.toLowerCase());
     
-    // Check if limit is reached to determine waitlist status
-    const isWaitlisted = confirmedCount >= participantLimit && !isExisting;
-
     // Check if player already exists in the master database
     let player = await getPlayerByEmail(email);
+    
+    const existingRegistration = player?.registrations?.find(r => r.eventId === targetEventId);
+    
+    // If they already have a registration for THIS event, KEEP their previous waitlist status.
+    // Otherwise, check if the limit is reached.
+    let isWaitlisted = existingRegistration ? 
+      existingRegistration.registrationStatus === 'Waitlisted' : 
+      confirmedCount >= participantLimit;
+
+
     const now = new Date().toISOString();
 
     if (player) {
@@ -72,9 +79,7 @@ export async function POST(request: Request) {
       if (regIndex !== -1) {
         // Reset to pending if they re-register
         player.registrations[regIndex].checkInStatus = 'Pending';
-        if (!player.registrations[regIndex].registrationStatus || player.registrations[regIndex].registrationStatus === 'Waitlisted') {
-          player.registrations[regIndex].registrationStatus = isWaitlisted ? 'Waitlisted' : 'Confirmed';
-        }
+        // We keep their current registrationStatus
       } else {
         // Add new registration
         player.registrations.push({

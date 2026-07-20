@@ -376,7 +376,7 @@ function DashboardView() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch('/api/events');
+      const res = await fetch(`/api/events?t=${Date.now()}`);
       const data = await res.json();
       if (data.success && data.events.length > 0) {
         setEvents(data.events);
@@ -400,7 +400,7 @@ function DashboardView() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/roster?eventId=${selectedEventId}`);
+      const response = await fetch(`/api/roster?eventId=${selectedEventId}&t=${Date.now()}`);
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setRoster(data);
@@ -705,7 +705,7 @@ function EventsView() {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch('/api/events');
+      const res = await fetch(`/api/events?t=${Date.now()}`);
       const data = await res.json();
       if (data.success) {
         setEvents(data.events);
@@ -972,7 +972,7 @@ function MasterDBView() {
   const handleOpenModal = async () => {
     setIsModalOpen(true);
     try {
-      const res = await fetch('/api/events');
+      const res = await fetch(`/api/events?t=${Date.now()}`);
       const data = await res.json();
       if (data.success && data.events.length > 0) {
         setEvents(data.events);
@@ -1220,7 +1220,7 @@ function GalleryView() {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/gallery');
+      const res = await fetch(`/api/gallery?t=${Date.now()}`);
       const data = await res.json();
       if (data.success) {
         setItems(data.items);

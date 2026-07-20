@@ -364,6 +364,9 @@ function DashboardView() {
   const [roster, setRoster] = useState<RosterItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addFormData, setAddFormData] = useState({ name: "", email: "", phone: "" });
+  const [isAdding, setIsAdding] = useState(false);
 
   const fetchEvents = async () => {
     try {
@@ -495,6 +498,13 @@ function DashboardView() {
         <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
             <h2 className="text-lg font-black text-slate-800">Live Roster</h2>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              disabled={!selectedEventId}
+              className="bg-brand-purple hover:bg-brand-purple/90 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-sm"
+            >
+              <Users className="w-4 h-4" /> Add Player
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -615,6 +625,60 @@ function DashboardView() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-xl font-black text-brand-purple mb-1">Add Player Manually</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6">Force add a player to this event, bypassing limits.</p>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setIsAdding(true);
+              try {
+                const res = await fetch('/api/admin/add-participant', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_PIN}` },
+                  body: JSON.stringify({ ...addFormData, eventId: selectedEventId })
+                });
+                if (res.ok) {
+                  setIsAddModalOpen(false);
+                  setAddFormData({ name: "", email: "", phone: "" });
+                  fetchRoster();
+                } else {
+                  const text = await res.text();
+                  alert(`Failed to add player: ${text}`);
+                }
+              } catch (err: any) {
+                alert(`Error: ${err.message}`);
+              } finally {
+                setIsAdding(false);
+              }
+            }} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1 block">Full Name</label>
+                <input required type="text" value={addFormData.name} onChange={e => setAddFormData({...addFormData, name: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple focus:bg-white transition-all font-medium text-slate-700" placeholder="John Doe" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1 block">Email</label>
+                <input required type="email" value={addFormData.email} onChange={e => setAddFormData({...addFormData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple focus:bg-white transition-all font-medium text-slate-700" placeholder="john@example.com" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-1 block">Phone (Optional)</label>
+                <input type="text" value={addFormData.phone} onChange={e => setAddFormData({...addFormData, phone: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple focus:bg-white transition-all font-medium text-slate-700" placeholder="+91 9876543210" />
+              </div>
+              
+              <button disabled={isAdding} type="submit" className="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
+                {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <CalendarPlus className="w-5 h-5" />}
+                {isAdding ? "Adding..." : "Add to Event Roster"}
+              </button>
+            </form>
           </div>
         </div>
       )}

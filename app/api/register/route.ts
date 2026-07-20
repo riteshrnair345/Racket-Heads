@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const isExisting = eventPlayers.some(p => p.email.toLowerCase() === email.toLowerCase());
     
     if (eventPlayers.length >= participantLimit && !isExisting) {
-      return NextResponse.json({ success: false, error: \`Registration is full. We have reached the \${participantLimit} player limit for this event.\` }, { status: 403 });
+      return NextResponse.json({ success: false, error: `Registration is full. We have reached the ${participantLimit} player limit for this event.` }, { status: 403 });
     }
 
     // Check if player already exists in the master database
@@ -128,15 +128,15 @@ export async function POST(request: Request) {
 
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(player.qrId)}`;
       
-      const htmlBody = \`
+      const htmlBody = `
         <div style="font-family: Arial, sans-serif; color: #000; font-size: 14px; line-height: 1.6;">
-          <p>Hi \${player.name},</p>
-          <p>You're officially signed up for the \${targetEvent?.name || 'community session'} of RacketHeads Kochi!</p>
+          <p>Hi ${player.name},</p>
+          <p>You're officially signed up for the ${targetEvent?.name || 'community session'} of RacketHeads Kochi!</p>
           
           <p><strong>Sign up details:</strong><br/>
-          Name: \${player.name}<br/>
-          Proficiency: \${player.proficiency}<br/>
-          Phone Number: \${formattedPhone}</p>
+          Name: ${player.name}<br/>
+          Proficiency: ${player.proficiency}<br/>
+          Phone Number: ${formattedPhone}</p>
           
           <p>Get ready for an epic session—we have a great mix of competitive match play lined up alongside some custom challenges and fun group games!</p>
           
@@ -149,11 +149,11 @@ export async function POST(request: Request) {
           <p>Cheers,<br/>
           RacketHeads Kochi Team</p>
         </div>
-      \`;
+      `;
 
       try {
         await transporter.sendMail({
-          from: \`"RacketHeads Kochi" <\${process.env.EMAIL_USER}>\`,
+          from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
           to: player.email,
           subject: "🏸 You're in! Welcome to RacketHeads Kochi 🏸",
           html: htmlBody,

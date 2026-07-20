@@ -78,3 +78,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Missing feedback ID' }, { status: 400 });
+    }
+
+    const feedbacks = await getFeedbacks();
+    const updatedFeedbacks = feedbacks.filter(f => f.id !== id);
+    await saveFeedbacks(updatedFeedbacks);
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Feedback deletion error:', error);
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+  }
+}

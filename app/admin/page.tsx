@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -504,13 +504,6 @@ function DashboardView() {
         <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
             <h2 className="text-lg font-black text-slate-800">Live Roster</h2>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              disabled={!selectedEventId}
-              className="bg-brand-purple hover:bg-brand-purple/90 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 shadow-sm"
-            >
-              <Users className="w-4 h-4" /> Add Player
-            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -1061,15 +1054,6 @@ function MasterDBView() {
             Complete history of all {db.length} registered players.
           </p>
         </div>
-        {selectedIds.size > 0 && (
-          <button
-            onClick={handleOpenModal}
-            className="bg-brand-purple hover:bg-[#2A1244] text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
-          >
-            <Users className="w-5 h-5" />
-            Bulk Add to Event ({selectedIds.size})
-          </button>
-        )}
       </div>
 
       <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
@@ -1291,6 +1275,33 @@ function GalleryView() {
     }
   };
 
+  const handleMove = async (index: number, direction: 'left' | 'right') => {
+    const newItems = [...items];
+    if (direction === 'left' && index > 0) {
+      [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+    } else if (direction === 'right' && index < newItems.length - 1) {
+      [newItems[index + 1], newItems[index]] = [newItems[index], newItems[index + 1]];
+    } else {
+      return;
+    }
+    
+    setItems(newItems); // Optimistic UI update
+    
+    try {
+      await fetch('/api/gallery/reorder', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderedIds: newItems.map(i => i.id) })
+      });
+    } catch (err) {
+      console.error(err);
+      fetchItems(); // Revert on failure
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 mb-8">
@@ -1378,7 +1389,7 @@ function GalleryView() {
           <div className="text-center py-12 text-slate-500">No media found in the gallery.</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {items.map(item => (
+            {items.map((item, index) => (
               <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50">
                 {item.type === 'video' ? (
                   <video src={item.url} className="w-full h-full object-cover" muted loop playsInline />
@@ -1386,13 +1397,29 @@ function GalleryView() {
                   <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
                 )}
                 
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button 
+                    onClick={() => handleMove(index, 'left')}
+                    disabled={index === 0}
+                    className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
+                    title="Move Left"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
                   <button 
                     onClick={() => handleDelete(item.id)}
                     className="bg-white text-rose-500 p-2 rounded-xl hover:bg-rose-50 transition-colors shadow-lg"
                     title="Delete Media"
                   >
                     <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => handleMove(index, 'right')}
+                    disabled={index === items.length - 1}
+                    className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
+                    title="Move Right"
+                  >
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -1413,7 +1440,7 @@ function FeedbackView() {
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const res = await fetch('/api/feedback', {
+        const res = await fetch(`/api/feedback?t=${Date.now()}`, {
           headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
         });
         const data = await res.json();
@@ -1428,6 +1455,27 @@ function FeedbackView() {
     };
     fetchFeedbacks();
   }, []);
+
+  const handleDeleteFeedback = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this feedback?')) return;
+    try {
+      const res = await fetch(`/api/feedback?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
+      });
+      if (res.ok) {
+        setFeedbacks(prev => prev.filter(f => f.id !== id));
+        if (selectedFeedback?.id === id) {
+          setSelectedFeedback(null);
+        }
+      } else {
+        alert('Failed to delete feedback');
+      }
+    } catch (err) {
+      alert('Error deleting feedback');
+    }
+  };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -1468,11 +1516,20 @@ function FeedbackView() {
                 <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black flex items-center gap-1">
                   <Star className="w-3 h-3 fill-amber-700" /> {fb.overallRating}/5
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-bold text-slate-800">{fb.playerName || "Anonymous"}</div>
-                  <div className="text-xs font-medium text-slate-400">
-                    {new Date(fb.submittedAt).toLocaleDateString()}
+                <div className="flex gap-2 text-right">
+                  <div>
+                    <div className="text-sm font-bold text-slate-800">{fb.playerName || "Anonymous"}</div>
+                    <div className="text-xs font-medium text-slate-400">
+                      {new Date(fb.submittedAt).toLocaleDateString()}
+                    </div>
                   </div>
+                  <button
+                    onClick={(e) => handleDeleteFeedback(e, fb.id)}
+                    className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors self-start"
+                    title="Delete Feedback"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
               

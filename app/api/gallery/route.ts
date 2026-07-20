@@ -6,9 +6,8 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const items = await getGalleryItems();
-    // Sort by createdAt descending
-    const sortedItems = [...items].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return NextResponse.json({ success: true, items: sortedItems });
+    // Return items in their saved order
+    return NextResponse.json({ success: true, items });
   } catch (error: any) {
     console.error('Gallery fetch error:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString()
     };
     
-    items.push(newItem);
+    items.unshift(newItem);
     await saveGalleryItems(items);
 
     return NextResponse.json({ success: true, item: newItem });

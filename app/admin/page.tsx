@@ -570,10 +570,11 @@ function DashboardView() {
                                 if (res.ok) {
                                   fetchRoster();
                                 } else {
-                                  alert("Failed to promote player");
+                                  const text = await res.text();
+                                  alert(`Failed to promote player: ${text}`);
                                 }
-                              } catch (e) {
-                                alert("Failed to promote player");
+                              } catch (e: any) {
+                                alert(`Failed to promote player: ${e.message}`);
                               }
                             }}
                             className="bg-brand-purple text-brand-yellow-light px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-purple/90 transition-colors"
@@ -581,6 +582,33 @@ function DashboardView() {
                             Promote
                           </button>
                         ) : person.checkInTime ? new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Are you sure you want to remove ${person.name} from this event?`)) return;
+                            try {
+                              const res = await fetch('/api/delete-participant', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${ADMIN_PIN}`
+                                },
+                                body: JSON.stringify({ playerId: person.id, eventId: selectedEventId })
+                              });
+                              if (res.ok) {
+                                fetchRoster();
+                              } else {
+                                const text = await res.text();
+                                alert(`Failed to remove player: ${text}`);
+                              }
+                            } catch (e: any) {
+                              alert(`Failed to remove player: ${e.message}`);
+                            }
+                          }}
+                          className="ml-3 p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors inline-flex items-center justify-center"
+                          title="Remove Participant"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))

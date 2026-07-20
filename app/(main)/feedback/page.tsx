@@ -199,7 +199,7 @@ export default function FeedbackPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 font-sans selection:bg-brand-purple/20">
+    <div className="min-h-screen bg-slate-50 pt-32 pb-12 px-4 font-sans selection:bg-brand-purple/20">
       <div className="max-w-3xl mx-auto">
         
         {/* Header */}

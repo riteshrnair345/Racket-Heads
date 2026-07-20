@@ -886,7 +886,6 @@ function GalleryView() {
               value={url} 
               onChange={e=>setUrl(e.target.value)} 
               placeholder="https://..."
-              disabled={!!file}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50" 
             />
           </div>

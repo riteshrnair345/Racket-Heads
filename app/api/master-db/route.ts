@@ -10,17 +10,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { getPlayers, getEvents } = await import('@/lib/db');
     const players = await getPlayers();
+    const events = await getEvents();
+    const validEventIds = new Set(events.map(e => e.id));
     
     const masterDb = players.map(player => {
+      const validRegistrations = (player.registrations || []).filter(r => validEventIds.has(r.eventId));
       return {
         id: player.id,
         name: player.name,
         email: player.email,
         phone: player.phone,
         firstSeen: player.firstSeen,
-        eventsAttended: player.registrations?.filter(r => r.checkInStatus === 'Checked In').length || player.eventsAttended,
-        totalRegistrations: player.registrations?.length || (player.checkInStatus ? 1 : 0),
+        eventsAttended: validRegistrations.filter(r => r.checkInStatus === 'Checked In').length || player.eventsAttended,
+        totalRegistrations: validRegistrations.length || (player.checkInStatus ? 1 : 0),
       };
     });
     

@@ -114,6 +114,23 @@ export async function DELETE(request: Request) {
 
     await saveEvents(events);
 
+    // Also remove any registrations for this event from all players
+    const { getPlayers, savePlayers } = await import('@/lib/db');
+    const players = await getPlayers();
+    let playersModified = false;
+    for (const player of players) {
+      if (player.registrations) {
+        const initialRegCount = player.registrations.length;
+        player.registrations = player.registrations.filter(r => r.eventId !== id);
+        if (player.registrations.length !== initialRegCount) {
+          playersModified = true;
+        }
+      }
+    }
+    if (playersModified) {
+      await savePlayers(players);
+    }
+
     return NextResponse.json({ success: true, message: 'Event deleted' });
   } catch (error: any) {
     console.error('Event deletion error:', error);

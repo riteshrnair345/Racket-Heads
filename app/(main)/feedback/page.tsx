@@ -64,7 +64,7 @@ export default function FeedbackPage() {
         const res = await fetch('/api/events');
         const data = await res.json();
         if (data.success) {
-          const activeEvents = data.events.filter((e: any) => e.isActive);
+          const activeEvents = data.events.filter((e: any) => e.isFeedbackOpen);
           if (activeEvents.length > 0) {
             const activeEvent = activeEvents[0];
             setFormData(prev => ({...prev, eventId: activeEvent.id, eventName: activeEvent.name}));

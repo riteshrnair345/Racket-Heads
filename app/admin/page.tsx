@@ -26,6 +26,7 @@ type EventItem = {
   date: string;
   participantLimit: number;
   isActive: boolean;
+  isFeedbackOpen?: boolean;
   createdAt: string;
 };
 
@@ -761,6 +762,22 @@ function EventsView() {
     }
   };
 
+  const toggleFeedbackActive = async (event: EventItem) => {
+    try {
+      await fetch('/api/events', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        },
+        body: JSON.stringify({ id: event.id, isFeedbackOpen: !event.isFeedbackOpen })
+      });
+      fetchEvents();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleEditSave = async (event: EventItem) => {
     try {
       const res = await fetch('/api/events', {
@@ -839,58 +856,35 @@ function EventsView() {
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Event Name</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Date</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Limit</th>
-                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Status</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Registration</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Feedback</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
-                  <tr><td colSpan={4} className="px-6 py-8 text-center">Loading...</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-8 text-center">Loading...</td></tr>
                 ) : events.length === 0 ? (
-                  <tr><td colSpan={4} className="px-6 py-8 text-center">No events found.</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-8 text-center">No events found.</td></tr>
                 ) : (
                   events.map(event => (
                     <tr key={event.id} className="hover:bg-slate-50/80">
                       {editingEventId === event.id ? (
                         <>
                           <td className="px-6 py-5">
-                            <input 
-                              type="text" 
-                              value={editForm.name} 
-                              onChange={e => setEditForm({...editForm, name: e.target.value})}
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
-                            />
+                            <input type="text" value={editForm.name} onChange={e=>setEditForm({...editForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
-                            <input 
-                              type="date" 
-                              value={editForm.date} 
-                              onChange={e => setEditForm({...editForm, date: e.target.value})}
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
-                            />
+                            <input type="date" value={editForm.date} onChange={e=>setEditForm({...editForm, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
-                            <input 
-                              type="number" 
-                              value={editForm.participantLimit} 
-                              onChange={e => setEditForm({...editForm, participantLimit: parseInt(e.target.value) || 0})}
-                              className="w-20 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
-                            />
+                            <input type="number" value={editForm.participantLimit} onChange={e=>setEditForm({...editForm, participantLimit: parseInt(e.target.value)})} className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditSave(event)}
-                                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-purple text-white hover:bg-[#2A1244] transition-colors flex items-center gap-1"
-                              >
-                                <Save className="w-3.5 h-3.5" /> Save
-                              </button>
-                              <button
-                                onClick={() => setEditingEventId(null)}
-                                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
+                          <td className="px-6 py-5"></td>
+                          <td className="px-6 py-5"></td>
+                          <td className="px-6 py-5 text-right">
+                            <button onClick={() => handleEditSave(event)} className="text-emerald-600 font-bold hover:underline">Save</button>
+                            <button onClick={() => setEditingEventId(null)} className="ml-3 text-slate-400 font-bold hover:underline">Cancel</button>
                           </td>
                         </>
                       ) : (
@@ -899,30 +893,34 @@ function EventsView() {
                           <td className="px-6 py-5 text-slate-600 font-medium">{event.date}</td>
                           <td className="px-6 py-5 text-slate-600 font-medium">{event.participantLimit}</td>
                           <td className="px-6 py-5">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => toggleActive(event)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                                  event.isActive ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
-                                }`}
-                              >
-                                {event.isActive ? 'Active (Click to Pause)' : 'Paused (Click to Start)'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setEditingEventId(event.id);
-                                  setEditForm({ name: event.name, date: event.date, participantLimit: event.participantLimit });
-                                }}
-                                title="Edit Event"
-                                className="p-1.5 rounded-xl text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 transition-colors"
-                              >
+                            <button
+                              onClick={() => toggleActive(event)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors w-full text-center ${
+                                event.isActive ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
+                              }`}
+                            >
+                              {event.isActive ? '🟢 Open' : '🔴 Closed'}
+                            </button>
+                          </td>
+                          <td className="px-6 py-5">
+                            <button
+                              onClick={() => toggleFeedbackActive(event)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors w-full text-center ${
+                                event.isFeedbackOpen ? 'bg-brand-purple/10 text-brand-purple hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-brand-purple/10 hover:text-brand-purple'
+                              }`}
+                            >
+                              {event.isFeedbackOpen ? '🟢 Live' : '🔴 Closed'}
+                            </button>
+                          </td>
+                          <td className="px-6 py-5 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button onClick={() => {
+                                setEditingEventId(event.id);
+                                setEditForm({name: event.name, date: event.date, participantLimit: event.participantLimit});
+                              }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">
                                 <Edit2 className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => handleDelete(event)}
-                                title="Delete Event"
-                                className="p-1.5 rounded-xl text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-colors"
-                              >
+                              <button onClick={() => handleDelete(event)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>

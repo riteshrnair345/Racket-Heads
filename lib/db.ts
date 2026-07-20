@@ -13,7 +13,8 @@ export interface Event {
   name: string;
   date: string;
   participantLimit: number;
-  isActive: boolean;
+  isActive: boolean; // For Registrations
+  isFeedbackOpen?: boolean; // For Feedback
   createdAt: string;
 }
 

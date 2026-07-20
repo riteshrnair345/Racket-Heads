@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, date, participantLimit, isActive } = body;
+    const { name, date, participantLimit, isActive, isFeedbackOpen } = body;
 
     if (!name || !date || typeof participantLimit !== 'number') {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -41,6 +41,7 @@ export async function POST(request: Request) {
       date,
       participantLimit,
       isActive: isActive || false,
+      isFeedbackOpen: isFeedbackOpen || false,
       createdAt: new Date().toISOString()
     };
     
@@ -62,7 +63,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, name, date, participantLimit, isActive } = body;
+    const { id, name, date, participantLimit, isActive, isFeedbackOpen } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing event ID' }, { status: 400 });
@@ -80,6 +81,7 @@ export async function PUT(request: Request) {
     if (date) events[eventIndex].date = date;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
+    if (typeof isFeedbackOpen === 'boolean') events[eventIndex].isFeedbackOpen = isFeedbackOpen;
 
     await saveEvents(events);
 

@@ -64,7 +64,12 @@ export default function FeedbackPage() {
         const res = await fetch('/api/events');
         const data = await res.json();
         if (data.success) {
-          setEvents(data.events.filter((e: any) => e.isActive)); // Only show active events
+          const activeEvents = data.events.filter((e: any) => e.isActive);
+          if (activeEvents.length > 0) {
+            const activeEvent = activeEvents[0];
+            setFormData(prev => ({...prev, eventId: activeEvent.id, eventName: activeEvent.name}));
+          }
+          setEvents(activeEvents); // Only show active events
         }
       } catch (err) {
         console.error("Failed to load events", err);
@@ -77,11 +82,6 @@ export default function FeedbackPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (step === 1 && !formData.eventId) {
-      alert("Please select the event you attended before proceeding.");
-      return;
-    }
 
     if (step < 4) {
       setStep(step + 1);
@@ -248,7 +248,26 @@ export default function FeedbackPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-6 sm:p-10 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-300">
+        {loadingEvents ? (
+          <div className="text-center py-20 text-slate-500 font-bold flex flex-col items-center justify-center gap-4 bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10">
+            <Loader2 className="w-10 h-10 animate-spin text-brand-purple" />
+            Loading Feedback Form...
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-slate-400" />
+            </div>
+            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">Feedback Closed</h2>
+            <p className="text-slate-500 text-lg mb-8 leading-relaxed">
+              There are currently no active events accepting feedback. Please check back later!
+            </p>
+            <Link href="/" className="inline-block bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md">
+              Return to Homepage
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-6 sm:p-10 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-300">
           
           {step === 1 && (
             <div className="space-y-10 animate-in slide-in-from-right-8 duration-300">
@@ -257,28 +276,6 @@ export default function FeedbackPage() {
                 <h2 className="text-2xl font-black">Section 1: Overall Experience</h2>
               </div>
               
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">Which event did you attend?</label>
-                {loadingEvents ? (
-                  <div className="text-slate-500 animate-pulse text-sm font-bold flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading recent events...</div>
-                ) : (
-                  <select 
-                    value={formData.eventId}
-                    onChange={(e) => {
-                      const evt = events.find(ev => ev.id === e.target.value);
-                      setFormData({...formData, eventId: e.target.value, eventName: evt ? evt.name : ''});
-                    }}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-brand-purple"
-                    required
-                  >
-                    <option value="" disabled>Select an event...</option>
-                    {events.map(ev => (
-                      <option key={ev.id} value={ev.id}>{ev.name} ({new Date(ev.date).toLocaleDateString()})</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at today's event?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}
@@ -465,6 +462,7 @@ export default function FeedbackPage() {
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

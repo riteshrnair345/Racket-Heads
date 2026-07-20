@@ -862,22 +862,23 @@ function MasterDBView() {
   const [sendEmail, setSendEmail] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
-  useEffect(() => {
-    const fetchDb = async () => {
-      try {
-        const res = await fetch('/api/master-db', {
-          headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
-        });
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setDb(data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchDb = async () => {
+    try {
+      const res = await fetch('/api/master-db', {
+        headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setDb(data);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDb();
   }, []);
 
@@ -942,6 +943,26 @@ function MasterDBView() {
     }
   };
 
+  const handleDeleteMaster = async (id: string, name: string) => {
+    if (!window.confirm(`Are you SURE you want to completely remove ${name} from the Master Database? This will erase all their past event history.`)) return;
+    
+    try {
+      const res = await fetch('/api/admin/delete-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ADMIN_PIN}` },
+        body: JSON.stringify({ playerId: id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchDb();
+      } else {
+        alert(`Failed to delete: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -982,6 +1003,7 @@ function MasterDBView() {
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">First Seen</th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Events Registered</th>
                 <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Events Attended</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -1018,6 +1040,18 @@ function MasterDBView() {
                     </td>
                     <td className="px-6 py-5 text-emerald-600 font-bold text-center">
                       {person.eventsAttended}
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMaster(person.id, person.name);
+                        }}
+                        title="Delete from Master DB"
+                        className="p-2 rounded-xl text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors inline-flex items-center justify-center"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))

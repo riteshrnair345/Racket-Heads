@@ -59,6 +59,7 @@ export interface Feedback {
   submittedAt: string;
   eventId?: string;
   eventName?: string;
+  playerName?: string;
   
   // Section 1
   overallRating: number; // 1-5

@@ -34,6 +34,10 @@ export async function POST(request: Request) {
       id: randomUUID(),
       submittedAt: new Date().toISOString(),
       
+      eventId: body.eventId,
+      eventName: body.eventName,
+      playerName: body.playerName || "",
+      
       overallRating: body.overallRating,
       likelyToAttend: body.likelyToAttend || 0,
       nps: body.nps || 0,
@@ -61,9 +65,7 @@ export async function POST(request: Request) {
       addToCommunity: body.addToCommunity || "",
       finalSuggestions: body.finalSuggestions || "",
       
-      threeWords: body.threeWords || "",
-      eventId: body.eventId || "",
-      eventName: body.eventName || ""
+      threeWords: body.threeWords || ""
     };
 
     const feedbacks = await getFeedbacks();

@@ -1468,8 +1468,11 @@ function FeedbackView() {
                 <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black flex items-center gap-1">
                   <Star className="w-3 h-3 fill-amber-700" /> {fb.overallRating}/5
                 </div>
-                <div className="text-xs font-bold text-slate-400">
-                  {new Date(fb.submittedAt).toLocaleDateString()}
+                <div className="text-right">
+                  <div className="text-sm font-bold text-slate-800">{fb.playerName || "Anonymous"}</div>
+                  <div className="text-xs font-medium text-slate-400">
+                    {new Date(fb.submittedAt).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
               
@@ -1499,6 +1502,7 @@ function FeedbackView() {
             </button>
             <h3 className="text-2xl font-black text-slate-800 mb-2">Detailed Review</h3>
             <div className="text-sm font-medium text-slate-500 mb-6 border-b border-slate-100 pb-4 flex flex-col gap-1">
+              <span className="font-bold text-slate-700 text-base">Player: {selectedFeedback.playerName || "Anonymous"}</span>
               <span>Submitted on {new Date(selectedFeedback.submittedAt).toLocaleString()}</span>
               {selectedFeedback.eventName && (
                 <span className="text-brand-purple font-bold">Event: {selectedFeedback.eventName}</span>

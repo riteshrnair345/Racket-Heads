@@ -12,6 +12,7 @@ export default function FeedbackPage() {
   const [formData, setFormData] = useState({
     eventId: '',
     eventName: '',
+    playerName: '',
     overallRating: 0,
     likelyToAttend: -1,
     nps: -1,
@@ -276,6 +277,17 @@ export default function FeedbackPage() {
                 <h2 className="text-2xl font-black">Section 1: Overall Experience</h2>
               </div>
               
+              <div className="space-y-4">
+                <label className="block text-lg font-bold text-slate-800">Your Name (Optional)</label>
+                <input 
+                  type="text" 
+                  value={formData.playerName}
+                  onChange={(e) => setFormData({...formData, playerName: e.target.value})}
+                  placeholder="Enter your name..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-brand-purple"
+                />
+              </div>
+
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at today's event?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}

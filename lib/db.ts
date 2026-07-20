@@ -56,6 +56,9 @@ const FEEDBACK_KEY = 'twb_feedbacks';
 export interface Feedback {
   id: string;
   submittedAt: string;
+  eventId?: string;
+  eventName?: string;
+  
   // Section 1
   overallRating: number; // 1-5
   likelyToAttend: number; // 0-10

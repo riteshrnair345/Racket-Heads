@@ -1410,6 +1410,7 @@ function FeedbackView() {
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null);
+  const [filterEventId, setFilterEventId] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
@@ -1432,13 +1433,29 @@ function FeedbackView() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
-          Player Feedback
-        </h1>
-        <p className="text-slate-500 font-medium text-lg">
-          Insights and suggestions from {feedbacks.length} players.
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
+            Player Feedback
+          </h1>
+          <p className="text-slate-500 font-medium text-lg">
+            Insights and suggestions from {feedbacks.length} players.
+          </p>
+        </div>
+        
+        {!loading && feedbacks.length > 0 && (
+          <select 
+            value={filterEventId}
+            onChange={(e) => setFilterEventId(e.target.value)}
+            className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          >
+            <option value="ALL">All Events</option>
+            {Array.from(new Set(feedbacks.map(f => f.eventId).filter(Boolean))).map(id => {
+              const name = feedbacks.find(f => f.eventId === id)?.eventName || id;
+              return <option key={id as string} value={id as string}>{name}</option>
+            })}
+          </select>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1447,7 +1464,7 @@ function FeedbackView() {
         ) : feedbacks.length === 0 ? (
           <div className="col-span-full py-12 text-center text-slate-500 font-bold">No feedback received yet.</div>
         ) : (
-          feedbacks.map(fb => (
+          (filterEventId === "ALL" ? feedbacks : feedbacks.filter(f => f.eventId === filterEventId)).map(fb => (
             <div key={fb.id} onClick={() => setSelectedFeedback(fb)} className="bg-white border border-slate-200/80 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
               <div className="flex justify-between items-start mb-4">
                 <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black flex items-center gap-1">
@@ -1457,6 +1474,13 @@ function FeedbackView() {
                   {new Date(fb.submittedAt).toLocaleDateString()}
                 </div>
               </div>
+              
+              {fb.eventName && (
+                <div className="inline-block bg-brand-purple/5 text-brand-purple text-xs font-bold px-2 py-1 rounded-md mb-3">
+                  {fb.eventName}
+                </div>
+              )}
+              
               <h3 className="font-bold text-slate-800 mb-1 truncate">"{fb.threeWords || 'No three words'}"</h3>
               <p className="text-slate-600 text-sm line-clamp-3 mb-4">{fb.enjoyedMost || 'No comment provided.'}</p>
               
@@ -1476,9 +1500,12 @@ function FeedbackView() {
               <XCircle className="w-6 h-6" />
             </button>
             <h3 className="text-2xl font-black text-slate-800 mb-2">Detailed Review</h3>
-            <p className="text-sm font-medium text-slate-500 mb-6 border-b border-slate-100 pb-4">
-              Submitted on {new Date(selectedFeedback.submittedAt).toLocaleString()}
-            </p>
+            <div className="text-sm font-medium text-slate-500 mb-6 border-b border-slate-100 pb-4 flex flex-col gap-1">
+              <span>Submitted on {new Date(selectedFeedback.submittedAt).toLocaleString()}</span>
+              {selectedFeedback.eventName && (
+                <span className="text-brand-purple font-bold">Event: {selectedFeedback.eventName}</span>
+              )}
+            </div>
             
             <div className="space-y-6">
               <div className="grid grid-cols-3 gap-4">

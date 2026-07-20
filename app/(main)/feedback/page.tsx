@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2, Star, CheckCircle, Smile, MessageSquare, Target, Heart, ArrowRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
@@ -10,6 +10,8 @@ export default function FeedbackPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
+    eventId: '',
+    eventName: '',
     overallRating: 0,
     likelyToAttend: -1,
     nps: -1,
@@ -53,8 +55,34 @@ export default function FeedbackPage() {
     setFormData({ ...formData, [field]: newArr });
   };
 
+  const [events, setEvents] = useState<any[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('/api/events');
+        const data = await res.json();
+        if (data.success) {
+          setEvents(data.events.filter((e: any) => e.isActive)); // Only show active events
+        }
+      } catch (err) {
+        console.error("Failed to load events", err);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (step === 1 && !formData.eventId) {
+      alert("Please select the event you attended before proceeding.");
+      return;
+    }
+
     if (step < 4) {
       setStep(step + 1);
       window.scrollTo(0, 0);
@@ -229,6 +257,28 @@ export default function FeedbackPage() {
                 <h2 className="text-2xl font-black">Section 1: Overall Experience</h2>
               </div>
               
+              <div className="space-y-4">
+                <label className="block text-lg font-bold text-slate-800">Which event did you attend?</label>
+                {loadingEvents ? (
+                  <div className="text-slate-500 animate-pulse text-sm font-bold flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading recent events...</div>
+                ) : (
+                  <select 
+                    value={formData.eventId}
+                    onChange={(e) => {
+                      const evt = events.find(ev => ev.id === e.target.value);
+                      setFormData({...formData, eventId: e.target.value, eventName: evt ? evt.name : ''});
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-brand-purple"
+                    required
+                  >
+                    <option value="" disabled>Select an event...</option>
+                    {events.map(ev => (
+                      <option key={ev.id} value={ev.id}>{ev.name} ({new Date(ev.date).toLocaleDateString()})</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at today's event?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}

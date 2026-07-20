@@ -61,7 +61,9 @@ export async function POST(request: Request) {
       addToCommunity: body.addToCommunity || "",
       finalSuggestions: body.finalSuggestions || "",
       
-      threeWords: body.threeWords || ""
+      threeWords: body.threeWords || "",
+      eventId: body.eventId || "",
+      eventName: body.eventName || ""
     };
 
     const feedbacks = await getFeedbacks();

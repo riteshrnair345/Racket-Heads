@@ -24,9 +24,6 @@ export default function Footer() {
           <h4 className="text-lg font-bold text-white">Quick Links</h4>
           <ul className="space-y-2 text-sm font-medium">
             <li>
-              <Link href="/feedback" className="hover:text-brand-pink transition-colors font-bold text-brand-yellow">Submit Event Feedback</Link>
-            </li>
-            <li>
               <Link href="/terms" className="hover:text-brand-pink transition-colors">Terms & Conditions</Link>
             </li>
             <li>

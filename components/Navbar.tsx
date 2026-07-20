@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: '/', label: 'Home' },
     { href: '/gallery', label: 'Gallery' },
     { href: '/itinerary', label: 'Itinerary' },
+    { href: '/feedback', label: 'Feedback' },
   ];
 
   return (

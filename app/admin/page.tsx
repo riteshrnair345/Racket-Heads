@@ -811,8 +811,10 @@ function GalleryView() {
   const [items, setItems] = useState<any[]>([]);
   const [url, setUrl] = useState("");
   const [alt, setAlt] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -835,19 +837,39 @@ function GalleryView() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url) return;
+    if (!url && !file) return;
     setAdding(true);
     try {
+      let finalUrl = url;
+      let finalType = "";
+
+      if (file) {
+        const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
+          },
+          body: file
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadData.success) {
+          throw new Error(uploadData.error || "Upload failed");
+        }
+        finalUrl = uploadData.url;
+        finalType = file.type.startsWith('video/') ? 'video' : 'image';
+      }
+
       await fetch('/api/gallery', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
         },
-        body: JSON.stringify({ url, alt })
+        body: JSON.stringify({ url: finalUrl, alt, type: finalType || undefined })
       });
       setUrl("");
       setAlt("");
+      setFile(null);
       fetchItems();
     } catch (err) {
       console.error(err);
@@ -879,13 +901,54 @@ function GalleryView() {
           <ImageIcon className="w-5 h-5 text-brand-pink" /> Add Media to Gallery
         </h2>
         <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
-          <div className="lg:col-span-3">
-            <label className="block text-sm font-bold text-slate-500 mb-1">Media URL</label>
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-bold text-slate-500 mb-1">Local File (Overrides URL)</label>
+            <input 
+              type="file" 
+              accept="image/jpeg, image/png, image/webp, video/mp4, video/webm, video/quicktime, .mov, .heic"
+              onChange={async (e) => {
+                const selected = e.target.files ? e.target.files[0] : null;
+                if (!selected) {
+                  setFile(null);
+                  return;
+                }
+                
+                if (selected.name.toLowerCase().endsWith('.heic')) {
+                  try {
+                    setConverting(true);
+                    const heic2any = (await import('heic2any')).default;
+                    const convertedBlob = await heic2any({
+                      blob: selected,
+                      toType: "image/jpeg",
+                      quality: 0.8
+                    });
+                    
+                    const blobToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                    const newFile = new File([blobToUse], selected.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+                    setFile(newFile);
+                  } catch (err) {
+                    console.error("HEIC conversion error:", err);
+                    alert("Failed to convert HEIC image. Please manually convert it to JPG.");
+                    e.target.value = "";
+                    setFile(null);
+                  } finally {
+                    setConverting(false);
+                  }
+                } else {
+                  setFile(selected);
+                }
+              }}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <label className="block text-sm font-bold text-slate-500 mb-1">OR Media URL</label>
             <input 
               type="url" 
               value={url} 
               onChange={e=>setUrl(e.target.value)} 
               placeholder="https://..."
+              disabled={!!file}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50" 
             />
           </div>
@@ -900,8 +963,8 @@ function GalleryView() {
             />
           </div>
           <div className="lg:col-span-1">
-            <button disabled={adding} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50">
-              {adding ? "Adding..." : "Add Media"}
+            <button disabled={adding || converting} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50">
+              {adding ? "Adding..." : converting ? "Converting..." : "Add Media"}
             </button>
           </div>
         </form>

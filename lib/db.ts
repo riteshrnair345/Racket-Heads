@@ -51,6 +51,63 @@ export interface Player {
 
 const ROSTER_KEY = 'twb_roster';
 const EVENTS_KEY = 'twb_events';
+const FEEDBACK_KEY = 'twb_feedbacks';
+
+export interface Feedback {
+  id: string;
+  submittedAt: string;
+  // Section 1
+  overallRating: number; // 1-5
+  likelyToAttend: number; // 0-10
+  nps: number; // 0-10
+  
+  // Section 2
+  enjoyedMost: string;
+  ratings: {
+    organization: string;
+    scheduling: string;
+    venue: string;
+    gameQuality: string;
+    communityVibe: string;
+    hosts: string;
+    refreshments: string;
+  };
+  matchesFair: string;
+  enoughPlayTime: string;
+  durationAppropriate: string;
+  
+  // Section 3
+  improvements: string;
+  issuesFaced: string;
+  futureEventsWanted: string[];
+  preferredDays: string[];
+  
+  // Section 4
+  heardFrom: string;
+  addToCommunity: string;
+  finalSuggestions: string;
+  
+  // Bonus
+  threeWords: string;
+}
+
+export async function getFeedbacks(): Promise<Feedback[]> {
+  const data = await kv.get(FEEDBACK_KEY);
+  if (!data) return [];
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data) as Feedback[];
+    }
+    return data as any as Feedback[];
+  } catch (e) {
+    console.error("Failed to parse Feedbacks JSON from Redis", e);
+    return [];
+  }
+}
+
+export async function saveFeedbacks(feedbacks: Feedback[]): Promise<void> {
+  await kv.set(FEEDBACK_KEY, JSON.stringify(feedbacks));
+}
 
 export async function getEvents(): Promise<Event[]> {
   const data = await kv.get(EVENTS_KEY);

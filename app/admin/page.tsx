@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -39,7 +39,7 @@ type MasterDBItem = {
 };
 
 export default function WeekendBaddieApp() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "scanner" | "events" | "master" | "gallery">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "scanner" | "events" | "gallery" | "master" | "feedback">("dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
@@ -103,6 +103,9 @@ export default function WeekendBaddieApp() {
                 <button onClick={() => setActiveTab("master")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "master" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
                   <Database className="w-4 h-4" /> <span className="hidden sm:inline">Master DB</span>
                 </button>
+                <button onClick={() => setActiveTab("feedback")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "feedback" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <MessageSquare className="w-4 h-4" /> <span className="hidden sm:inline">Feedback</span>
+                </button>
               </div>
               <button onClick={handleLogout} title="Lock App" className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100">
                 <LogOut className="w-5 h-5" />
@@ -118,6 +121,7 @@ export default function WeekendBaddieApp() {
         {activeTab === "events" && <EventsView />}
         {activeTab === "gallery" && <GalleryView />}
         {activeTab === "master" && <MasterDBView />}
+        {activeTab === "feedback" && <FeedbackView />}
       </main>
     </div>
   );
@@ -1397,6 +1401,162 @@ function GalleryView() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function FeedbackView() {
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      try {
+        const res = await fetch('/api/feedback', {
+          headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setFeedbacks(data.feedbacks);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeedbacks();
+  }, []);
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="mb-8">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
+          Player Feedback
+        </h1>
+        <p className="text-slate-500 font-medium text-lg">
+          Insights and suggestions from {feedbacks.length} players.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          <div className="col-span-full py-12 text-center text-slate-500 font-bold">Loading feedbacks...</div>
+        ) : feedbacks.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-slate-500 font-bold">No feedback received yet.</div>
+        ) : (
+          feedbacks.map(fb => (
+            <div key={fb.id} onClick={() => setSelectedFeedback(fb)} className="bg-white border border-slate-200/80 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black flex items-center gap-1">
+                  <Star className="w-3 h-3 fill-amber-700" /> {fb.overallRating}/5
+                </div>
+                <div className="text-xs font-bold text-slate-400">
+                  {new Date(fb.submittedAt).toLocaleDateString()}
+                </div>
+              </div>
+              <h3 className="font-bold text-slate-800 mb-1 truncate">"{fb.threeWords || 'No three words'}"</h3>
+              <p className="text-slate-600 text-sm line-clamp-3 mb-4">{fb.enjoyedMost || 'No comment provided.'}</p>
+              
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500">
+                <span>NPS: {fb.nps}/10</span>
+                <span className="text-brand-purple group-hover:underline">Read Full Review &rarr;</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {selectedFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-8">
+            <button onClick={() => setSelectedFeedback(null)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-2xl font-black text-slate-800 mb-2">Detailed Review</h3>
+            <p className="text-sm font-medium text-slate-500 mb-6 border-b border-slate-100 pb-4">
+              Submitted on {new Date(selectedFeedback.submittedAt).toLocaleString()}
+            </p>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 text-center">
+                  <div className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Overall</div>
+                  <div className="text-2xl font-black text-amber-500">{selectedFeedback.overallRating}/5</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 text-center">
+                  <div className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Return</div>
+                  <div className="text-2xl font-black text-emerald-500">{selectedFeedback.likelyToAttend}/10</div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 text-center">
+                  <div className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">NPS</div>
+                  <div className="text-2xl font-black text-brand-purple">{selectedFeedback.nps}/10</div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">3 Words to Describe</h4>
+                <div className="bg-brand-purple/5 text-brand-purple px-4 py-3 rounded-xl font-bold text-lg">
+                  "{selectedFeedback.threeWords}"
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">Enjoyed Most</h4>
+                <p className="text-slate-600 bg-slate-50 p-4 rounded-xl">{selectedFeedback.enjoyedMost || 'N/A'}</p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">Improvements</h4>
+                <p className="text-slate-600 bg-slate-50 p-4 rounded-xl">{selectedFeedback.improvements || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">Issues Faced</h4>
+                <p className="text-slate-600 bg-rose-50 p-4 rounded-xl">{selectedFeedback.issuesFaced || 'N/A'}</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">Specific Ratings</h4>
+                  <ul className="space-y-2 text-sm">
+                    {Object.entries(selectedFeedback.ratings).map(([k, v]) => (
+                      <li key={k} className="flex justify-between border-b border-slate-100 pb-1">
+                        <span className="capitalize text-slate-500">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <span className="font-bold text-slate-800">{v as string || '-'}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Logistics</h4>
+                    <ul className="text-sm space-y-1 text-slate-600">
+                      <li>Matches fair: <strong className="text-slate-800">{selectedFeedback.matchesFair || '-'}</strong></li>
+                      <li>Enough play: <strong className="text-slate-800">{selectedFeedback.enoughPlayTime || '-'}</strong></li>
+                      <li>Duration: <strong className="text-slate-800">{selectedFeedback.durationAppropriate || '-'}</strong></li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Wants Next</h4>
+                    <p className="text-sm font-bold text-slate-600">{(selectedFeedback.futureEventsWanted || []).join(', ') || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {selectedFeedback.finalSuggestions && (
+                <div>
+                  <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">Final Suggestions</h4>
+                  <p className="text-slate-600 bg-slate-50 p-4 rounded-xl">{selectedFeedback.finalSuggestions}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

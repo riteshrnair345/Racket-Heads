@@ -1,10 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft, Calendar } from 'lucide-react';
 import Script from 'next/script';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+
+type EventStatus = {
+  id: string;
+  name: string;
+  date: string;
+  count: number;
+  maxSlots: number;
+  isFull: boolean;
+};
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -24,8 +33,8 @@ export default function Register() {
   
   // Registration limit states
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
-  const [isFull, setIsFull] = useState(false);
-  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
+  const [activeEvents, setActiveEvents] = useState<EventStatus[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const newFormData = { ...formData, [e.target.name]: e.target.value };
@@ -65,9 +74,11 @@ export default function Register() {
       try {
         const res = await fetch('/api/registration-status');
         const data = await res.json();
-        if (data.success) {
-          setIsFull(data.isFull);
-          setSpotsLeft(data.maxSlots - data.count);
+        if (data.success && data.events) {
+          setActiveEvents(data.events);
+          if (data.events.length > 0) {
+            setSelectedEventId(data.events[0].id);
+          }
         }
       } catch (err) {
         console.error('Failed to check registration status', err);
@@ -84,6 +95,11 @@ export default function Register() {
     // Validation
     if (!formData.name || !formData.email || !formData.phone || !formData.age || !formData.proficiency || !formData.duration || !formData.heardFrom) {
       setError("Please fill out all fields before continuing.");
+      return;
+    }
+
+    if (!selectedEventId) {
+      setError("Please select an event to register for.");
       return;
     }
 
@@ -106,7 +122,8 @@ export default function Register() {
           proficiency: formData.proficiency,
           duration: formData.duration,
           shoes: 'Required',
-          heardFrom: formData.heardFrom
+          heardFrom: formData.heardFrom,
+          eventId: selectedEventId
         }),
       });
 
@@ -184,7 +201,7 @@ export default function Register() {
     );
   }
 
-  if (isFull) {
+  if (activeEvents.length === 0) {
     return (
       <div className="min-h-screen bg-brand-yellow-light text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
         {/* Soft Background Image */}
@@ -192,16 +209,16 @@ export default function Register() {
         
         <div className="max-w-md w-full bg-white/90 backdrop-blur-xl border border-white/50 rounded-[2.5rem] p-8 text-center space-y-6 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative z-10">
           
-          <div className="mx-auto w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-4 shadow-sm border border-rose-100">
-            <User className="w-10 h-10 text-rose-500" />
+          <div className="mx-auto w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4 shadow-sm border border-amber-100">
+            <Calendar className="w-10 h-10 text-amber-500" />
           </div>
           
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight mb-2 text-brand-purple">
-              We are full! 😔
+              No Active Events
             </h1>
             <p className="text-brand-purple/70 text-sm font-medium">
-              We have already reached our maximum capacity of 28 players for this event. 
+              There are currently no events open for registration.
             </p>
           </div>
 
@@ -220,6 +237,8 @@ export default function Register() {
       </div>
     );
   }
+
+  const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
 
   return (
     <div className="min-h-screen bg-brand-yellow-light text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
@@ -272,6 +291,7 @@ export default function Register() {
           <form onSubmit={handlePayment} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
               
+
               {/* 1. Full Name */}
               <div className="space-y-3 md:col-span-2">
                 <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
@@ -422,13 +442,18 @@ export default function Register() {
             <div className="pt-8 mt-10 border-t border-brand-purple/10">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || (selectedEvent && selectedEvent.isFull) || false}
                 className="w-full py-5 bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-extrabold text-lg rounded-2xl transition-all shadow-[0_8px_20px_rgba(58,26,93,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_12px_25px_rgba(58,26,93,0.4)] hover:-translate-y-1"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-6 h-6 animate-spin" />
                     Securing your spot...
+                  </>
+                ) : selectedEvent?.isFull ? (
+                  <>
+                    <User className="w-6 h-6" />
+                    Event Full
                   </>
                 ) : (
                   <>

@@ -1,11 +1,24 @@
 import { NextResponse } from 'next/server';
-import { getPlayers } from '@/lib/db';
+import { getPlayers, getEvents } from '@/lib/db';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const eventId = searchParams.get('eventId');
+    
+    if (!eventId) {
+      return NextResponse.json({ success: false, error: 'Missing eventId parameter' }, { status: 400 });
+    }
+
     const players = await getPlayers();
     
-    const roster = players.map(player => {
+    // Filter players who are registered for this specific event
+    const eventPlayers = players.filter(p => p.registrations?.some(r => r.eventId === eventId));
+    
+    const roster = eventPlayers.map(player => {
+      const registration = player.registrations.find(r => r.eventId === eventId)!;
       return {
         name: player.name,
         email: player.email,
@@ -13,8 +26,8 @@ export async function GET() {
         proficiency: player.proficiency,
         duration: player.duration,
         shoes: player.shoes,
-        checkInTime: player.timeWhenCheckedIn,
-        status: player.checkInStatus
+        checkInTime: registration.timeWhenCheckedIn,
+        status: registration.checkInStatus
       };
     });
     

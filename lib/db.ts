@@ -8,6 +8,21 @@ if (!redisUrl) {
 
 export const kv = new Redis(redisUrl);
 
+export interface Event {
+  id: string;
+  name: string;
+  date: string;
+  participantLimit: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface PlayerRegistration {
+  eventId: string;
+  checkInStatus: 'Pending' | 'Checked In';
+  timeWhenCheckedIn: string | null;
+}
+
 // Define the player interface
 export interface Player {
   id: string; // TWB-001
@@ -23,20 +38,72 @@ export interface Player {
   firstSeen: string; // ISO timestamp
   lastActive: string; // ISO timestamp
   eventsAttended: number;
-  checkInStatus: 'Pending' | 'Checked In';
-  timeWhenCheckedIn: string | null;
+  
+  registrations: PlayerRegistration[];
+  
+  // Legacy fields (optional)
+  checkInStatus?: 'Pending' | 'Checked In';
+  timeWhenCheckedIn?: string | null;
   razorpay_payment_id?: string;
   payment_status?: 'Paid' | 'Pending' | 'Free';
 }
 
 const ROSTER_KEY = 'twb_roster';
+const EVENTS_KEY = 'twb_events';
+
+export async function getEvents(): Promise<Event[]> {
+  const data = await kv.get(EVENTS_KEY);
+  if (!data) return [];
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data) as Event[];
+    } else {
+      return data as any as Event[];
+    }
+  } catch (e) {
+    console.error("Failed to parse Events JSON from Redis", e);
+    return [];
+  }
+}
+
+export async function saveEvents(events: Event[]): Promise<void> {
+  await kv.set(EVENTS_KEY, JSON.stringify(events));
+}
 
 // Read all players
 export async function getPlayers(): Promise<Player[]> {
   const data = await kv.get(ROSTER_KEY);
   if (!data) return [];
   try {
-    return JSON.parse(data) as Player[];
+    let players: Player[] = [];
+    if (typeof data === 'string') {
+      players = JSON.parse(data) as Player[];
+    } else {
+      players = data as any as Player[];
+    }
+    
+    // Auto-migrate legacy players on the fly if they lack registrations array
+    let needsSave = false;
+    players.forEach(p => {
+      if (!p.registrations) {
+        p.registrations = [];
+        if (p.checkInStatus) {
+           p.registrations.push({
+             eventId: 'legacy_event',
+             checkInStatus: p.checkInStatus,
+             timeWhenCheckedIn: p.timeWhenCheckedIn || null
+           });
+        }
+        needsSave = true;
+      }
+    });
+    
+    if (needsSave) {
+      // Background save to upgrade the schema
+      savePlayers(players).catch(console.error);
+    }
+    
+    return players;
   } catch (e) {
     console.error("Failed to parse JSON from Redis", e);
     return [];
@@ -113,7 +180,11 @@ export async function getPendingRegistration(email: string): Promise<PendingRegi
   const data = await kv.get(key);
   if (!data) return null;
   try {
-    return JSON.parse(data) as PendingRegistration;
+    if (typeof data === 'string') {
+      return JSON.parse(data) as PendingRegistration;
+    } else {
+      return data as any as PendingRegistration;
+    }
   } catch (e) {
     console.error("Failed to parse pending reg from Redis", e);
     return null;
@@ -123,4 +194,33 @@ export async function getPendingRegistration(email: string): Promise<PendingRegi
 export async function deletePendingRegistration(email: string): Promise<void> {
   const key = `pending_reg:${email.toLowerCase()}`;
   await kv.del(key);
+}
+
+export interface GalleryItem {
+  id: string;
+  url: string;
+  alt: string;
+  type: 'image' | 'video';
+  createdAt: string;
+}
+
+const GALLERY_KEY = 'twb_gallery';
+
+export async function getGalleryItems(): Promise<GalleryItem[]> {
+  const data = await kv.get(GALLERY_KEY);
+  if (!data) return [];
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data) as GalleryItem[];
+    } else {
+      return data as any as GalleryItem[];
+    }
+  } catch (e) {
+    console.error("Failed to parse Gallery JSON from Redis", e);
+    return [];
+  }
+}
+
+export async function saveGalleryItems(items: GalleryItem[]): Promise<void> {
+  await kv.set(GALLERY_KEY, JSON.stringify(items));
 }

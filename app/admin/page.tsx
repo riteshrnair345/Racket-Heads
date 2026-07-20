@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trash2, Trophy, Clock, Phone, Zap, Download } from "lucide-react";
-
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -18,8 +17,27 @@ type RosterItem = {
   status: "Checked In" | "Pending";
 };
 
+type EventItem = {
+  id: string;
+  name: string;
+  date: string;
+  participantLimit: number;
+  isActive: boolean;
+  createdAt: string;
+};
+
+type MasterDBItem = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  firstSeen: string;
+  eventsAttended: number;
+  totalRegistrations: number;
+};
+
 export default function WeekendBaddieApp() {
-  const [activeTab, setActiveTab] = useState<"scanner" | "dashboard">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "scanner" | "events" | "master" | "gallery">("dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
@@ -28,7 +46,6 @@ export default function WeekendBaddieApp() {
   }, []);
 
   useEffect(() => {
-    // Check local storage for auth state on mount
     const authState = localStorage.getItem("wb_auth");
     if (authState === "true") {
       setIsAuthenticated(true);
@@ -55,51 +72,37 @@ export default function WeekendBaddieApp() {
 
   return (
     <div className="min-h-screen bg-brand-yellow-light text-brand-purple font-sans selection:bg-brand-pink/20 relative overflow-hidden">
-      
-      {/* Soft Background Image */}
       <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-60 pointer-events-none mix-blend-multiply" />
 
-      {/* Header */}
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <img src="/logo.jpg" alt="Logo" className="w-10 h-10 rounded-lg object-contain" />
-              <h1 className="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">
+              <h1 className="text-xl font-bold text-slate-800 tracking-tight hidden lg:block">
                 RacketHeads Kochi
               </h1>
             </div>
             
-            <nav className="flex items-center gap-4">
-              <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50">
-                <button
-                  onClick={() => setActiveTab("dashboard")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    activeTab === "dashboard" 
-                      ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" 
-                      : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
+            <nav className="flex items-center gap-4 overflow-x-auto">
+              <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50 min-w-max">
+                <button onClick={() => setActiveTab("dashboard")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "dashboard" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <Users className="w-4 h-4" /> <span className="hidden sm:inline">Dashboard</span>
                 </button>
-                <button
-                  onClick={() => setActiveTab("scanner")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    activeTab === "scanner" 
-                      ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" 
-                      : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"
-                  }`}
-                >
-                  <Camera className="w-4 h-4" />
-                  <span className="hidden sm:inline">Scanner</span>
+                <button onClick={() => setActiveTab("scanner")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "scanner" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <Camera className="w-4 h-4" /> <span className="hidden sm:inline">Scanner</span>
+                </button>
+                <button onClick={() => setActiveTab("events")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "events" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <Calendar className="w-4 h-4" /> <span className="hidden sm:inline">Events</span>
+                </button>
+                <button onClick={() => setActiveTab("gallery")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "gallery" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <ImageIcon className="w-4 h-4" /> <span className="hidden sm:inline">Gallery</span>
+                </button>
+                <button onClick={() => setActiveTab("master")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "master" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <Database className="w-4 h-4" /> <span className="hidden sm:inline">Master DB</span>
                 </button>
               </div>
-              <button
-                onClick={handleLogout}
-                title="Lock App"
-                className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100"
-              >
+              <button onClick={handleLogout} title="Lock App" className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100">
                 <LogOut className="w-5 h-5" />
               </button>
             </nav>
@@ -107,9 +110,12 @@ export default function WeekendBaddieApp() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {activeTab === "scanner" ? <ScannerView /> : <DashboardView />}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        {activeTab === "dashboard" && <DashboardView />}
+        {activeTab === "scanner" && <ScannerView />}
+        {activeTab === "events" && <EventsView />}
+        {activeTab === "gallery" && <GalleryView />}
+        {activeTab === "master" && <MasterDBView />}
       </main>
     </div>
   );
@@ -156,9 +162,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
                 setError(false);
               }}
               placeholder="••••"
-              className={`w-full bg-white border ${
-                error ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10" : "border-brand-purple/20 focus:border-brand-purple focus:ring-brand-purple/10"
-              } rounded-2xl px-4 py-4 text-center text-2xl font-mono text-brand-purple placeholder:text-brand-purple/30 focus:outline-none focus:ring-4 transition-all shadow-inner font-bold`}
+              className={`w-full bg-white border ${error ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10" : "border-brand-purple/20 focus:border-brand-purple focus:ring-brand-purple/10"} rounded-2xl px-4 py-4 text-center text-2xl font-mono text-brand-purple placeholder:text-brand-purple/30 focus:outline-none focus:ring-4 transition-all shadow-inner font-bold`}
               autoFocus
             />
             {error && (
@@ -187,7 +191,6 @@ function ScannerView() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
-    // Initialize Scanner on mount
     if (!scannerRef.current) {
       scannerRef.current = new Html5Qrcode("reader");
     }
@@ -196,20 +199,12 @@ function ScannerView() {
       try {
         await scannerRef.current?.start(
           { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-          },
+          { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
           onScanSuccess,
           onScanFailure
         );
       } catch (err: any) {
-        const errMsg = err?.toString() || "";
-        if (errMsg.includes("already under transition")) {
-          return;
-        }
-        console.error("Failed to start scanner", err);
+        if (err?.toString().includes("already under transition")) return;
         setScanStatus("error");
         setMessage("Camera access denied or unavailable.");
       }
@@ -222,10 +217,8 @@ function ScannerView() {
         if (scannerRef.current?.isScanning) {
           scannerRef.current.stop().catch(() => {});
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onScanSuccess = async (decodedText: string) => {
@@ -241,10 +234,8 @@ function ScannerView() {
     try {
       const response = await fetch('/api/check-in', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ qrId: decodedText }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qrId: decodedText }), // eventId inferred by backend
       });
 
       const result = await response.json();
@@ -269,16 +260,14 @@ function ScannerView() {
     }
   };
 
-  const onScanFailure = (error: any) => {
-    // Ignore frequent failed scans until a code is caught
-  };
+  const onScanFailure = () => {};
 
   const resumeScanning = async () => {
     setScanStatus("idle");
     setMessage("");
     setParticipantName("");
     setPlayerInfo(null);
-    if (scannerRef.current?.getState() === 3) { // PAUSED
+    if (scannerRef.current?.getState() === 3) {
       await scannerRef.current.resume();
     }
   };
@@ -294,10 +283,8 @@ function ScannerView() {
 
       <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="relative">
-          {/* Scanner view */}
           <div id="reader" className="w-full min-h-[300px] bg-slate-900"></div>
 
-          {/* Overlay for status */}
           {scanStatus !== "idle" && (
             <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-200">
               {scanStatus === "scanning" && (
@@ -339,10 +326,7 @@ function ScannerView() {
                     </div>
                   )}
 
-                  <button
-                    onClick={resumeScanning}
-                    className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-2xl py-4 font-bold transition-all shadow-md"
-                  >
+                  <button onClick={resumeScanning} className="w-full bg-slate-800 hover:bg-slate-900 text-white rounded-2xl py-4 font-bold transition-all shadow-md">
                     Scan Next Ticket
                   </button>
                 </div>
@@ -356,10 +340,7 @@ function ScannerView() {
                   <h3 className="text-2xl font-black text-slate-800 mb-2">Invalid Ticket</h3>
                   <p className="text-rose-600 font-bold mb-8 bg-rose-50 px-3 py-1 rounded-lg border border-rose-100">{message}</p>
                   
-                  <button
-                    onClick={resumeScanning}
-                    className="mt-4 px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors shadow-sm"
-                  >
+                  <button onClick={resumeScanning} className="mt-4 px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors shadow-sm">
                     Try Again
                   </button>
                 </div>
@@ -376,40 +357,40 @@ function ScannerView() {
 }
 
 function DashboardView() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [roster, setRoster] = useState<RosterItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleReset = async () => {
-    if (!window.confirm("Are you sure you want to permanently delete ALL players from the roster? This cannot be undone.")) return;
-    
-    setIsResetting(true);
+  const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/reset', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ADMIN_PIN}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to reset');
-      
-      await fetchRoster();
+      const res = await fetch('/api/events');
+      const data = await res.json();
+      if (data.success && data.events.length > 0) {
+        setEvents(data.events);
+        const active = data.events.find((e: EventItem) => e.isActive);
+        setSelectedEventId(active ? active.id : data.events[0].id);
+      } else {
+        setLoading(false);
+      }
     } catch (err) {
       console.error(err);
-      setError("Failed to clear the roster.");
-    } finally {
-      setIsResetting(false);
+      setError("Failed to load events.");
     }
   };
 
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
   const fetchRoster = async () => {
+    if (!selectedEventId) return;
     setLoading(true);
     setError("");
     try {
-      const response = await fetch('/api/roster');
+      const response = await fetch(`/api/roster?eventId=${selectedEventId}`);
       if (!response.ok) throw new Error('Failed to fetch');
-      
       const data = await response.json();
       setRoster(data);
     } catch (err) {
@@ -421,21 +402,40 @@ function DashboardView() {
   };
 
   useEffect(() => {
-    fetchRoster();
-  }, []);
+    if (selectedEventId) {
+      fetchRoster();
+    }
+  }, [selectedEventId]);
 
   const checkedInCount = roster.filter(r => r.status === "Checked In").length;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
       
-      <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
-          Welcome back, Admin 👋
-        </h1>
-        <p className="text-slate-500 font-medium text-lg">
-          Here's what's happening with your roster today.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
+            Dashboard 👋
+          </h1>
+          <p className="text-slate-500 font-medium text-lg">
+            Select an event to view its roster.
+          </p>
+        </div>
+        
+        {events.length > 0 && (
+          <div className="w-full md:w-64">
+            <label className="block text-sm font-bold text-slate-500 mb-1 uppercase tracking-wider">Selected Event</label>
+            <select 
+              value={selectedEventId}
+              onChange={(e) => setSelectedEventId(e.target.value)}
+              className="w-full bg-white border border-brand-purple/20 focus:border-brand-purple focus:ring-brand-purple/10 rounded-xl px-4 py-3 font-semibold text-brand-purple focus:outline-none focus:ring-2 transition-all shadow-sm"
+            >
+              {events.map(e => (
+                <option key={e.id} value={e.id}>{e.name} {e.isActive ? '(Active)' : ''}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -462,28 +462,24 @@ function DashboardView() {
         <div className="flex flex-col gap-3 justify-center">
           <button
             onClick={fetchRoster}
-            disabled={loading}
+            disabled={loading || !selectedEventId}
             className="flex items-center justify-center gap-2 px-6 py-4 bg-white hover:bg-brand-yellow-light disabled:opacity-50 text-brand-purple rounded-2xl font-bold transition-all border border-brand-purple/20 shadow-sm"
           >
-            <RefreshCw className={`w-5 h-5 ${loading && !isResetting ? "animate-spin text-brand-purple" : "text-brand-purple/60"}`} />
+            <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin text-brand-purple" : "text-brand-purple/60"}`} />
             Refresh Roster
           </button>
 
           <button
-            onClick={() => window.location.href = `/api/admin/export?pin=${ADMIN_PIN}`}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-2xl font-bold transition-all border border-emerald-100 shadow-sm"
+            onClick={() => {
+              if (selectedEventId) {
+                window.location.href = `/api/admin/export?pin=${ADMIN_PIN}&eventId=${selectedEventId}`;
+              }
+            }}
+            disabled={!selectedEventId}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 text-emerald-700 rounded-2xl font-bold transition-all border border-emerald-100 shadow-sm"
           >
             <Download className="w-5 h-5" />
             Download CSV & QR Codes
-          </button>
-          
-          <button
-            onClick={handleReset}
-            disabled={loading || isResetting}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 hover:bg-rose-100 text-rose-600 disabled:opacity-50 rounded-2xl font-bold transition-all border border-rose-100 shadow-sm"
-          >
-            {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-            Clear Roster Data
           </button>
         </div>
       </div>
@@ -522,7 +518,7 @@ function DashboardView() {
                       <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users className="w-8 h-8 text-slate-400" />
                       </div>
-                      No participants registered yet.
+                      No participants registered for this event yet.
                     </td>
                   </tr>
                 ) : (
@@ -562,6 +558,453 @@ function DashboardView() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function EventsView() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+  const [limit, setLimit] = useState(28);
+  const [creating, setCreating] = useState(false);
+
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch('/api/events');
+      const data = await res.json();
+      if (data.success) {
+        setEvents(data.events);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        },
+        body: JSON.stringify({ name, date, participantLimit: limit, isActive: true })
+      });
+      if (res.ok) {
+        setName("");
+        setDate("");
+        setLimit(28);
+        fetchEvents();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const toggleActive = async (event: EventItem) => {
+    try {
+      await fetch('/api/events', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        },
+        body: JSON.stringify({ id: event.id, isActive: !event.isActive })
+      });
+      fetchEvents();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (event: EventItem) => {
+    if (!window.confirm(`Are you sure you want to delete the event "${event.name}"?`)) return;
+    try {
+      await fetch(`/api/events?id=${event.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        }
+      });
+      fetchEvents();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-1">
+        <div className="bg-white rounded-[2rem] p-6 border border-brand-purple/10 shadow-[0_8px_30px_rgba(58,26,93,0.04)]">
+          <h2 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+            <CalendarPlus className="text-brand-purple" /> Create Event
+          </h2>
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Event Name</label>
+              <input required type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Sunday Morning Bash" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Date</label>
+              <input required type="date" value={date} onChange={e=>setDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
+              <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <button disabled={creating} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md mt-2">
+              {creating ? "Creating..." : "Create Event"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="lg:col-span-2">
+        <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
+            <h2 className="text-lg font-black text-slate-800">Manage Events</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Event Name</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Date</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Limit</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {loading ? (
+                  <tr><td colSpan={4} className="px-6 py-8 text-center">Loading...</td></tr>
+                ) : events.length === 0 ? (
+                  <tr><td colSpan={4} className="px-6 py-8 text-center">No events found.</td></tr>
+                ) : (
+                  events.map(event => (
+                    <tr key={event.id} className="hover:bg-slate-50/80">
+                      <td className="px-6 py-5 font-bold text-slate-800">{event.name}</td>
+                      <td className="px-6 py-5 text-slate-600 font-medium">{event.date}</td>
+                      <td className="px-6 py-5 text-slate-600 font-medium">{event.participantLimit}</td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => toggleActive(event)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                              event.isActive ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
+                            }`}
+                          >
+                            {event.isActive ? 'Active (Click to Pause)' : 'Paused (Click to Start)'}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(event)}
+                            title="Delete Event"
+                            className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-100 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MasterDBView() {
+  const [db, setDb] = useState<MasterDBItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDb = async () => {
+      try {
+        const res = await fetch('/api/master-db', {
+          headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
+        });
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setDb(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDb();
+  }, []);
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="mb-8">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
+          Master Database
+        </h1>
+        <p className="text-slate-500 font-medium text-lg">
+          Complete history of all {db.length} registered players.
+        </p>
+      </div>
+
+      <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Player</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Contact</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">First Seen</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Events Registered</th>
+                <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Events Attended</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr><td colSpan={5} className="px-6 py-16 text-center">Loading...</td></tr>
+              ) : (
+                db.map(person => (
+                  <tr key={person.id} className="hover:bg-slate-50/80">
+                    <td className="px-6 py-5">
+                      <div className="font-bold text-slate-800 text-base">{person.name}</div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="text-slate-700 font-medium">{person.phone}</div>
+                      <div className="text-slate-500 text-xs">{person.email}</div>
+                    </td>
+                    <td className="px-6 py-5 text-slate-600 font-medium text-sm">
+                      {new Date(person.firstSeen).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-5 text-slate-800 font-bold text-center">
+                      {person.totalRegistrations}
+                    </td>
+                    <td className="px-6 py-5 text-emerald-600 font-bold text-center">
+                      {person.eventsAttended}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryView() {
+  const [items, setItems] = useState<any[]>([]);
+  const [url, setUrl] = useState("");
+  const [alt, setAlt] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [converting, setConverting] = useState(false);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/gallery');
+      const data = await res.json();
+      if (data.success) {
+        setItems(data.items);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url && !file) return;
+    setAdding(true);
+    try {
+      let finalUrl = url;
+      let finalType = "";
+
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
+          },
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadData.success) {
+          throw new Error(uploadData.error || "Upload failed");
+        }
+        finalUrl = uploadData.url;
+        finalType = file.type.startsWith('video/') ? 'video' : 'image';
+      }
+
+      await fetch('/api/gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
+        },
+        body: JSON.stringify({ url: finalUrl, alt, type: finalType || undefined })
+      });
+      setUrl("");
+      setAlt("");
+      setFile(null);
+      fetchItems();
+    } catch (err) {
+      console.error(err);
+      alert("Error adding media. Check console.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this media?")) return;
+    try {
+      await fetch(`/api/gallery?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
+        }
+      });
+      fetchItems();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 mb-8">
+        <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-brand-pink" /> Add Media to Gallery
+        </h2>
+        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-bold text-slate-500 mb-1">Local File (Overrides URL)</label>
+            <input 
+              type="file" 
+              accept="image/jpeg, image/png, image/webp, video/mp4, video/webm, video/quicktime, .mov, .heic"
+              onChange={async (e) => {
+                const selected = e.target.files ? e.target.files[0] : null;
+                if (!selected) {
+                  setFile(null);
+                  return;
+                }
+                
+                if (selected.name.toLowerCase().endsWith('.heic')) {
+                  try {
+                    setConverting(true);
+                    const heic2any = (await import('heic2any')).default;
+                    const convertedBlob = await heic2any({
+                      blob: selected,
+                      toType: "image/jpeg",
+                      quality: 0.8
+                    });
+                    
+                    const blobToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                    const newFile = new File([blobToUse], selected.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+                    setFile(newFile);
+                  } catch (err) {
+                    console.error("HEIC conversion error:", err);
+                    alert("Failed to convert HEIC image. Please manually convert it to JPG.");
+                    e.target.value = "";
+                    setFile(null);
+                  } finally {
+                    setConverting(false);
+                  }
+                } else {
+                  setFile(selected);
+                }
+              }}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <label className="block text-sm font-bold text-slate-500 mb-1">OR Media URL</label>
+            <input 
+              type="url" 
+              value={url} 
+              onChange={e=>setUrl(e.target.value)} 
+              placeholder="https://..."
+              disabled={!!file}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50" 
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-bold text-slate-500 mb-1">Alt Text (Optional)</label>
+            <input 
+              type="text" 
+              value={alt} 
+              onChange={e=>setAlt(e.target.value)} 
+              placeholder="e.g. Action shot"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <button disabled={adding || converting} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50">
+              {adding ? "Adding..." : converting ? "Converting..." : "Add Media"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+        <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+          <Camera className="w-5 h-5 text-brand-purple" /> Current Gallery ({items.length})
+        </h2>
+        
+        {loading ? (
+          <div className="text-center py-12 text-slate-500">Loading...</div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">No media found in the gallery.</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {items.map(item => (
+              <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50">
+                {item.type === 'video' ? (
+                  <video src={item.url} className="w-full h-full object-cover" muted loop playsInline />
+                ) : (
+                  <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
+                )}
+                
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button 
+                    onClick={() => handleDelete(item.id)}
+                    className="bg-white text-rose-500 p-2 rounded-xl hover:bg-rose-50 transition-colors shadow-lg"
+                    title="Delete Media"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

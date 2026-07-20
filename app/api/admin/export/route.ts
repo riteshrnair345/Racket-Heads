@@ -5,6 +5,7 @@ import JSZip from 'jszip';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const pin = searchParams.get('pin');
+  const eventId = searchParams.get('eventId');
 
   const adminPin = process.env.NEXT_PUBLIC_ADMIN_PIN;
 
@@ -12,19 +13,24 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
+  if (!eventId) {
+    return NextResponse.json({ success: false, error: 'Missing eventId' }, { status: 400 });
+  }
+
   try {
-    const players = await getPlayers();
+    const allPlayers = await getPlayers();
+    
+    // Filter players who are registered for this specific event
+    const players = allPlayers.filter(p => p.registrations?.some(r => r.eventId === eventId));
+
     const zip = new JSZip();
     
     // 1. Define the CSV header
-    const headers = ['Name', 'Phone Number', 'Age', 'Proficiency', 'Duration', 'Heard From', 'Registration Date', 'Image Filename', 'QR Code URL'];
+    const headers = ['Name', 'Phone Number', 'Age', 'Proficiency', 'Duration', 'Heard From', 'Registration Date', 'Image Filename', 'QR Code URL', 'Check-in Status'];
     
     // Map players to CSV rows and fetch their QR codes
     const qrcodeFolder = zip.folder("qrcodes");
     
-    // We will do this sequentially to avoid rate limits from the qrserver, 
-    // or we can use Promise.all if the player count is small. 
-    // Since max is 28 players, Promise.all is fine and fast.
     const rows = await Promise.all(players.map(async (player) => {
       // Create a clean filename for the user: RHK_[name of the player]
       const cleanName = player.name.replace(/\s+/g, '_');
@@ -54,6 +60,9 @@ export async function GET(request: Request) {
         }
       }
 
+      const registration = player.registrations.find(r => r.eventId === eventId);
+      const status = registration ? registration.checkInStatus : 'Unknown';
+
       return [
         `"${player.name.replace(/"/g, '""')}"`,
         `"${formattedPhone}"`,
@@ -63,12 +72,13 @@ export async function GET(request: Request) {
         `"${player.heardFrom}"`,
         `"${new Date(player.firstSeen).toLocaleString()}"`,
         `"${filename}"`,
-        `"${qrCodeUrl}"`
+        `"${qrCodeUrl}"`,
+        `"${status}"`
       ].join(',');
     }));
     
     const csvContent = [headers.join(','), ...rows].join('\n');
-    zip.file("racketheads_players.csv", csvContent);
+    zip.file(`racketheads_event_${eventId}_export.csv`, csvContent);
     
     // Generate the zip file buffer
     const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
@@ -77,7 +87,7 @@ export async function GET(request: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment; filename="racketheads_export.zip"'
+        'Content-Disposition': `attachment; filename="racketheads_export_${eventId}.zip"`
       }
     });
 

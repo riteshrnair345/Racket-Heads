@@ -1,15 +1,32 @@
 import { NextResponse } from 'next/server';
-import { getPlayerByEmail, generateNextPlayerId, upsertPlayer, Player, getPlayers } from '@/lib/db';
+import { getPlayerByEmail, generateNextPlayerId, upsertPlayer, Player, getPlayers, getEvents } from '@/lib/db';
 import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, age, proficiency, duration, shoes, heardFrom } = body;
+    const { name, email, phone, age, proficiency, duration, shoes, heardFrom, eventId } = body;
 
     if (!name || !email || !phone || !age || !proficiency || !duration) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Get active events to determine which event to register for
+    const events = await getEvents();
+    const activeEvents = events.filter(e => e.isActive);
+    
+    // Determine target event
+    let targetEventId = eventId;
+    if (!targetEventId) {
+      if (activeEvents.length > 0) {
+        targetEventId = activeEvents[0].id;
+      } else {
+        targetEventId = 'legacy_event'; // Fallback
+      }
+    }
+    
+    const targetEvent = events.find(e => e.id === targetEventId);
+    const participantLimit = targetEvent ? targetEvent.participantLimit : 28;
 
     let formattedPhone = phone.trim().replace(/\s+/g, '');
     if (!formattedPhone.startsWith('+')) {
@@ -20,20 +37,23 @@ export async function POST(request: Request) {
       }
     }
 
-    // Enforce 28 player limit
+    // Enforce player limit for the SPECIFIC event
     const playersList = await getPlayers();
-    const isExisting = playersList.some(p => p.email.toLowerCase() === email.toLowerCase());
     
-    if (playersList.length >= 28 && !isExisting) {
-      return NextResponse.json({ success: false, error: 'Registration is full. We have reached the 28 player limit.' }, { status: 403 });
+    // Count how many people are registered for THIS event
+    const eventPlayers = playersList.filter(p => p.registrations?.some(r => r.eventId === targetEventId));
+    const isExisting = eventPlayers.some(p => p.email.toLowerCase() === email.toLowerCase());
+    
+    if (eventPlayers.length >= participantLimit && !isExisting) {
+      return NextResponse.json({ success: false, error: \`Registration is full. We have reached the \${participantLimit} player limit for this event.\` }, { status: 403 });
     }
 
-    // Check if player already exists
+    // Check if player already exists in the master database
     let player = await getPlayerByEmail(email);
     const now = new Date().toISOString();
 
     if (player) {
-      // If player exists, we update their latest answers and reset check-in status
+      // If player exists, we update their latest answers
       player = {
         ...player,
         name,
@@ -43,9 +63,23 @@ export async function POST(request: Request) {
         duration,
         shoes,
         heardFrom,
-        checkInStatus: 'Pending', // Reset to pending for the new event
-        payment_status: 'Free',
+        lastActive: now,
       };
+      
+      // Add or update registration for THIS event
+      if (!player.registrations) player.registrations = [];
+      const regIndex = player.registrations.findIndex(r => r.eventId === targetEventId);
+      if (regIndex !== -1) {
+        // Reset to pending if they re-register
+        player.registrations[regIndex].checkInStatus = 'Pending';
+      } else {
+        // Add new registration
+        player.registrations.push({
+          eventId: targetEventId,
+          checkInStatus: 'Pending',
+          timeWhenCheckedIn: null
+        });
+      }
     } else {
       // New player
       const id = await generateNextPlayerId();
@@ -68,16 +102,20 @@ export async function POST(request: Request) {
         firstSeen: now,
         lastActive: now,
         eventsAttended: 0,
-        checkInStatus: 'Pending',
-        timeWhenCheckedIn: null,
-        payment_status: 'Free',
+        registrations: [
+          {
+            eventId: targetEventId,
+            checkInStatus: 'Pending',
+            timeWhenCheckedIn: null
+          }
+        ]
       };
     }
 
     await upsertPlayer(player);
 
     // Send email with QR code if credentials exist
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && !isExisting) {
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT || '465', 10),
@@ -90,15 +128,15 @@ export async function POST(request: Request) {
 
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(player.qrId)}`;
       
-      const htmlBody = `
+      const htmlBody = \`
         <div style="font-family: Arial, sans-serif; color: #000; font-size: 14px; line-height: 1.6;">
-          <p>Hi ${player.name},</p>
-          <p>You're officially signed up for the community session of RacketHeads Kochi!</p>
+          <p>Hi \${player.name},</p>
+          <p>You're officially signed up for the \${targetEvent?.name || 'community session'} of RacketHeads Kochi!</p>
           
           <p><strong>Sign up details:</strong><br/>
-          Name: ${player.name}<br/>
-          Proficiency: ${player.proficiency}<br/>
-          Phone Number: ${formattedPhone}</p>
+          Name: \${player.name}<br/>
+          Proficiency: \${player.proficiency}<br/>
+          Phone Number: \${formattedPhone}</p>
           
           <p>Get ready for an epic session—we have a great mix of competitive match play lined up alongside some custom challenges and fun group games!</p>
           
@@ -111,11 +149,11 @@ export async function POST(request: Request) {
           <p>Cheers,<br/>
           RacketHeads Kochi Team</p>
         </div>
-      `;
+      \`;
 
       try {
         await transporter.sendMail({
-          from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
+          from: \`"RacketHeads Kochi" <\${process.env.EMAIL_USER}>\`,
           to: player.email,
           subject: "🏸 You're in! Welcome to RacketHeads Kochi 🏸",
           html: htmlBody,

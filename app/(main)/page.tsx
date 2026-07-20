@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-brand-yellow-light text-brand-purple selection:bg-brand-pink/20 flex flex-col">
+    <>
       {/* Background elements */}
       <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none mix-blend-multiply" />
       <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-[100px] pointer-events-none" />
@@ -104,8 +104,6 @@ export default function LandingPage() {
         </section>
 
       </main>
-
-      <Footer />
-    </div>
+    </>
   );
 }

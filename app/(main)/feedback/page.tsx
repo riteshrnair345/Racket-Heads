@@ -391,7 +391,7 @@ export default function FeedbackPage() {
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">11. What time slot would be most convenient for you?</label>
                 {renderCheckboxes([
-                  '9-11am', '10-12', '4-6', '5-7', '6-8'
+                  '9-11am', '10am-12pm', '4-6pm', '5-7pm', '6-8pm'
                 ], 'futureEventsWanted')}
               </div>
 

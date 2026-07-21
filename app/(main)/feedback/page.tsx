@@ -278,8 +278,9 @@ export default function FeedbackPage() {
               </div>
               
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">Your Name (Optional)</label>
+                <label className="block text-lg font-bold text-slate-800">Your Name</label>
                 <input 
+                  required
                   type="text" 
                   value={formData.playerName}
                   onChange={(e) => setFormData({...formData, playerName: e.target.value})}

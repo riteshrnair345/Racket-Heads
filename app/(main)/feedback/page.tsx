@@ -289,7 +289,7 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at today's event?</label>
+                <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at our first event?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}
               </div>
 
@@ -340,7 +340,7 @@ export default function FeedbackPage() {
                   {renderRadioGrid("Quality of games", "gameQuality")}
                   {renderRadioGrid("Community vibe", "communityVibe")}
                   {renderRadioGrid("Hosts/Organizers", "hosts")}
-                  {renderRadioGrid("Refreshments (if applicable)", "refreshments")}
+                  {renderRadioGrid("Refreshments", "refreshments")}
                 </div>
               </div>
 
@@ -389,11 +389,9 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">11. What kind of events would you like us to host next?</label>
+                <label className="block text-lg font-bold text-slate-800">11. What time slot would be most convenient for you?</label>
                 {renderCheckboxes([
-                  'Social Mixers', 'Beginner Sessions', 'Intermediate Sessions', 
-                  'Advanced Competitive Games', 'Tournaments', 'Coaching Sessions', 
-                  'Fun Challenges', 'Corporate Events', 'Weekend League'
+                  '9-11am', '10-12', '4-6', '5-7', '6-8'
                 ], 'futureEventsWanted')}
               </div>
 
@@ -420,12 +418,7 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">14. Would you like to be added to our community for future events?</label>
-                {renderSelectButtons(['Yes', 'Already a member', 'No'], formData.addToCommunity, (v) => setFormData({...formData, addToCommunity: v}))}
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">15. Any final suggestions or message for our team?</label>
+                <label className="block text-lg font-bold text-slate-800">14. Any final suggestions or message for our team?</label>
                 <textarea 
                   rows={3} 
                   value={formData.finalSuggestions}

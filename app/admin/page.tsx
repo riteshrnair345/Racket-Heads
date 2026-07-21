@@ -1628,7 +1628,7 @@ function FeedbackView() {
                   </div>
                   
                   <div>
-                    <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Wants Next</h4>
+                    <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Time Slots</h4>
                     <p className="text-sm font-bold text-slate-600">{(selectedFeedback.futureEventsWanted || []).join(', ') || '-'}</p>
                   </div>
                 </div>

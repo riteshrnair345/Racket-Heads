@@ -57,6 +57,13 @@ export default function GalleryPage() {
               <div key={image.id} className="break-inside-avoid group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                 {image.type === 'video' ? (
                   <video 
+                    ref={el => { 
+                      if (el) { 
+                        el.defaultMuted = true; 
+                        el.muted = true; 
+                        el.play().catch(() => {}); 
+                      } 
+                    }}
                     src={image.url} 
                     className="w-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                     muted loop playsInline autoPlay

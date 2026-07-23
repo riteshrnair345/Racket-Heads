@@ -151,7 +151,7 @@ export default function Register() {
         const orderRes = await fetch('/api/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: 15000 })
+          body: JSON.stringify({ amount: 100 }) // 1 INR in paise
         });
         const orderData = await orderRes.json();
         
@@ -166,7 +166,7 @@ export default function Register() {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
           amount: orderData.order.amount,
           currency: orderData.order.currency,
-          name: "The Weekend Baddie",
+          name: "RacketHeads Kochi",
           description: "Session Registration",
           order_id: orderData.order.id,
           handler: async function (response: any) {
@@ -524,7 +524,7 @@ export default function Register() {
                 ) : (
                   <>
                     <CreditCard className="w-6 h-6" />
-                    Pay ₹150 & Register
+                    Pay ₹1 & Register
                   </>
                 )}
               </button>

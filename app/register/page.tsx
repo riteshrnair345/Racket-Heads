@@ -110,32 +110,94 @@ export default function Register() {
     localStorage.setItem('twb_register_draft', JSON.stringify(formData));
 
     try {
-      // Direct Registration without payment
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          age: formData.age,
-          proficiency: formData.proficiency,
-          duration: formData.duration,
-          shoes: 'Required',
-          heardFrom: formData.heardFrom,
-          eventId: selectedEventId
-        }),
-      });
+      const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
+      const isWaitlistExpected = selectedEvent?.isFull || false;
 
-      const data = await res.json();
+      const completeRegistration = async (paymentData: any = {}) => {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            age: formData.age,
+            proficiency: formData.proficiency,
+            duration: formData.duration,
+            shoes: 'Required',
+            heardFrom: formData.heardFrom,
+            eventId: selectedEventId,
+            ...paymentData
+          }),
+        });
 
-      if (data.success && data.qrId) {
-        // Show success state instantly
-        setTicketData({ qrId: data.qrId, name: data.name, isWaitlisted: data.isWaitlisted || false });
-        setIsLoading(false);
+        const data = await res.json();
+
+        if (data.success && data.qrId) {
+          // Show success state instantly
+          setTicketData({ qrId: data.qrId, name: data.name, isWaitlisted: data.isWaitlisted || false });
+          setIsLoading(false);
+        } else {
+          setError(data.error || "Failed to register. Please try again.");
+          setIsLoading(false);
+        }
+      };
+
+      if (isWaitlistExpected) {
+        // Bypass payment and add to waitlist directly
+        await completeRegistration({});
       } else {
-        setError(data.error || "Failed to register. Please try again.");
-        setIsLoading(false);
+        // 1. Create order
+        const orderRes = await fetch('/api/razorpay/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 15000 })
+        });
+        const orderData = await orderRes.json();
+        
+        if (!orderData.success) {
+          setError(orderData.error || "Could not initialize payment.");
+          setIsLoading(false);
+          return;
+        }
+
+        // 2. Open Razorpay Modal
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+          amount: orderData.order.amount,
+          currency: orderData.order.currency,
+          name: "The Weekend Baddie",
+          description: "Session Registration",
+          order_id: orderData.order.id,
+          handler: async function (response: any) {
+            // 3. Complete registration with payment details
+            await completeRegistration({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature
+            });
+          },
+          prefill: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.phone
+          },
+          theme: {
+            color: "#6b21a8" // brand-purple
+          },
+          modal: {
+            ondismiss: function() {
+              setIsLoading(false);
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          setError("Payment failed. Please try again.");
+          setIsLoading(false);
+        });
+        rzp.open();
       }
     } catch (err) {
       console.error(err);
@@ -461,8 +523,8 @@ export default function Register() {
                   </>
                 ) : (
                   <>
-                    <User className="w-6 h-6" />
-                    Register
+                    <CreditCard className="w-6 h-6" />
+                    Pay ₹150 & Register
                   </>
                 )}
               </button>

@@ -23,6 +23,9 @@ export interface PlayerRegistration {
   checkInStatus: 'Pending' | 'Checked In';
   timeWhenCheckedIn: string | null;
   registrationStatus?: 'Confirmed' | 'Waitlisted';
+  paymentStatus?: 'Paid' | 'Pending' | 'Failed';
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
 }
 
 // Define the player interface

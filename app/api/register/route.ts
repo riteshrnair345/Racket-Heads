@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getPlayerByEmail, generateNextPlayerId, upsertPlayer, Player, getPlayers, getEvents } from '@/lib/db';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, age, proficiency, duration, shoes, heardFrom, eventId } = body;
+    const { name, email, phone, age, proficiency, duration, shoes, heardFrom, eventId, razorpay_payment_id, razorpay_order_id, razorpay_signature } = body;
 
     if (!name || !email || !phone || !age || !proficiency || !duration) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -56,6 +57,26 @@ export async function POST(request: Request) {
       existingRegistration.registrationStatus === 'Waitlisted' : 
       confirmedCount >= participantLimit;
 
+    // Verify Payment if not waitlisted and not already confirmed
+    if (!isWaitlisted && (!existingRegistration || existingRegistration.registrationStatus !== 'Confirmed')) {
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        return NextResponse.json({ success: false, error: 'Payment details are missing' }, { status: 400 });
+      }
+
+      if (!process.env.RAZORPAY_KEY_SECRET) {
+        return NextResponse.json({ success: false, error: 'Server misconfiguration: Payment secret missing' }, { status: 500 });
+      }
+
+      const generated_signature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(razorpay_order_id + '|' + razorpay_payment_id)
+        .digest('hex');
+
+      if (generated_signature !== razorpay_signature) {
+        return NextResponse.json({ success: false, error: 'Payment verification failed' }, { status: 400 });
+      }
+    }
+
 
     const now = new Date().toISOString();
 
@@ -86,7 +107,10 @@ export async function POST(request: Request) {
           eventId: targetEventId,
           checkInStatus: 'Pending',
           timeWhenCheckedIn: null,
-          registrationStatus: isWaitlisted ? 'Waitlisted' : 'Confirmed'
+          registrationStatus: isWaitlisted ? 'Waitlisted' : 'Confirmed',
+          paymentStatus: isWaitlisted ? 'Pending' : 'Paid',
+          razorpayPaymentId: razorpay_payment_id,
+          razorpayOrderId: razorpay_order_id
         });
       }
     } else {
@@ -116,7 +140,10 @@ export async function POST(request: Request) {
             eventId: targetEventId,
             checkInStatus: 'Pending',
             timeWhenCheckedIn: null,
-            registrationStatus: isWaitlisted ? 'Waitlisted' : 'Confirmed'
+            registrationStatus: isWaitlisted ? 'Waitlisted' : 'Confirmed',
+            paymentStatus: isWaitlisted ? 'Pending' : 'Paid',
+            razorpayPaymentId: razorpay_payment_id,
+            razorpayOrderId: razorpay_order_id
           }
         ]
       };

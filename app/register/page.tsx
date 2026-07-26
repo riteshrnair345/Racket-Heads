@@ -13,6 +13,7 @@ type EventStatus = {
   time?: string;
   venue?: string;
   requiresPayment?: boolean;
+  amount?: number;
   count: number;
   maxSlots: number;
   isFull: boolean;

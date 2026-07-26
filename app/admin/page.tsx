@@ -28,6 +28,7 @@ type EventItem = {
   time?: string;
   venue?: string;
   requiresPayment?: boolean;
+  amount?: number;
   isActive: boolean;
   isFeedbackOpen?: boolean;
   createdAt: string;

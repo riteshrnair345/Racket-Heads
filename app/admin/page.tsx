@@ -916,7 +916,7 @@ function EventsView() {
                             <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-[120px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
-                            <input type="number" value={editForm.participantLimit} onChange={e=>setEditForm({...editForm, participantLimit: parseInt(e.target.value)})} className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                            <input type="number" value={editForm.participantLimit || ''} onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5 space-y-2">
                             <button
@@ -927,7 +927,7 @@ function EventsView() {
                               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
                             {editForm.requiresPayment && (
-                              <input type="number" value={editForm.amount} onChange={e=>setEditForm({...editForm, amount: parseInt(e.target.value)})} placeholder="Amt" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20 text-xs" />
+                              <input type="number" value={editForm.amount || ''} onChange={e=>setEditForm({...editForm, amount: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Amt" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20 text-xs" />
                             )}
                           </td>
                           <td className="px-6 py-5"></td>

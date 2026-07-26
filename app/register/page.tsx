@@ -355,8 +355,15 @@ export default function Register() {
             )}
             {selectedEvent.venue && (
               <div className="flex items-center gap-2 text-brand-purple">
-                <MapPin className="w-5 h-5 text-brand-pink" />
-                <span className="font-bold">{selectedEvent.venue}</span>
+                <MapPin className="w-5 h-5 text-brand-pink shrink-0" />
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.venue)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold hover:text-brand-pink transition-colors hover:underline"
+                >
+                  {selectedEvent.venue}
+                </a>
               </div>
             )}
           </div>

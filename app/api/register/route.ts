@@ -177,6 +177,11 @@ export async function POST(request: Request) {
           Proficiency: ${player.proficiency}<br/>
           Phone Number: ${formattedPhone}</p>
           
+          <p><strong>Event Details:</strong><br/>
+          Date: ${targetEvent?.date || 'TBD'}<br/>
+          Time: ${targetEvent?.time || 'TBD'}<br/>
+          Venue: ${targetEvent?.venue || 'TBD'}</p>
+          
           <p>If a spot opens up, we will contact you immediately and upgrade you to the confirmed list. Keep an eye on your email!</p>
           
           <p>Cheers,<br/>
@@ -191,6 +196,12 @@ export async function POST(request: Request) {
           Name: ${player.name}<br/>
           Proficiency: ${player.proficiency}<br/>
           Phone Number: ${formattedPhone}</p>
+          
+          <p><strong>Event Details:</strong><br/>
+          Date: ${targetEvent?.date || 'TBD'}<br/>
+          Time: ${targetEvent?.time || 'TBD'}<br/>
+          Venue: ${targetEvent?.venue || 'TBD'} 
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(targetEvent?.venue || '')}">(View on Map)</a></p>
           
           <p>Get ready for an epic session—we have a great mix of competitive match play lined up alongside some custom challenges and fun group games!</p>
           

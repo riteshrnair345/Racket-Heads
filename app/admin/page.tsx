@@ -705,6 +705,27 @@ function EventsView() {
   const [eventType, setEventType] = useState<'community' | 'doubles'>('community');
   const [creating, setCreating] = useState(false);
   
+  const VENUE_DATA: Record<string, { price: number, courts: number }> = {
+    "Prosmash Maradu": { price: 350, courts: 2 },
+    "Play 2 Win Kadavanthra": { price: 350, courts: 4 },
+    "Olympus Arena Thammanam": { price: 400, courts: 4 },
+    "Fitness Soul Kakkanad": { price: 340, courts: 4 }
+  };
+
+  useEffect(() => {
+    const matchedVenueKey = Object.keys(VENUE_DATA).find(
+      key => key.toLowerCase() === venue.toLowerCase()
+    );
+    
+    if (matchedVenueKey) {
+      const vData = VENUE_DATA[matchedVenueKey];
+      setAmount(vData.price);
+      if (eventType === 'doubles') {
+        setLimit(vData.courts * 6);
+      }
+    }
+  }, [venue, eventType]);
+  
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{name: string, date: string, time: string, venue: string, participantLimit: number, requiresPayment: boolean, amount: number, eventType: 'community' | 'doubles'}>({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true, amount: 150, eventType: 'community' });
 
@@ -850,11 +871,26 @@ function EventsView() {
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Time</label>
-              <input type="text" value={time} onChange={e=>setTime(e.target.value)} placeholder="e.g. 9:00 AM - 11:00 AM" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <input type="text" list="time-options" value={time} onChange={e=>setTime(e.target.value)} placeholder="e.g. 9:00 AM - 11:00 AM" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <datalist id="time-options">
+                <option value="6:00 AM - 8:00 AM" />
+                <option value="7:00 AM - 9:00 AM" />
+                <option value="8:00 AM - 10:00 AM" />
+                <option value="9:00 AM - 11:00 AM" />
+                <option value="6:00 PM - 8:00 PM" />
+                <option value="7:00 PM - 9:00 PM" />
+                <option value="8:00 PM - 10:00 PM" />
+              </datalist>
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Venue</label>
-              <input type="text" value={venue} onChange={e=>setVenue(e.target.value)} placeholder="e.g. RacketHeads Arena" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <input type="text" list="venue-options" value={venue} onChange={e=>setVenue(e.target.value)} placeholder="e.g. Prosmash Maradu" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <datalist id="venue-options">
+                <option value="Prosmash Maradu" />
+                <option value="Play 2 Win Kadavanthra" />
+                <option value="Olympus Arena Thammanam" />
+                <option value="Fitness Soul Kakkanad" />
+              </datalist>
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>

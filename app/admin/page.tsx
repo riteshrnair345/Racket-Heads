@@ -696,11 +696,12 @@ function EventsView() {
   const [time, setTime] = useState("");
   const [venue, setVenue] = useState("");
   const [requiresPayment, setRequiresPayment] = useState(true);
+  const [amount, setAmount] = useState(150);
   const [limit, setLimit] = useState(28);
   const [creating, setCreating] = useState(false);
   
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true });
+  const [editForm, setEditForm] = useState({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true, amount: 150 });
 
   const fetchEvents = async () => {
     try {
@@ -730,7 +731,7 @@ function EventsView() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ADMIN_PIN}`
         },
-        body: JSON.stringify({ name, date, time, venue, requiresPayment, participantLimit: limit, isActive: true })
+        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, isActive: true })
       });
       if (res.ok) {
         setName("");
@@ -738,6 +739,7 @@ function EventsView() {
         setTime("");
         setVenue("");
         setRequiresPayment(true);
+        setAmount(150);
         setLimit(28);
         fetchEvents();
       }
@@ -795,6 +797,7 @@ function EventsView() {
           time: editForm.time,
           venue: editForm.venue,
           requiresPayment: editForm.requiresPayment,
+          amount: editForm.amount,
           participantLimit: editForm.participantLimit
         })
       });
@@ -860,6 +863,12 @@ function EventsView() {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
             </div>
+            {requiresPayment && (
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-1">Payment Amount (₹)</label>
+                <input required type="number" value={amount || ''} onChange={e=>setAmount(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              </div>
+            )}
             <button disabled={creating} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md mt-2">
               {creating ? "Creating..." : "Create Event"}
             </button>
@@ -904,12 +913,12 @@ function EventsView() {
                             <input type="text" value={editForm.time} onChange={e=>setEditForm({...editForm, time: e.target.value})} placeholder="Time" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
-                            <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                            <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-[120px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
-                            <input type="number" value={editForm.participantLimit} onChange={e=>setEditForm({...editForm, participantLimit: parseInt(e.target.value)})} className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                            <input type="number" value={editForm.participantLimit} onChange={e=>setEditForm({...editForm, participantLimit: parseInt(e.target.value)})} className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5 space-y-2">
                             <button
                               type="button"
                               onClick={() => setEditForm({...editForm, requiresPayment: !editForm.requiresPayment})}
@@ -917,6 +926,9 @@ function EventsView() {
                             >
                               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
+                            {editForm.requiresPayment && (
+                              <input type="number" value={editForm.amount} onChange={e=>setEditForm({...editForm, amount: parseInt(e.target.value)})} placeholder="Amt" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20 text-xs" />
+                            )}
                           </td>
                           <td className="px-6 py-5"></td>
                           <td className="px-6 py-5"></td>
@@ -936,7 +948,7 @@ function EventsView() {
                           <td className="px-6 py-5 text-slate-600 font-medium">{event.participantLimit}</td>
                           <td className="px-6 py-5">
                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.requiresPayment ?? true ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
-                              {event.requiresPayment ?? true ? 'Paid' : 'Free'}
+                              {event.requiresPayment ?? true ? `₹${event.amount ?? 150}` : 'Free'}
                             </span>
                           </td>
                           <td className="px-6 py-5">
@@ -969,6 +981,7 @@ function EventsView() {
                                   time: event.time || "",
                                   venue: event.venue || "",
                                   requiresPayment: event.requiresPayment ?? true,
+                                  amount: event.amount ?? 150,
                                   participantLimit: event.participantLimit
                                 });
                               }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">

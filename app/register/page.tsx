@@ -152,10 +152,11 @@ export default function Register() {
         await completeRegistration({});
       } else {
         // 1. Create order
+        const paymentAmount = (selectedEvent?.amount ?? 150) * 100; // INR to paise
         const orderRes = await fetch('/api/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: 15000 }) // 150 INR in paise
+          body: JSON.stringify({ amount: paymentAmount })
         });
         const orderData = await orderRes.json();
         

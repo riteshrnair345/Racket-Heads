@@ -35,6 +35,7 @@ export async function GET(request: Request) {
         time: event.time,
         venue: event.venue,
         requiresPayment: event.requiresPayment,
+        amount: event.amount ?? 150,
         count: currentCount,
         maxSlots: event.participantLimit,
         isFull: currentCount >= event.participantLimit

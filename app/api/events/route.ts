@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, date, time, venue, requiresPayment, amount, participantLimit, eventType, isActive, isFeedbackOpen } = body;
+    const { name, date, time, venue, requiresPayment, amount, participantLimit, waitlistThreshold, eventType, isActive, isFeedbackOpen } = body;
 
     if (!name || !date || typeof participantLimit !== 'number') {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       requiresPayment: requiresPayment ?? true, // default to true if not specified
       amount: amount ?? 150, // default 150 INR
       participantLimit,
+      waitlistThreshold: waitlistThreshold ?? 6,
       eventType: eventType || 'community', // default to community
       isActive: isActive || false,
       isFeedbackOpen: isFeedbackOpen || false,
@@ -75,7 +76,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, name, date, time, venue, requiresPayment, amount, participantLimit, eventType, isActive, isFeedbackOpen } = body;
+    const { id, name, date, time, venue, requiresPayment, amount, participantLimit, waitlistThreshold, eventType, isActive, isFeedbackOpen } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing event ID' }, { status: 400 });
@@ -94,6 +95,7 @@ export async function PUT(request: Request) {
     if (time !== undefined) events[eventIndex].time = time;
     if (venue !== undefined) events[eventIndex].venue = venue;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
+    if (typeof waitlistThreshold === 'number') events[eventIndex].waitlistThreshold = waitlistThreshold;
     if (eventType) events[eventIndex].eventType = eventType;
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
     if (typeof requiresPayment === 'boolean') events[eventIndex].requiresPayment = requiresPayment;

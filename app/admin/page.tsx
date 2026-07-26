@@ -702,6 +702,7 @@ function EventsView() {
   const [requiresPayment, setRequiresPayment] = useState(true);
   const [amount, setAmount] = useState(150);
   const [limit, setLimit] = useState(28);
+  const [waitlistThreshold, setWaitlistThreshold] = useState(6);
   const [eventType, setEventType] = useState<'community' | 'doubles'>('community');
   const [creating, setCreating] = useState(false);
   
@@ -727,7 +728,7 @@ function EventsView() {
   }, [venue, eventType]);
   
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<{name: string, date: string, time: string, venue: string, participantLimit: number, requiresPayment: boolean, amount: number, eventType: 'community' | 'doubles'}>({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true, amount: 150, eventType: 'community' });
+  const [editForm, setEditForm] = useState<{name: string, date: string, time: string, venue: string, participantLimit: number, waitlistThreshold: number, requiresPayment: boolean, amount: number, eventType: 'community' | 'doubles'}>({ name: "", date: "", time: "", venue: "", participantLimit: 0, waitlistThreshold: 6, requiresPayment: true, amount: 150, eventType: 'community' });
 
   const fetchEvents = async () => {
     try {
@@ -757,7 +758,7 @@ function EventsView() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ADMIN_PIN}`
         },
-        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, eventType, isActive: true })
+        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, waitlistThreshold, eventType, isActive: true })
       });
       if (res.ok) {
         setName("");
@@ -767,6 +768,7 @@ function EventsView() {
         setRequiresPayment(true);
         setAmount(150);
         setLimit(28);
+        setWaitlistThreshold(6);
         setEventType('community');
         fetchEvents();
       }
@@ -826,6 +828,7 @@ function EventsView() {
           requiresPayment: editForm.requiresPayment,
           amount: editForm.amount,
           participantLimit: editForm.participantLimit,
+          waitlistThreshold: editForm.waitlistThreshold,
           eventType: editForm.eventType
         })
       });
@@ -895,6 +898,10 @@ function EventsView() {
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
               <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Waitlist Auto-Unlock Threshold</label>
+              <input required type="number" value={waitlistThreshold || ''} onChange={e=>setWaitlistThreshold(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Event Type</label>
@@ -970,8 +977,9 @@ function EventsView() {
                           <td className="px-6 py-5">
                             <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-[120px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
-                          <td className="px-6 py-5">
-                            <input type="number" value={editForm.participantLimit || ''} onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                          <td className="px-6 py-5 space-y-2">
+                            <input type="number" value={editForm.participantLimit || ''} onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Limit" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Participant Limit" />
+                            <input type="number" value={editForm.waitlistThreshold || ''} onChange={e=>setEditForm({...editForm, waitlistThreshold: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Waitlist Unlock Threshold" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Waitlist Auto-Unlock Threshold" />
                           </td>
                           <td className="px-6 py-5 space-y-2">
                             <button
@@ -1052,6 +1060,7 @@ function EventsView() {
                                   requiresPayment: event.requiresPayment ?? true,
                                   amount: event.amount ?? 150,
                                   participantLimit: event.participantLimit,
+                                  waitlistThreshold: (event as any).waitlistThreshold ?? 6,
                                   eventType: event.eventType || 'community'
                                 });
                               }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">

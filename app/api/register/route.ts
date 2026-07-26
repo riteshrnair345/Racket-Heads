@@ -248,9 +248,9 @@ export async function POST(request: Request) {
       const updatedEventPlayers = updatedPlayersList.filter(p => p.registrations?.some(r => r.eventId === targetEventId));
       const waitlistGroup = updatedEventPlayers.filter(p => p.registrations?.some(r => r.eventId === targetEventId && r.registrationStatus === 'Waitlisted' && r.paymentStatus === 'Pending'));
       
-      if (waitlistGroup.length > 0 && waitlistGroup.length % 6 === 0) {
-        // Trigger emails to the 6 waitlisted players to pay
-        const playersToEmail = waitlistGroup.slice(0, 6);
+      if (waitlistGroup.length > 0 && waitlistGroup.length % (targetEvent?.waitlistThreshold ?? 6) === 0) {
+        // Trigger emails to the waitlisted players to pay
+        const playersToEmail = waitlistGroup.slice(0, targetEvent?.waitlistThreshold ?? 6);
         
         if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
           const transporter = nodemailer.createTransport({

@@ -57,8 +57,10 @@ export async function POST(request: Request) {
       existingRegistration.registrationStatus === 'Waitlisted' : 
       confirmedCount >= participantLimit;
 
-    // Verify Payment if not waitlisted and not already confirmed
-    if (!isWaitlisted && (!existingRegistration || existingRegistration.registrationStatus !== 'Confirmed')) {
+    const requiresPayment = targetEvent ? (targetEvent.requiresPayment ?? true) : true;
+
+    // Verify Payment if not waitlisted and not already confirmed AND payment is required
+    if (requiresPayment && !isWaitlisted && (!existingRegistration || existingRegistration.registrationStatus !== 'Confirmed')) {
       if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
         return NextResponse.json({ success: false, error: 'Payment details are missing' }, { status: 400 });
       }

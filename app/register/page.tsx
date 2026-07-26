@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft, Calendar, MapPin } from 'lucide-react';
+import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Users, Info, CreditCard, ArrowLeft, Calendar, MapPin } from 'lucide-react';
 import Script from 'next/script';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
@@ -14,6 +14,7 @@ type EventStatus = {
   venue?: string;
   requiresPayment?: boolean;
   amount?: number;
+  eventType?: 'community' | 'doubles';
   count: number;
   maxSlots: number;
   isFull: boolean;
@@ -33,7 +34,7 @@ export default function Register() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ticketData, setTicketData] = useState<{ qrId: string; name: string; isWaitlisted: boolean } | null>(null);
+  const [ticketData, setTicketData] = useState<{ qrId: string; name: string; isWaitlisted: boolean; isDoubles?: boolean } | null>(null);
   
   // Registration limit states
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
@@ -80,7 +81,7 @@ export default function Register() {
         const data = await res.json();
         if (data.success && data.events) {
           setActiveEvents(data.events);
-          if (data.events.length > 0) {
+          if (data.events.length === 1) {
             setSelectedEventId(data.events[0].id);
           }
         }
@@ -96,14 +97,22 @@ export default function Register() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.age || !formData.proficiency || !formData.duration || !formData.heardFrom) {
-      setError("Please fill out all fields before continuing.");
+    if (!selectedEventId) {
+      setError("Please select an event to register for.");
       return;
     }
 
-    if (!selectedEventId) {
-      setError("Please select an event to register for.");
+    const selectedEvent = activeEvents.find(event => event.id === selectedEventId);
+    const isDoubles = selectedEvent?.eventType === 'doubles';
+
+    // Validation
+    if (!formData.name || !formData.email || !formData.phone || !formData.age) {
+      setError("Please fill out all required fields before continuing.");
+      return;
+    }
+
+    if (!isDoubles && (!formData.proficiency || !formData.duration || !formData.heardFrom)) {
+      setError("Please fill out all required fields before continuing.");
       return;
     }
 
@@ -114,7 +123,6 @@ export default function Register() {
     localStorage.setItem('twb_register_draft', JSON.stringify(formData));
 
     try {
-      const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
       const isWaitlistExpected = selectedEvent?.isFull;
       const requiresPayment = selectedEvent?.requiresPayment ?? true;
 
@@ -140,7 +148,7 @@ export default function Register() {
 
         if (data.success && data.qrId) {
           // Show success state instantly
-          setTicketData({ qrId: data.qrId, name: data.name, isWaitlisted: data.isWaitlisted || false });
+          setTicketData({ qrId: data.qrId, name: data.name, isWaitlisted: data.isWaitlisted || false, isDoubles: selectedEvent?.eventType === 'doubles' });
           setIsLoading(false);
         } else {
           setError(data.error || "Failed to register. Please try again.");
@@ -233,12 +241,12 @@ export default function Register() {
             </p>
             <div className={`border rounded-xl p-4 inline-block mb-4 ${ticketData.isWaitlisted ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'}`}>
               <h2 className={`${ticketData.isWaitlisted ? 'text-amber-700' : 'text-emerald-700'} text-sm font-extrabold uppercase tracking-wider mb-2`}>
-                {ticketData.isWaitlisted ? '⏳ Waitlist Confirmation Sent' : '🎟️ Ticket Sent to Email'}
+                {ticketData.isWaitlisted ? '⏳ Waitlist Confirmation Sent' : (ticketData.isDoubles ? '✅ Confirmation Sent to Email' : '🎟️ Ticket Sent to Email')}
               </h2>
               <p className={`${ticketData.isWaitlisted ? 'text-amber-800' : 'text-emerald-800'} text-sm font-medium`}>
                 {ticketData.isWaitlisted 
                   ? "We've emailed your waitlist confirmation. Keep an eye on your inbox—if a spot opens up, we will contact you immediately to upgrade you!"
-                  : "We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!"}
+                  : (ticketData.isDoubles ? "We've emailed your confirmation. Please check your inbox for more details!" : "We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!")}
               </p>
             </div>
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 inline-block">
@@ -342,37 +350,140 @@ export default function Register() {
 
         </header>
 
-        {/* Selected Event Details */}
-        {selectedEvent && (
-          <div className="bg-white/80 backdrop-blur-md border border-brand-purple/10 rounded-3xl p-5 mb-8 shadow-sm flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-            <div className="flex items-center gap-2 text-brand-purple">
-              <Calendar className="w-5 h-5 text-brand-pink" />
-              <span className="font-bold">{selectedEvent.date}</span>
-            </div>
-            {selectedEvent.time && (
-              <div className="flex items-center gap-2 text-brand-purple">
-                <Clock className="w-5 h-5 text-brand-pink" />
-                <span className="font-bold">{selectedEvent.time}</span>
+        {/* Event Selection */}
+        {activeEvents.length > 1 && !selectedEventId && (
+          <div className="mb-10 w-full animate-in fade-in slide-in-from-bottom-4">
+            <h2 className="text-2xl font-bold text-center text-brand-purple mb-6">Select a Session to Register</h2>
+            
+            {/* Doubles Match-up Sessions */}
+            {activeEvents.filter(e => e.eventType === 'doubles').length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-black text-brand-purple mb-4 flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-brand-pink" /> Doubles Match-up Sessions
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {activeEvents.filter(e => e.eventType === 'doubles').map(event => (
+                    <div 
+                      key={event.id}
+                      onClick={() => setSelectedEventId(event.id)}
+                      className="bg-white/80 backdrop-blur-md border border-brand-purple/10 rounded-3xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow/10 to-brand-pink/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="font-bold text-brand-purple text-lg mb-2">{event.name}</div>
+                        <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-1">
+                          <Calendar className="w-4 h-4 text-brand-pink" /> {event.date}
+                        </div>
+                        {event.time && (
+                          <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-3">
+                            <Clock className="w-4 h-4 text-brand-pink" /> {event.time}
+                          </div>
+                        )}
+                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-between">
+                          <span className="font-bold text-sm text-brand-purple">
+                            {event.count}/{event.maxSlots} Booked
+                          </span>
+                          <span className="text-brand-pink font-black group-hover:translate-x-1 transition-transform">
+                            Select &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            {selectedEvent.venue && (
-              <div className="flex items-center gap-2 text-brand-purple">
-                <MapPin className="w-5 h-5 text-brand-pink shrink-0" />
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.venue)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold hover:text-brand-pink transition-colors hover:underline"
-                >
-                  {selectedEvent.venue}
-                </a>
+
+            {/* Community Events */}
+            {activeEvents.filter(e => e.eventType !== 'doubles').length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-black text-brand-purple mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-brand-pink" /> Community Events
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {activeEvents.filter(e => e.eventType !== 'doubles').map(event => (
+                    <div 
+                      key={event.id}
+                      onClick={() => setSelectedEventId(event.id)}
+                      className="bg-white/80 backdrop-blur-md border border-brand-purple/10 rounded-3xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/5 to-brand-pink/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="font-bold text-brand-purple text-lg mb-2">{event.name}</div>
+                        <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-1">
+                          <Calendar className="w-4 h-4 text-brand-pink" /> {event.date}
+                        </div>
+                        {event.time && (
+                          <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-3">
+                            <Clock className="w-4 h-4 text-brand-pink" /> {event.time}
+                          </div>
+                        )}
+                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-between">
+                          <span className="font-bold text-sm text-brand-purple">
+                            {event.count}/{event.maxSlots} Booked
+                          </span>
+                          <span className="text-brand-purple font-black group-hover:translate-x-1 transition-transform">
+                            Select &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         )}
 
+        {/* Selected Event Details (Shows if 1 event active, or if user has selected one) */}
+        {selectedEvent && (
+          <div className="bg-white/90 backdrop-blur-md border border-brand-purple/10 rounded-3xl p-6 sm:p-8 mb-8 shadow-sm relative overflow-hidden flex flex-col items-center text-center animate-in fade-in slide-in-from-top-4">
+            <h2 className="text-2xl font-black text-brand-purple mb-4">{selectedEvent.name}</h2>
+            
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-6">
+              <div className="flex items-center gap-2 text-brand-purple bg-brand-purple/5 px-4 py-2 rounded-xl">
+                <Calendar className="w-5 h-5 text-brand-pink" />
+                <span className="font-bold text-sm sm:text-base">{selectedEvent.date}</span>
+              </div>
+              {selectedEvent.time && (
+                <div className="flex items-center gap-2 text-brand-purple bg-brand-purple/5 px-4 py-2 rounded-xl">
+                  <Clock className="w-5 h-5 text-brand-pink" />
+                  <span className="font-bold text-sm sm:text-base">{selectedEvent.time}</span>
+                </div>
+              )}
+              {selectedEvent.venue && (
+                <div className="flex items-center gap-2 text-brand-purple bg-brand-purple/5 px-4 py-2 rounded-xl">
+                  <MapPin className="w-5 h-5 text-brand-pink shrink-0" />
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.venue)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-sm sm:text-base hover:text-brand-pink transition-colors hover:underline"
+                  >
+                    {selectedEvent.venue}
+                  </a>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-brand-purple bg-brand-purple/5 px-4 py-2 rounded-xl">
+                <User className="w-5 h-5 text-brand-pink shrink-0" />
+                <span className="font-bold text-sm sm:text-base">{selectedEvent.count}/{selectedEvent.maxSlots} Slots Booked</span>
+              </div>
+            </div>
+
+            {activeEvents.length > 1 && (
+              <button 
+                onClick={() => setSelectedEventId('')}
+                className="text-sm font-bold text-brand-purple bg-brand-yellow hover:bg-[#F2D059] px-6 py-2.5 rounded-xl shadow-sm transition-colors"
+              >
+                Change Session
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Form Container */}
-        <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 sm:p-10 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative">
+        {selectedEventId && (
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 sm:p-10 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative animate-in fade-in slide-in-from-bottom-4">
           
           <div className="mb-10">
             <h2 className="text-2xl font-bold mb-2 flex items-center gap-2 text-brand-purple">
@@ -456,48 +567,52 @@ export default function Register() {
               </div>
 
               {/* 4. Proficiency - Card Selection */}
-              <div className="space-y-4 md:col-span-2">
-                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-brand-pink" /> How would you rate your skills? <span className="text-brand-pink">*</span>
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['Beginner', 'Amateur', 'Advanced', 'Professional'].map((level) => (
-                    <div
-                      key={level}
-                      onClick={() => handleSelect('proficiency', level)}
-                      className={`cursor-pointer rounded-2xl p-4 text-center border-2 transition-all duration-200 font-bold ${
-                        formData.proficiency === level 
-                        ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
-                        : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
-                      }`}
-                    >
-                      <span className="text-sm">{level}</span>
-                    </div>
-                  ))}
+              {selectedEvent?.eventType !== 'doubles' && (
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-brand-pink" /> How would you rate your skills? <span className="text-brand-pink">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {['Beginner', 'Amateur', 'Advanced', 'Professional'].map((level) => (
+                      <div
+                        key={level}
+                        onClick={() => handleSelect('proficiency', level)}
+                        className={`cursor-pointer rounded-2xl p-4 text-center border-2 transition-all duration-200 font-bold ${
+                          formData.proficiency === level 
+                          ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
+                          : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
+                        }`}
+                      >
+                        <span className="text-sm">{level}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* 5. Duration - Card Selection */}
-              <div className="space-y-4 md:col-span-2">
-                <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-brand-pink" /> How long have you been playing? <span className="text-brand-pink">*</span>
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  {['< 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'].map((time) => (
-                    <div
-                      key={time}
-                      onClick={() => handleSelect('duration', time)}
-                      className={`cursor-pointer rounded-2xl p-3 text-center border-2 transition-all duration-200 flex items-center justify-center font-bold ${
-                        formData.duration === time 
-                        ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
-                        : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
-                      }`}
-                    >
-                      <span className="text-xs sm:text-sm">{time}</span>
-                    </div>
-                  ))}
+              {selectedEvent?.eventType !== 'doubles' && (
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-sm font-bold text-brand-purple ml-1 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-brand-pink" /> How long have you been playing? <span className="text-brand-pink">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {['< 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'].map((time) => (
+                      <div
+                        key={time}
+                        onClick={() => handleSelect('duration', time)}
+                        className={`cursor-pointer rounded-2xl p-3 text-center border-2 transition-all duration-200 flex items-center justify-center font-bold ${
+                          formData.duration === time 
+                          ? 'border-brand-purple bg-brand-yellow text-brand-purple shadow-sm' 
+                          : 'border-transparent bg-white border-brand-purple/10 text-brand-purple/70 hover:bg-brand-purple/5 hover:text-brand-purple shadow-sm'
+                        }`}
+                      >
+                        <span className="text-xs sm:text-sm">{time}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* 6. Non-marking shoes - Disclaimer */}
               <div className="space-y-4 md:col-span-2">
@@ -515,32 +630,44 @@ export default function Register() {
               </div>
 
               {/* 7. Heard From */}
-              <div className="space-y-3 md:col-span-2">
-                <label className="text-sm font-bold text-brand-purple ml-1">
-                  How did you find us? <span className="text-brand-pink">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="heardFrom"
-                    value={formData.heardFrom}
-                    onChange={handleChange}
-                    className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple font-medium focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all appearance-none cursor-pointer shadow-sm"
-                  >
-                    <option value="" disabled className="text-brand-purple/40">Select an option...</option>
-                    <option value="Friend/Word of Mouth">Friend / Word of Mouth</option>
-                    <option value="Instagram">Instagram</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-brand-purple/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+              {selectedEvent?.eventType !== 'doubles' && (
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-sm font-bold text-brand-purple ml-1">
+                    How did you find us? <span className="text-brand-pink">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="heardFrom"
+                      value={formData.heardFrom}
+                      onChange={handleChange}
+                      className="w-full bg-white border border-brand-purple/20 rounded-2xl px-5 py-4 text-brand-purple font-medium focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple transition-all appearance-none cursor-pointer shadow-sm"
+                    >
+                      <option value="" disabled className="text-brand-purple/40">Select an option...</option>
+                      <option value="Friend/Word of Mouth">Friend / Word of Mouth</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-5 flex items-center pointer-events-none">
+                      <svg className="w-5 h-5 text-brand-purple/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
             </div>
 
             <div className="pt-8 mt-10 border-t border-brand-purple/10">
+              {selectedEvent?.requiresPayment !== false && !selectedEvent?.isFull && (
+                <div className="mb-4 bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center shadow-sm">
+                  <p className="text-emerald-800 text-sm font-semibold">
+                    Session Fee: ₹{selectedEvent?.amount ?? 150}/hour
+                  </p>
+                  <p className="text-emerald-700 text-xs mt-1 font-medium">
+                    Includes court fee + 1 premium match-grade shuttle. RacketHeads takes zero markup to help build the community!
+                  </p>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={isLoading || false}
@@ -571,6 +698,7 @@ export default function Register() {
             </div>
           </form>
         </div>
+        )}
       </div>
       <div className="w-full mt-20">
         <Footer />

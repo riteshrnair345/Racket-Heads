@@ -1,13 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getEvents, saveEvents, Event } from '@/lib/db';
+import { getEvents, saveEvents, Event, getPlayers } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     const events = await getEvents();
+    const players = await getPlayers();
+
     // Return events sorted by date descending (newest first)
-    const sortedEvents = [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const sortedEvents = [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(event => {
+      const confirmedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus !== 'Waitlisted')).length;
+      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
+      return { ...event, confirmedCount, waitlistedCount };
+    });
+    
     return NextResponse.json({ success: true, events: sortedEvents });
   } catch (error: any) {
     console.error('Events fetch error:', error);
@@ -24,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, date, time, venue, requiresPayment, amount, participantLimit, isActive, isFeedbackOpen } = body;
+    const { name, date, time, venue, requiresPayment, amount, participantLimit, eventType, isActive, isFeedbackOpen } = body;
 
     if (!name || !date || typeof participantLimit !== 'number') {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -44,6 +51,7 @@ export async function POST(request: Request) {
       requiresPayment: requiresPayment ?? true, // default to true if not specified
       amount: amount ?? 150, // default 150 INR
       participantLimit,
+      eventType: eventType || 'community', // default to community
       isActive: isActive || false,
       isFeedbackOpen: isFeedbackOpen || false,
       createdAt: new Date().toISOString()
@@ -67,7 +75,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, name, date, time, venue, requiresPayment, amount, participantLimit, isActive, isFeedbackOpen } = body;
+    const { id, name, date, time, venue, requiresPayment, amount, participantLimit, eventType, isActive, isFeedbackOpen } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing event ID' }, { status: 400 });
@@ -86,6 +94,7 @@ export async function PUT(request: Request) {
     if (time !== undefined) events[eventIndex].time = time;
     if (venue !== undefined) events[eventIndex].venue = venue;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
+    if (eventType) events[eventIndex].eventType = eventType;
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
     if (typeof requiresPayment === 'boolean') events[eventIndex].requiresPayment = requiresPayment;
     if (typeof amount === 'number') events[eventIndex].amount = amount;

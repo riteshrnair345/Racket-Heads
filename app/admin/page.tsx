@@ -29,6 +29,9 @@ type EventItem = {
   venue?: string;
   requiresPayment?: boolean;
   amount?: number;
+  confirmedCount?: number;
+  waitlistedCount?: number;
+  eventType?: 'community' | 'doubles';
   isActive: boolean;
   isFeedbackOpen?: boolean;
   createdAt: string;
@@ -699,10 +702,11 @@ function EventsView() {
   const [requiresPayment, setRequiresPayment] = useState(true);
   const [amount, setAmount] = useState(150);
   const [limit, setLimit] = useState(28);
+  const [eventType, setEventType] = useState<'community' | 'doubles'>('community');
   const [creating, setCreating] = useState(false);
   
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true, amount: 150 });
+  const [editForm, setEditForm] = useState<{name: string, date: string, time: string, venue: string, participantLimit: number, requiresPayment: boolean, amount: number, eventType: 'community' | 'doubles'}>({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true, amount: 150, eventType: 'community' });
 
   const fetchEvents = async () => {
     try {
@@ -732,7 +736,7 @@ function EventsView() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ADMIN_PIN}`
         },
-        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, isActive: true })
+        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, eventType, isActive: true })
       });
       if (res.ok) {
         setName("");
@@ -742,6 +746,7 @@ function EventsView() {
         setRequiresPayment(true);
         setAmount(150);
         setLimit(28);
+        setEventType('community');
         fetchEvents();
       }
     } catch (err) {
@@ -799,7 +804,8 @@ function EventsView() {
           venue: editForm.venue,
           requiresPayment: editForm.requiresPayment,
           amount: editForm.amount,
-          participantLimit: editForm.participantLimit
+          participantLimit: editForm.participantLimit,
+          eventType: editForm.eventType
         })
       });
       if (res.ok) {
@@ -854,6 +860,13 @@ function EventsView() {
               <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
               <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
             </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Event Type</label>
+              <select value={eventType} onChange={e=>setEventType(e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
+                <option value="community">Community Event</option>
+                <option value="doubles">Doubles Match-up Session</option>
+              </select>
+            </div>
             <div className="flex items-center gap-3">
               <label className="block text-sm font-bold text-slate-500">Requires Payment</label>
               <button
@@ -891,7 +904,8 @@ function EventsView() {
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Venue</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Limit</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Payment</th>
-                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Registration</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Signups</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Status</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Feedback</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Actions</th>
                 </tr>
@@ -906,8 +920,12 @@ function EventsView() {
                     <tr key={event.id} className="hover:bg-slate-50/80">
                       {editingEventId === event.id ? (
                         <>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5 space-y-2">
                             <input type="text" value={editForm.name} onChange={e=>setEditForm({...editForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                            <select value={editForm.eventType} onChange={e=>setEditForm({...editForm, eventType: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold text-xs focus:ring-2 focus:ring-brand-purple/20">
+                              <option value="community">Community</option>
+                              <option value="doubles">Doubles Match</option>
+                            </select>
                           </td>
                           <td className="px-6 py-5 space-y-2">
                             <input type="date" value={editForm.date} onChange={e=>setEditForm({...editForm, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
@@ -933,6 +951,7 @@ function EventsView() {
                           </td>
                           <td className="px-6 py-5"></td>
                           <td className="px-6 py-5"></td>
+                          <td className="px-6 py-5"></td>
                           <td className="px-6 py-5 text-right">
                             <button onClick={() => handleEditSave(event)} className="text-emerald-600 font-bold hover:underline">Save</button>
                             <button onClick={() => setEditingEventId(null)} className="ml-3 text-slate-400 font-bold hover:underline">Cancel</button>
@@ -940,7 +959,12 @@ function EventsView() {
                         </>
                       ) : (
                         <>
-                          <td className="px-6 py-5 font-bold text-slate-800">{event.name}</td>
+                          <td className="px-6 py-5">
+                            <div className="font-bold text-slate-800">{event.name}</div>
+                            <div className="text-xs font-semibold mt-1 px-2 py-0.5 inline-block rounded-md bg-slate-100 text-slate-600">
+                              {event.eventType === 'doubles' ? '🏸 Doubles Match' : '🌍 Community'}
+                            </div>
+                          </td>
                           <td className="px-6 py-5">
                             <div className="text-slate-600 font-medium">{event.date}</div>
                             {event.time && <div className="text-slate-400 text-xs mt-1">{event.time}</div>}
@@ -951,6 +975,14 @@ function EventsView() {
                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.requiresPayment ?? true ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
                               {event.requiresPayment ?? true ? `₹${event.amount ?? 150}` : 'Free'}
                             </span>
+                          </td>
+                          <td className="px-6 py-5">
+                            <div className="flex flex-col gap-1 text-xs font-bold">
+                              <span className="text-emerald-600">{event.confirmedCount ?? 0} Confirmed</span>
+                              {(event.waitlistedCount ?? 0) > 0 && (
+                                <span className="text-amber-600">{event.waitlistedCount} Waitlisted</span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-6 py-5">
                             <button
@@ -983,7 +1015,8 @@ function EventsView() {
                                   venue: event.venue || "",
                                   requiresPayment: event.requiresPayment ?? true,
                                   amount: event.amount ?? 150,
-                                  participantLimit: event.participantLimit
+                                  participantLimit: event.participantLimit,
+                                  eventType: event.eventType || 'community'
                                 });
                               }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">
                                 <Edit2 className="w-4 h-4" />

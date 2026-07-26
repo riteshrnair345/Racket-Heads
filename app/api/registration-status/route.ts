@@ -16,9 +16,12 @@ export async function GET(request: Request) {
       if (!event) return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 });
       
       const currentCount = players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus !== 'Waitlisted')).length;
+      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus === 'Waitlisted')).length;
       return NextResponse.json({ 
         success: true, 
         count: currentCount,
+        waitlistedCount,
+        eventType: event.eventType || 'community',
         maxSlots: event.participantLimit,
         isFull: currentCount >= event.participantLimit
       });
@@ -28,6 +31,7 @@ export async function GET(request: Request) {
     const activeEvents = events.filter(e => e.isActive);
     const eventStatuses = activeEvents.map(event => {
       const currentCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus !== 'Waitlisted')).length;
+      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
       return {
         id: event.id,
         name: event.name,
@@ -36,7 +40,9 @@ export async function GET(request: Request) {
         venue: event.venue,
         requiresPayment: event.requiresPayment,
         amount: event.amount ?? 150,
+        eventType: event.eventType || 'community',
         count: currentCount,
+        waitlistedCount,
         maxSlots: event.participantLimit,
         isFull: currentCount >= event.participantLimit
       };

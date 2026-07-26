@@ -17,6 +17,7 @@ export interface Event {
   requiresPayment?: boolean;
   amount?: number;
   participantLimit: number;
+  eventType?: 'community' | 'doubles'; // Event category
   isActive: boolean; // For Registrations
   isFeedbackOpen?: boolean; // For Feedback
   createdAt: string;

@@ -25,6 +25,9 @@ type EventItem = {
   name: string;
   date: string;
   participantLimit: number;
+  time?: string;
+  venue?: string;
+  requiresPayment?: boolean;
   isActive: boolean;
   isFeedbackOpen?: boolean;
   createdAt: string;
@@ -690,11 +693,14 @@ function EventsView() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [venue, setVenue] = useState("");
+  const [requiresPayment, setRequiresPayment] = useState(true);
   const [limit, setLimit] = useState(28);
   const [creating, setCreating] = useState(false);
   
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", date: "", participantLimit: 0 });
+  const [editForm, setEditForm] = useState({ name: "", date: "", time: "", venue: "", participantLimit: 0, requiresPayment: true });
 
   const fetchEvents = async () => {
     try {
@@ -724,11 +730,14 @@ function EventsView() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ADMIN_PIN}`
         },
-        body: JSON.stringify({ name, date, participantLimit: limit, isActive: true })
+        body: JSON.stringify({ name, date, time, venue, requiresPayment, participantLimit: limit, isActive: true })
       });
       if (res.ok) {
         setName("");
         setDate("");
+        setTime("");
+        setVenue("");
+        setRequiresPayment(true);
         setLimit(28);
         fetchEvents();
       }
@@ -783,6 +792,9 @@ function EventsView() {
           id: event.id, 
           name: editForm.name,
           date: editForm.date,
+          time: editForm.time,
+          venue: editForm.venue,
+          requiresPayment: editForm.requiresPayment,
           participantLimit: editForm.participantLimit
         })
       });
@@ -827,8 +839,26 @@ function EventsView() {
               <input required type="date" value={date} onChange={e=>setDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
             </div>
             <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Time</label>
+              <input type="text" value={time} onChange={e=>setTime(e.target.value)} placeholder="e.g. 9:00 AM - 11:00 AM" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Venue</label>
+              <input type="text" value={venue} onChange={e=>setVenue(e.target.value)} placeholder="e.g. RacketHeads Arena" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
               <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="block text-sm font-bold text-slate-500">Requires Payment</label>
+              <button
+                type="button"
+                onClick={() => setRequiresPayment(!requiresPayment)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
             </div>
             <button disabled={creating} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md mt-2">
               {creating ? "Creating..." : "Create Event"}
@@ -847,8 +877,10 @@ function EventsView() {
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Event Name</th>
-                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Date</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Date & Time</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Venue</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Limit</th>
+                  <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Payment</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Registration</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Feedback</th>
                   <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Actions</th>
@@ -867,11 +899,24 @@ function EventsView() {
                           <td className="px-6 py-5">
                             <input type="text" value={editForm.name} onChange={e=>setEditForm({...editForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
-                          <td className="px-6 py-5">
+                          <td className="px-6 py-5 space-y-2">
                             <input type="date" value={editForm.date} onChange={e=>setEditForm({...editForm, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                            <input type="text" value={editForm.time} onChange={e=>setEditForm({...editForm, time: e.target.value})} placeholder="Time" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                          </td>
+                          <td className="px-6 py-5">
+                            <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
                           </td>
                           <td className="px-6 py-5">
                             <input type="number" value={editForm.participantLimit} onChange={e=>setEditForm({...editForm, participantLimit: parseInt(e.target.value)})} className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                          </td>
+                          <td className="px-6 py-5">
+                            <button
+                              type="button"
+                              onClick={() => setEditForm({...editForm, requiresPayment: !editForm.requiresPayment})}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editForm.requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'}`}
+                            >
+                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
+                            </button>
                           </td>
                           <td className="px-6 py-5"></td>
                           <td className="px-6 py-5"></td>
@@ -883,8 +928,17 @@ function EventsView() {
                       ) : (
                         <>
                           <td className="px-6 py-5 font-bold text-slate-800">{event.name}</td>
-                          <td className="px-6 py-5 text-slate-600 font-medium">{event.date}</td>
+                          <td className="px-6 py-5">
+                            <div className="text-slate-600 font-medium">{event.date}</div>
+                            {event.time && <div className="text-slate-400 text-xs mt-1">{event.time}</div>}
+                          </td>
+                          <td className="px-6 py-5 text-slate-600 font-medium">{event.venue || '-'}</td>
                           <td className="px-6 py-5 text-slate-600 font-medium">{event.participantLimit}</td>
+                          <td className="px-6 py-5">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.requiresPayment ?? true ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                              {event.requiresPayment ?? true ? 'Paid' : 'Free'}
+                            </span>
+                          </td>
                           <td className="px-6 py-5">
                             <button
                               onClick={() => toggleActive(event)}
@@ -909,7 +963,14 @@ function EventsView() {
                             <div className="flex items-center justify-end gap-2">
                               <button onClick={() => {
                                 setEditingEventId(event.id);
-                                setEditForm({name: event.name, date: event.date, participantLimit: event.participantLimit});
+                                setEditForm({
+                                  name: event.name, 
+                                  date: event.date, 
+                                  time: event.time || "",
+                                  venue: event.venue || "",
+                                  requiresPayment: event.requiresPayment ?? true,
+                                  participantLimit: event.participantLimit
+                                });
                               }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">
                                 <Edit2 className="w-4 h-4" />
                               </button>

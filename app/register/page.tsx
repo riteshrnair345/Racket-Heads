@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft, Calendar } from 'lucide-react';
+import { Loader2, CheckCircle, Sparkles, Smile, Trophy, Clock, Zap, Phone, Mail, User, Info, CreditCard, ArrowLeft, Calendar, MapPin } from 'lucide-react';
 import Script from 'next/script';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
@@ -10,6 +10,9 @@ type EventStatus = {
   id: string;
   name: string;
   date: string;
+  time?: string;
+  venue?: string;
+  requiresPayment?: boolean;
   count: number;
   maxSlots: number;
   isFull: boolean;
@@ -111,7 +114,8 @@ export default function Register() {
 
     try {
       const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
-      const isWaitlistExpected = selectedEvent?.isFull || false;
+      const isWaitlistExpected = selectedEvent?.isFull;
+      const requiresPayment = selectedEvent?.requiresPayment ?? true;
 
       const completeRegistration = async (paymentData: any = {}) => {
         const res = await fetch('/api/register', {
@@ -143,8 +147,8 @@ export default function Register() {
         }
       };
 
-      if (isWaitlistExpected) {
-        // Bypass payment and add to waitlist directly
+      if (isWaitlistExpected || !requiresPayment) {
+        // Bypass payment and add to waitlist or register directly
         await completeRegistration({});
       } else {
         // 1. Create order
@@ -336,6 +340,28 @@ export default function Register() {
 
         </header>
 
+        {/* Selected Event Details */}
+        {selectedEvent && (
+          <div className="bg-white/80 backdrop-blur-md border border-brand-purple/10 rounded-3xl p-5 mb-8 shadow-sm flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+            <div className="flex items-center gap-2 text-brand-purple">
+              <Calendar className="w-5 h-5 text-brand-pink" />
+              <span className="font-bold">{selectedEvent.date}</span>
+            </div>
+            {selectedEvent.time && (
+              <div className="flex items-center gap-2 text-brand-purple">
+                <Clock className="w-5 h-5 text-brand-pink" />
+                <span className="font-bold">{selectedEvent.time}</span>
+              </div>
+            )}
+            {selectedEvent.venue && (
+              <div className="flex items-center gap-2 text-brand-purple">
+                <MapPin className="w-5 h-5 text-brand-pink" />
+                <span className="font-bold">{selectedEvent.venue}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Form Container */}
         <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 sm:p-10 shadow-[0_8px_40px_rgb(0,0,0,0.04)] relative">
           
@@ -521,10 +547,15 @@ export default function Register() {
                     <User className="w-6 h-6" />
                     Join Waitlist
                   </>
-                ) : (
+                ) : selectedEvent?.requiresPayment !== false ? (
                   <>
                     <CreditCard className="w-6 h-6" />
                     Pay
+                  </>
+                ) : (
+                  <>
+                    <User className="w-6 h-6" />
+                    Register
                   </>
                 )}
               </button>

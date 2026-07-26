@@ -12,6 +12,9 @@ export interface Event {
   id: string;
   name: string;
   date: string;
+  time?: string;
+  venue?: string;
+  requiresPayment?: boolean;
   participantLimit: number;
   isActive: boolean; // For Registrations
   isFeedbackOpen?: boolean; // For Feedback

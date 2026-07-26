@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, date, participantLimit, isActive, isFeedbackOpen } = body;
+    const { name, date, time, venue, requiresPayment, participantLimit, isActive, isFeedbackOpen } = body;
 
     if (!name || !date || typeof participantLimit !== 'number') {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -39,6 +39,9 @@ export async function POST(request: Request) {
       id: `evt_${Date.now()}`,
       name,
       date,
+      time: time || "",
+      venue: venue || "",
+      requiresPayment: requiresPayment ?? true, // default to true if not specified
       participantLimit,
       isActive: isActive || false,
       isFeedbackOpen: isFeedbackOpen || false,
@@ -63,7 +66,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, name, date, participantLimit, isActive, isFeedbackOpen } = body;
+    const { id, name, date, time, venue, requiresPayment, participantLimit, isActive, isFeedbackOpen } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing event ID' }, { status: 400 });
@@ -79,8 +82,11 @@ export async function PUT(request: Request) {
     // Update fields
     if (name) events[eventIndex].name = name;
     if (date) events[eventIndex].date = date;
+    if (time !== undefined) events[eventIndex].time = time;
+    if (venue !== undefined) events[eventIndex].venue = venue;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
+    if (typeof requiresPayment === 'boolean') events[eventIndex].requiresPayment = requiresPayment;
     if (typeof isFeedbackOpen === 'boolean') {
       events[eventIndex].isFeedbackOpen = isFeedbackOpen;
       if (isFeedbackOpen) {

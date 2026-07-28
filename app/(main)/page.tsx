@@ -3,8 +3,24 @@
 import Link from 'next/link';
 import { ArrowRight, Trophy, Zap, Users, Info, MapPin } from 'lucide-react';
 import Footer from '@/components/Footer';
+import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/gallery')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.items) {
+          // take the latest 10 items (images and videos) for performance
+          const itemsToDisplay = data.items.slice(0, 10);
+          setGalleryItems(itemsToDisplay);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   return (
     <>
       {/* Background elements */}
@@ -67,6 +83,49 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Gallery Marquee Section */}
+        {galleryItems.length > 0 && (
+          <section className="w-full bg-white/40 backdrop-blur-md border-y border-white/50 py-16 overflow-hidden">
+            <div className="text-center mb-10 px-4">
+              <h2 className="text-3xl font-bold text-brand-purple mb-4">Moments from the Court</h2>
+              <p className="text-brand-purple/70 font-medium">Join the action this weekend.</p>
+            </div>
+            
+            <div className="relative w-full flex overflow-hidden group">
+              <div className="flex w-max animate-scroll gap-4 px-2 hover:[animation-play-state:paused]">
+                <div className="flex gap-4">
+                  {galleryItems.map((item, i) => (
+                    <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
+                      {item.type === 'video' ? (
+                        <video src={item.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                      ) : (
+                        <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-4">
+                  {galleryItems.map((item, i) => (
+                    <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
+                      {item.type === 'video' ? (
+                        <video src={item.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                      ) : (
+                        <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-10">
+              <Link href="/gallery" className="inline-flex items-center gap-2 text-brand-pink font-bold hover:text-brand-purple transition-colors">
+                View Full Gallery <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* Pricing Section */}
         <section className="w-full max-w-5xl mx-auto px-4 py-24 text-center">

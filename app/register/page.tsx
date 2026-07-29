@@ -672,11 +672,13 @@ export default function Register() {
               {selectedEvent?.requiresPayment !== false && !selectedEvent?.isFull && (
                 <div className="mb-4 bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center shadow-sm">
                   <p className="text-emerald-800 text-sm font-semibold">
-                    Session Fee: ₹{selectedEvent?.amount ?? 150}/hour
+                    Session Fee: ₹{selectedEvent?.amount ?? 150}
                   </p>
-                  <p className="text-emerald-700 text-xs mt-1 font-medium">
-                    Includes court fee + 1 premium match-grade shuttle. RacketHeads takes zero markup to help build the community!
-                  </p>
+                  {selectedEvent?.eventType === 'doubles' && (
+                    <p className="text-emerald-700 text-xs mt-1 font-medium">
+                      Includes court fee + 1 premium match-grade shuttle. RacketHeads takes zero markup to help build the community!
+                    </p>
+                  )}
                 </div>
               )}
               <button

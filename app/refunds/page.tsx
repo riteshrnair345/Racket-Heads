@@ -32,7 +32,7 @@ export default function CancellationPage() {
 
           <h2 className="text-2xl font-bold text-slate-800 mt-8">4. Event Cancellation by Organizers</h2>
           <p>
-            In the rare event that RacketHeads Kochi cancels a session (due to venue unavailability, emergencies, etc.), all registered players will be notified immediately via email and WhatsApp.
+            In the rare event that RacketHeads Kochi cancels a session (due to venue unavailability, emergencies, etc.), all registered players will be notified immediately via email and WhatsApp, and a <strong>full refund will be provided</strong>.
           </p>
         </div>
       </div>

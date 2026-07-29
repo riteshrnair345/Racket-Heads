@@ -314,6 +314,7 @@ export interface AnalyticsData {
   totalViews: number;
   topLocations: { location: string; count: number }[];
   pendingDrafts: number;
+  draftNames?: string[];
 }
 
 export async function getAnalyticsData(): Promise<AnalyticsData> {
@@ -336,6 +337,21 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
   // Get count of active draft/pending registrations
   const pendingKeys = await kv.keys('pending_reg:*');
   const pendingDrafts = pendingKeys.length;
+  
+  const draftNames: string[] = [];
+  if (pendingKeys.length > 0) {
+    const draftValues = await Promise.all(pendingKeys.map(key => kv.get(key)));
+    for (const val of draftValues) {
+      if (val) {
+        try {
+          const parsed = typeof val === 'string' ? JSON.parse(val) : val;
+          if (parsed && parsed.name) {
+            draftNames.push(parsed.name);
+          }
+        } catch (e) {}
+      }
+    }
+  }
 
-  return { totalViews, topLocations, pendingDrafts };
+  return { totalViews, topLocations, pendingDrafts, draftNames };
 }

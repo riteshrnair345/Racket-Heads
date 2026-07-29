@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -141,7 +141,7 @@ export default function WeekendBaddieApp() {
 }
 
 function AnalyticsView() {
-  const [data, setData] = useState<{ totalViews: number; topLocations: { location: string; count: number }[]; pendingDrafts: number } | null>(null);
+  const [data, setData] = useState<{ totalViews: number; topLocations: { location: string; count: number }[]; pendingDrafts: number; draftNames?: string[] } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -168,23 +168,43 @@ function AnalyticsView() {
         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-brand-purple" /> Traffic Analytics
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 shadow-sm">
-            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2">Total Page Views</p>
-            <p className="text-4xl font-black text-emerald-900">{data?.totalViews || 0}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 border border-emerald-200/60 rounded-3xl p-6 shadow-sm flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Total Page Views</p>
+            </div>
+            <p className="text-5xl font-black text-emerald-900 tracking-tight">{data?.totalViews || 0}</p>
           </div>
-          <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-6 shadow-sm">
-            <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide mb-2">Active Drafts</p>
-            <p className="text-4xl font-black text-amber-900">{data?.pendingDrafts || 0}</p>
-            <p className="text-xs text-amber-600 mt-2 font-medium">People currently on the payment screen</p>
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/60 rounded-3xl p-6 shadow-sm flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <p className="text-xs font-bold text-amber-700 uppercase tracking-wider">Active Drafts</p>
+            </div>
+            <p className="text-5xl font-black text-amber-900 tracking-tight">{data?.pendingDrafts || 0}</p>
+            <p className="text-[11px] text-amber-700/80 mt-2 font-semibold uppercase tracking-wider">People on payment screen</p>
+            {data?.draftNames && data.draftNames.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-amber-200/50">
+                <p className="text-[10px] font-bold text-amber-800/60 mb-2 uppercase tracking-widest">Names</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {data.draftNames.map((name, idx) => (
+                    <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-md bg-amber-200/50 text-amber-900 text-xs font-semibold border border-amber-300/50">
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Top Locations</h3>
+        <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-brand-purple" /> Top Locations
+        </h3>
         {data?.topLocations?.length ? (
-          <div className="bg-white border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-slate-200/60 rounded-3xl overflow-hidden shadow-sm">
             <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50/50 border-b border-slate-200/50 text-slate-500 font-semibold uppercase tracking-wider">
+              <thead className="bg-slate-50/80 border-b border-slate-200/60 text-slate-500 font-bold uppercase tracking-widest text-[11px]">
                 <tr>
                   <th className="px-6 py-4">Location (City, Country)</th>
                   <th className="px-6 py-4 text-right">Views</th>
@@ -193,16 +213,20 @@ function AnalyticsView() {
               <tbody className="divide-y divide-slate-100">
                 {data.topLocations.map((loc, i) => (
                   <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-slate-700">{loc.location}</td>
-                    <td className="px-6 py-4 text-right font-bold text-brand-purple">{loc.count}</td>
+                    <td className="px-6 py-4.5 font-semibold text-slate-700">{loc.location}</td>
+                    <td className="px-6 py-4.5 text-right font-black text-brand-purple">{loc.count}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+          <div className="text-center py-16 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 bg-white rounded-full shadow-sm border border-slate-100 flex items-center justify-center mb-4">
+              <MapPin className="w-5 h-5 text-slate-300" />
+            </div>
             <p className="text-slate-500 font-medium">No location data available yet.</p>
+            <p className="text-slate-400 text-xs mt-1">Deploy to Vercel to start tracking locations automatically.</p>
           </div>
         )}
       </div>

@@ -66,6 +66,11 @@ export async function POST(request: Request) {
             <img src="${qrCodeUrl}" alt="Your QR Ticket" width="200" height="200" style="border: 2px solid #000; border-radius: 10px; padding: 10px; background: #fff;" />
           </div>
           
+          <p style="font-size: 12px; color: #666; background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 25px; border: 1px solid #e9ecef;">
+            <strong>Cancellation Policy:</strong> Please note that a refund will only be provided if you cancel your registration more than 24 hours before the scheduled session. Cancellations made within 24 hours of the event are non-refundable. <br/><br/>
+            <strong>Need help?</strong> Contact us on WhatsApp at <a href="https://wa.me/918590330421" style="color: #128C7E; text-decoration: none;">+91 8590330421</a> or <a href="https://wa.me/917012264390" style="color: #128C7E; text-decoration: none;">+91 7012264390</a>.
+          </p>
+
           <p>Cheers,<br/>
           RacketHeads Kochi Team</p>
         </div>

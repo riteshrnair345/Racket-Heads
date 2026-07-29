@@ -874,26 +874,28 @@ function EventsView() {
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Time</label>
-              <input type="text" list="time-options" value={time} onChange={e=>setTime(e.target.value)} placeholder="e.g. 9:00 AM - 11:00 AM" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
-              <datalist id="time-options">
-                <option value="6:00 AM - 8:00 AM" />
-                <option value="7:00 AM - 9:00 AM" />
-                <option value="8:00 AM - 10:00 AM" />
-                <option value="9:00 AM - 11:00 AM" />
-                <option value="6:00 PM - 8:00 PM" />
-                <option value="7:00 PM - 9:00 PM" />
-                <option value="8:00 PM - 10:00 PM" />
-              </datalist>
+              <select required value={time} onChange={e=>setTime(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
+                <option value="" disabled>Select a time...</option>
+                <option value="6:00 AM - 8:00 AM">6:00 AM - 8:00 AM</option>
+                <option value="7:00 AM - 9:00 AM">7:00 AM - 9:00 AM</option>
+                <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
+                <option value="9:00 AM - 11:00 AM">9:00 AM - 11:00 AM</option>
+                <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
+                <option value="7:00 PM - 9:00 PM">7:00 PM - 9:00 PM</option>
+                <option value="8:00 PM - 10:00 PM">8:00 PM - 10:00 PM</option>
+                <option value="9:00 PM - 11:00 PM">9:00 PM - 11:00 PM</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Venue</label>
-              <input type="text" list="venue-options" value={venue} onChange={e=>setVenue(e.target.value)} placeholder="e.g. Prosmash Maradu" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
-              <datalist id="venue-options">
-                <option value="Prosmash Maradu" />
-                <option value="Play 2 Win Kadavanthra" />
-                <option value="Olympus Arena Thammanam" />
-                <option value="Fitness Soul Kakkanad" />
-              </datalist>
+              <select required value={venue} onChange={e=>setVenue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
+                <option value="" disabled>Select a venue...</option>
+                <option value="Pro Badminton Academy">Pro Badminton Academy</option>
+                <option value="Prosmash Maradu">Prosmash Maradu</option>
+                <option value="Play 2 Win Kadavanthra">Play 2 Win Kadavanthra</option>
+                <option value="Olympus Arena Thammanam">Olympus Arena Thammanam</option>
+                <option value="Fitness Soul Kakkanad">Fitness Soul Kakkanad</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>

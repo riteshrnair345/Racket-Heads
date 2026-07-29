@@ -249,10 +249,21 @@ export default function Register() {
                   : (ticketData.isDoubles ? "We've emailed your confirmation. Please check your inbox for more details!" : "We've emailed your digital ticket with the QR code. Please check your email and have it ready at the venue!")}
               </p>
             </div>
-            <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 inline-block">
+            <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 inline-block w-full">
               <p className="text-rose-600 text-xs font-bold uppercase tracking-wider mb-1">Important</p>
               <p className="text-rose-700 text-sm font-medium">
                 Please check your <strong className="font-extrabold">Spam or Junk folder</strong> if you don't see the email in your main inbox!
+              </p>
+            </div>
+            
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 inline-block w-full mt-3 text-left">
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Policy & Contact</p>
+              <p className="text-slate-600 text-sm font-medium leading-snug mb-2">
+                Refunds are only processed if a cancellation is made more than <strong>24 hours</strong> before the scheduled session.
+              </p>
+              <p className="text-slate-600 text-sm font-medium leading-snug">
+                <strong>Need help?</strong> Contact us on WhatsApp for any queries: <br className="sm:hidden" />
+                <a href="https://wa.me/918590330421" className="text-emerald-600 font-bold hover:underline" target="_blank" rel="noopener noreferrer">+91 8590330421</a> or <a href="https://wa.me/917012264390" className="text-emerald-600 font-bold hover:underline" target="_blank" rel="noopener noreferrer">+91 7012264390</a>
               </p>
             </div>
           </div>

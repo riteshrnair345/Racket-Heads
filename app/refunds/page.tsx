@@ -16,13 +16,13 @@ export default function CancellationPage() {
           <h2 className="text-2xl font-bold text-slate-800 mt-8">1. General Policy</h2>
           <p>
             Due to the limited availability of courts and the required matchmaking process, all bookings are highly valued. 
-            Since our community sessions are currently free, we do not process refunds. However, we strictly monitor cancellations and no-shows to ensure fair access for everyone.
+            We process refunds <strong>only if a cancellation is made more than 24 hours before the scheduled session</strong>. We strictly monitor cancellations and no-shows to ensure fair access for everyone.
           </p>
 
           <h2 className="text-2xl font-bold text-slate-800 mt-8">2. Cancellation Window</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>More than 24 hours before the session:</strong> If you cancel your booking more than 24 hours before the scheduled start time, it allows us to open the spot for someone else on the waitlist.</li>
-            <li><strong>Less than 24 hours before the session:</strong> Last-minute cancellations heavily disrupt the matchmaking process.</li>
+            <li><strong>More than 24 hours before the session:</strong> If you cancel your booking more than 24 hours before the scheduled start time, a refund will be provided and it allows us to open the spot for someone else on the waitlist.</li>
+            <li><strong>Less than 24 hours before the session:</strong> Last-minute cancellations heavily disrupt the matchmaking process. <strong>No refunds</strong> will be provided for cancellations made within 24 hours of the event.</li>
           </ul>
 
           <h2 className="text-2xl font-bold text-slate-800 mt-8">3. No-Show Policy</h2>

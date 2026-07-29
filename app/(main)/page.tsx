@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Trophy, Zap, Users, Info, MapPin } from 'lucide-react';
 import Footer from '@/components/Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function LandingPage() {
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
@@ -98,7 +98,7 @@ export default function LandingPage() {
                   {galleryItems.map((item, i) => (
                     <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
                       {item.type === 'video' ? (
-                        <video src={item.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <VideoPlayer src={item.url} />
                       ) : (
                         <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
                       )}
@@ -109,7 +109,7 @@ export default function LandingPage() {
                   {galleryItems.map((item, i) => (
                     <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
                       {item.type === 'video' ? (
-                        <video src={item.url} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <VideoPlayer src={item.url} />
                       ) : (
                         <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
                       )}
@@ -164,5 +164,28 @@ export default function LandingPage() {
 
       </main>
     </>
+  );
+}
+
+function VideoPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(e => console.log("Autoplay prevented:", e));
+    }
+  }, [src]);
+
+  return (
+    <video 
+      ref={videoRef}
+      src={src} 
+      autoPlay 
+      loop 
+      muted 
+      playsInline 
+      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" 
+    />
   );
 }

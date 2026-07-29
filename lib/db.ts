@@ -296,3 +296,46 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
 export async function saveGalleryItems(items: GalleryItem[]): Promise<void> {
   await kv.set(GALLERY_KEY, JSON.stringify(items));
 }
+
+// --- Analytics Tracking ---
+
+const VIEWS_KEY = 'twb_analytics:total_views';
+const LOCATIONS_KEY = 'twb_analytics:locations';
+
+export async function incrementPageView(location?: string): Promise<void> {
+  await kv.incr(VIEWS_KEY);
+  if (location && location !== 'Unknown') {
+    // Increment the score for this location in the sorted set
+    await kv.zincrby(LOCATIONS_KEY, 1, location);
+  }
+}
+
+export interface AnalyticsData {
+  totalViews: number;
+  topLocations: { location: string; count: number }[];
+  pendingDrafts: number;
+}
+
+export async function getAnalyticsData(): Promise<AnalyticsData> {
+  const viewsStr = await kv.get(VIEWS_KEY);
+  const totalViews = viewsStr ? parseInt(String(viewsStr), 10) : 0;
+
+  // Get top 10 locations (highest score first)
+  const locationsData = await kv.zrevrange(LOCATIONS_KEY, 0, 9, 'WITHSCORES');
+  
+  const topLocations: { location: string; count: number }[] = [];
+  
+  // kv.zrevrange with WITHSCORES returns [member, score, member, score...]
+  for (let i = 0; i < locationsData.length; i += 2) {
+    topLocations.push({
+      location: String(locationsData[i]),
+      count: parseInt(String(locationsData[i + 1]), 10)
+    });
+  }
+
+  // Get count of active draft/pending registrations
+  const pendingKeys = await kv.keys('pending_reg:*');
+  const pendingDrafts = pendingKeys.length;
+
+  return { totalViews, topLocations, pendingDrafts };
+}

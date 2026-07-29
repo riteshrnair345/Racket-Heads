@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -48,7 +48,7 @@ type MasterDBItem = {
 };
 
 export default function WeekendBaddieApp() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "scanner" | "events" | "gallery" | "master" | "feedback">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "scanner" | "events" | "gallery" | "master" | "feedback" | "analytics">("dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
@@ -115,6 +115,9 @@ export default function WeekendBaddieApp() {
                 <button onClick={() => setActiveTab("feedback")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "feedback" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
                   <MessageSquare className="w-4 h-4" /> <span className="hidden sm:inline">Feedback</span>
                 </button>
+                <button onClick={() => setActiveTab("analytics")} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeTab === "analytics" ? "bg-white text-brand-purple shadow-sm border border-brand-purple/20" : "text-brand-purple/60 hover:text-brand-purple hover:bg-brand-purple/5"}`}>
+                  <BarChart3 className="w-4 h-4" /> <span className="hidden sm:inline">Analytics</span>
+                </button>
               </div>
               <button onClick={handleLogout} title="Lock App" className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100">
                 <LogOut className="w-5 h-5" />
@@ -131,7 +134,78 @@ export default function WeekendBaddieApp() {
         {activeTab === "gallery" && <GalleryView />}
         {activeTab === "master" && <MasterDBView />}
         {activeTab === "feedback" && <FeedbackView />}
+        {activeTab === "analytics" && <AnalyticsView />}
       </main>
+    </div>
+  );
+}
+
+function AnalyticsView() {
+  const [data, setData] = useState<{ totalViews: number; topLocations: { location: string; count: number }[]; pendingDrafts: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/admin/analytics?pin=${ADMIN_PIN}`)
+      .then((res) => res.json())
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-3xl p-6 sm:p-8 shadow-sm">
+        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <BarChart3 className="w-5 h-5 text-brand-purple" /> Traffic Analytics
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2">Total Page Views</p>
+            <p className="text-4xl font-black text-emerald-900">{data?.totalViews || 0}</p>
+          </div>
+          <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-6 shadow-sm">
+            <p className="text-sm font-semibold text-amber-600 uppercase tracking-wide mb-2">Active Drafts</p>
+            <p className="text-4xl font-black text-amber-900">{data?.pendingDrafts || 0}</p>
+            <p className="text-xs text-amber-600 mt-2 font-medium">People currently on the payment screen</p>
+          </div>
+        </div>
+
+        <h3 className="text-lg font-bold text-slate-800 mb-4">Top Locations</h3>
+        {data?.topLocations?.length ? (
+          <div className="bg-white border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-slate-50/50 border-b border-slate-200/50 text-slate-500 font-semibold uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Location (City, Country)</th>
+                  <th className="px-6 py-4 text-right">Views</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {data.topLocations.map((loc, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-700">{loc.location}</td>
+                    <td className="px-6 py-4 text-right font-bold text-brand-purple">{loc.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            <p className="text-slate-500 font-medium">No location data available yet.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

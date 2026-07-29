@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Check-in portal for RacketHeads Kochi events",
 };
 
+import Tracker from '@/components/Tracker';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +33,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <Analytics />
+        <Tracker />
       </body>
     </html>
   );

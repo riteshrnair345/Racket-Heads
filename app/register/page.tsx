@@ -390,10 +390,7 @@ export default function Register() {
                             <Clock className="w-4 h-4 text-brand-pink" /> {event.time}
                           </div>
                         )}
-                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-between">
-                          <span className="font-bold text-sm text-brand-purple">
-                            {event.count}/{event.maxSlots} Booked
-                          </span>
+                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-end">
                           <span className="text-brand-pink font-black group-hover:translate-x-1 transition-transform">
                             Select &rarr;
                           </span>
@@ -429,10 +426,7 @@ export default function Register() {
                             <Clock className="w-4 h-4 text-brand-pink" /> {event.time}
                           </div>
                         )}
-                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-between">
-                          <span className="font-bold text-sm text-brand-purple">
-                            {event.count}/{event.maxSlots} Booked
-                          </span>
+                        <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-end">
                           <span className="text-brand-purple font-black group-hover:translate-x-1 transition-transform">
                             Select &rarr;
                           </span>
@@ -475,10 +469,6 @@ export default function Register() {
                   </a>
                 </div>
               )}
-              <div className="flex items-center gap-2 text-brand-purple bg-brand-purple/5 px-4 py-2 rounded-xl">
-                <User className="w-5 h-5 text-brand-pink shrink-0" />
-                <span className="font-bold text-sm sm:text-base">{selectedEvent.count}/{selectedEvent.maxSlots} Slots Booked</span>
-              </div>
             </div>
 
             {activeEvents.length > 1 && (

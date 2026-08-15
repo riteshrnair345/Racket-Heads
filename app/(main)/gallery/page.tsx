@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import VideoPlayer from '@/components/VideoPlayer';
 
 export default function GalleryPage() {
   const [images, setImages] = useState<any[]>([]);
@@ -56,17 +57,9 @@ export default function GalleryPage() {
             {images.map((image) => (
               <div key={image.id} className="break-inside-avoid group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                 {image.type === 'video' ? (
-                  <video 
-                    ref={el => { 
-                      if (el) { 
-                        el.defaultMuted = true; 
-                        el.muted = true; 
-                        el.play().catch(() => {}); 
-                      } 
-                    }}
-                    src={image.url} 
-                    className="w-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                    muted loop playsInline autoPlay
+                  <VideoPlayer 
+                    src={image.url}
+                    className="w-full aspect-[9/16] object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
                   <img 

@@ -808,7 +808,8 @@ function EventsView() {
     "Prosmash Maradu": { price: 350, courts: 2 },
     "Play 2 Win Kadavanthra": { price: 350, courts: 4 },
     "Olympus Arena Thammanam": { price: 400, courts: 4 },
-    "Fitness Soul Kakkanad": { price: 340, courts: 4 }
+    "Fitness Soul Kakkanad": { price: 340, courts: 4 },
+    "United Sports Center, Kakkanad": { price: 350, courts: 4 }
   };
 
   useEffect(() => {
@@ -993,6 +994,7 @@ function EventsView() {
                 <option value="Play 2 Win Kadavanthra">Play 2 Win Kadavanthra</option>
                 <option value="Olympus Arena Thammanam">Olympus Arena Thammanam</option>
                 <option value="Fitness Soul Kakkanad">Fitness Soul Kakkanad</option>
+                <option value="United Sports Center, Kakkanad">United Sports Center, Kakkanad</option>
               </select>
             </div>
             <div>

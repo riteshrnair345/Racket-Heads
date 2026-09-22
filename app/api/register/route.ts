@@ -159,7 +159,7 @@ export async function POST(request: Request) {
     await upsertPlayer(player);
 
     // Send email with QR code if credentials exist
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && !isExisting) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT || '465', 10),

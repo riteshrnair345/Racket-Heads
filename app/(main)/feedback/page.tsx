@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react';
 import { Loader2, Star, CheckCircle, Smile, MessageSquare, Target, Heart, ArrowRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
+const BONUS_QUESTIONS = [
+  "Describe today's event in just three words.",
+  "Who was your toughest opponent today and why?",
+  "What was your most memorable moment on the court today?",
+  "If you could change one rule in badminton just for our events, what would it be?",
+  "What's one song that should be on our playlist for the next event?"
+];
+
 export default function FeedbackPage() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +48,9 @@ export default function FeedbackPage() {
     addToCommunity: '',
     finalSuggestions: '',
     
-    threeWords: ''
+    threeWords: '', // legacy
+    dynamicQuestion: '',
+    dynamicAnswer: ''
   });
 
   const handleRatingChange = (category: string, value: string) => {
@@ -60,6 +70,10 @@ export default function FeedbackPage() {
   const [loadingEvents, setLoadingEvents] = useState(true);
 
   useEffect(() => {
+    // Pick a random bonus question
+    const randomQuestion = BONUS_QUESTIONS[Math.floor(Math.random() * BONUS_QUESTIONS.length)];
+    setFormData(prev => ({ ...prev, dynamicQuestion: randomQuestion }));
+
     const fetchEvents = async () => {
       try {
         const res = await fetch('/api/events');
@@ -430,13 +444,13 @@ export default function FeedbackPage() {
 
               <div className="space-y-4 pt-6 mt-6 border-t-2 border-dashed border-brand-yellow">
                 <div className="inline-block bg-brand-yellow text-brand-purple text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2">Bonus Question</div>
-                <label className="block text-xl font-black text-slate-800">Describe today's event in just three words.</label>
+                <label className="block text-xl font-black text-slate-800">{formData.dynamicQuestion}</label>
                 <input 
                   type="text"
-                  value={formData.threeWords}
-                  onChange={e => setFormData({...formData, threeWords: e.target.value})}
+                  value={formData.dynamicAnswer}
+                  onChange={e => setFormData({...formData, dynamicAnswer: e.target.value})}
                   className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 font-bold text-brand-purple text-center focus:outline-none focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/20 transition-all text-xl" 
-                  placeholder="e.g. Fun, Energetic, Sweaty"
+                  placeholder="Your answer..."
                 />
               </div>
             </div>

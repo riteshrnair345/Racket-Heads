@@ -1802,7 +1802,7 @@ function FeedbackView() {
                 </div>
               )}
               
-              <h3 className="font-bold text-slate-800 mb-1 truncate">"{fb.threeWords || 'No three words'}"</h3>
+              <h3 className="font-bold text-slate-800 mb-1 truncate">"{fb.dynamicAnswer || fb.threeWords || 'No response'}"</h3>
               <p className="text-slate-600 text-sm line-clamp-3 mb-4">{fb.enjoyedMost || 'No comment provided.'}</p>
               
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500">
@@ -1846,9 +1846,9 @@ function FeedbackView() {
               </div>
 
               <div>
-                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">3 Words to Describe</h4>
+                <h4 className="font-bold text-slate-800 mb-2 text-sm uppercase tracking-wider">{selectedFeedback.dynamicQuestion || '3 Words to Describe'}</h4>
                 <div className="bg-brand-purple/5 text-brand-purple px-4 py-3 rounded-xl font-bold text-lg">
-                  "{selectedFeedback.threeWords}"
+                  "{selectedFeedback.dynamicAnswer || selectedFeedback.threeWords}"
                 </div>
               </div>
 

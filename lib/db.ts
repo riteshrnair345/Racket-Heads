@@ -102,7 +102,9 @@ export interface Feedback {
   finalSuggestions: string;
   
   // Bonus
-  threeWords: string;
+  threeWords?: string; // Legacy
+  dynamicQuestion?: string;
+  dynamicAnswer?: string;
 }
 
 export async function getFeedbacks(): Promise<Feedback[]> {

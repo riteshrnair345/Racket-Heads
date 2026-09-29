@@ -118,7 +118,7 @@ export default function FeedbackPage() {
           </div>
           <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">Thank You!</h2>
           <p className="text-slate-500 text-lg mb-8 leading-relaxed">
-            Thank you for being part of our very first badminton community event! 🏸 Your feedback means a lot to us and will directly shape our future events. We hope to see you back on court soon! 💙
+            Thank you for being part of {formData.eventName ? `our ${formData.eventName} event` : 'our badminton community event'}! 🏸 Your feedback means a lot to us and will directly shape our future events. We hope to see you back on court soon! 💙
           </p>
           <Link href="/" className="inline-block bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md">
             Return to Homepage
@@ -290,7 +290,7 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at our first event?</label>
+                <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at {formData.eventName ? formData.eventName : 'our event'}?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}
               </div>
 

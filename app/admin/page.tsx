@@ -1700,15 +1700,24 @@ function FeedbackView() {
   const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null);
   const [filterEventId, setFilterEventId] = useState<string>("ALL");
 
+  const [events, setEvents] = useState<any[]>([]);
+
   useEffect(() => {
-    const fetchFeedbacks = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`/api/feedback?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
-        });
-        const data = await res.json();
-        if (data.success) {
-          setFeedbacks(data.feedbacks);
+        const [fbRes, evRes] = await Promise.all([
+          fetch(`/api/feedback?t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${ADMIN_PIN}` } }),
+          fetch('/api/events')
+        ]);
+        
+        const fbData = await fbRes.json();
+        if (fbData.success) {
+          setFeedbacks(fbData.feedbacks);
+        }
+        
+        const evData = await evRes.json();
+        if (evData.success) {
+          setEvents(evData.events);
         }
       } catch (err) {
         console.error(err);
@@ -1716,7 +1725,7 @@ function FeedbackView() {
         setLoading(false);
       }
     };
-    fetchFeedbacks();
+    fetchData();
   }, []);
 
   const handleDeleteFeedback = async (e: React.MouseEvent, id: string) => {
@@ -1759,10 +1768,9 @@ function FeedbackView() {
             className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple"
           >
             <option value="ALL">All Events</option>
-            {Array.from(new Set(feedbacks.map(f => f.eventId).filter(Boolean))).map(id => {
-              const name = feedbacks.find(f => f.eventId === id)?.eventName || id;
-              return <option key={id as string} value={id as string}>{name}</option>
-            })}
+            {events.map(ev => (
+              <option key={ev.id} value={ev.id}>{ev.name}</option>
+            ))}
           </select>
         )}
       </div>
@@ -1893,6 +1901,10 @@ function FeedbackView() {
                   <div>
                     <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Time Slots</h4>
                     <p className="text-sm font-bold text-slate-600">{(selectedFeedback.futureEventsWanted || []).join(', ') || '-'}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Preferred Areas</h4>
+                    <p className="text-sm font-bold text-slate-600">{(selectedFeedback.preferredAreas || []).join(', ') || '-'}</p>
                   </div>
                 </div>
               </div>

@@ -95,6 +95,7 @@ export interface Feedback {
   issuesFaced: string;
   futureEventsWanted: string[];
   preferredDays: string[];
+  preferredAreas: string[];
   
   // Section 4
   heardFrom: string;

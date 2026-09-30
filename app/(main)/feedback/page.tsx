@@ -43,6 +43,7 @@ export default function FeedbackPage() {
     issuesFaced: '',
     futureEventsWanted: [] as string[],
     preferredDays: [] as string[],
+    preferredAreas: [] as string[],
     
     heardFrom: '',
     addToCommunity: '',
@@ -60,7 +61,7 @@ export default function FeedbackPage() {
     });
   };
 
-  const toggleArray = (field: 'futureEventsWanted' | 'preferredDays', value: string) => {
+  const toggleArray = (field: 'futureEventsWanted' | 'preferredDays' | 'preferredAreas', value: string) => {
     const current = formData[field];
     const newArr = current.includes(value) ? current.filter(item => item !== value) : [...current, value];
     setFormData({ ...formData, [field]: newArr });
@@ -220,7 +221,7 @@ export default function FeedbackPage() {
     </div>
   );
 
-  const renderCheckboxes = (options: string[], field: 'futureEventsWanted' | 'preferredDays') => (
+  const renderCheckboxes = (options: string[], field: 'futureEventsWanted' | 'preferredDays' | 'preferredAreas') => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {options.map(option => {
         const isSelected = formData[field].includes(option);
@@ -417,6 +418,13 @@ export default function FeedbackPage() {
                   'Sunday Evening', 'Weekday Evenings'
                 ], 'preferredDays')}
               </div>
+
+              <div className="space-y-4">
+                <label className="block text-lg font-bold text-slate-800">13. WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?</label>
+                {renderCheckboxes([
+                  'KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUJITHURA'
+                ], 'preferredAreas')}
+              </div>
             </div>
           )}
 
@@ -428,12 +436,12 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">13. How did you hear about us?</label>
+                <label className="block text-lg font-bold text-slate-800">14. How did you hear about us?</label>
                 {renderSelectButtons(['Instagram', 'Friend', 'WhatsApp', 'LinkedIn', 'Other'], formData.heardFrom, (v) => setFormData({...formData, heardFrom: v}))}
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">14. Any final suggestions or message for our team?</label>
+                <label className="block text-lg font-bold text-slate-800">15. Any final suggestions or message for our team?</label>
                 <textarea 
                   rows={3} 
                   value={formData.finalSuggestions}

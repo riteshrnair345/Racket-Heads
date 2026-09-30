@@ -60,6 +60,7 @@ export async function POST(request: Request) {
       issuesFaced: body.issuesFaced || "",
       futureEventsWanted: body.futureEventsWanted || [],
       preferredDays: body.preferredDays || [],
+      preferredAreas: body.preferredAreas || [],
       
       heardFrom: body.heardFrom || "",
       addToCommunity: body.addToCommunity || "",

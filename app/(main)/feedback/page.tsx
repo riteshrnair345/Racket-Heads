@@ -422,7 +422,7 @@ export default function FeedbackPage() {
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">13. WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?</label>
                 {renderCheckboxes([
-                  'KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUJITHURA'
+                  'KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA'
                 ], 'preferredAreas')}
               </div>
             </div>

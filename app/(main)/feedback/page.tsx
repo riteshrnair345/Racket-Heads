@@ -69,31 +69,44 @@ export default function FeedbackPage() {
 
   const [events, setEvents] = useState<any[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  
+  const [customQuestionText, setCustomQuestionText] = useState('WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?');
+  const [customQuestionOptions, setCustomQuestionOptions] = useState(['KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA']);
 
   useEffect(() => {
     // Pick a random bonus question
     const randomQuestion = BONUS_QUESTIONS[Math.floor(Math.random() * BONUS_QUESTIONS.length)];
     setFormData(prev => ({ ...prev, dynamicQuestion: randomQuestion }));
 
-    const fetchEvents = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/events');
-        const data = await res.json();
+        const [evRes, settingsRes] = await Promise.all([
+          fetch('/api/events'),
+          fetch('/api/feedback/settings')
+        ]);
+        
+        const data = await evRes.json();
         if (data.success) {
           const activeEvents = data.events.filter((e: any) => e.isFeedbackOpen);
           if (activeEvents.length > 0) {
             const activeEvent = activeEvents[0];
             setFormData(prev => ({...prev, eventId: activeEvent.id, eventName: activeEvent.name}));
           }
-          setEvents(activeEvents); // Only show active events
+          setEvents(activeEvents);
+        }
+
+        const settingsData = await settingsRes.json();
+        if (settingsData.success && settingsData.settings) {
+          setCustomQuestionText(settingsData.settings.customQuestionText);
+          setCustomQuestionOptions(settingsData.settings.customQuestionOptions);
         }
       } catch (err) {
-        console.error("Failed to load events", err);
+        console.error("Failed to load data", err);
       } finally {
         setLoadingEvents(false);
       }
     };
-    fetchEvents();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -420,10 +433,8 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">13. WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?</label>
-                {renderCheckboxes([
-                  'KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA'
-                ], 'preferredAreas')}
+                <label className="block text-lg font-bold text-slate-800">13. {customQuestionText}</label>
+                {renderCheckboxes(customQuestionOptions, 'preferredAreas')}
               </div>
             </div>
           )}

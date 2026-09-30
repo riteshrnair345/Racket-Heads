@@ -358,3 +358,34 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
 
   return { totalViews, topLocations, pendingDrafts, draftNames };
 }
+
+export interface FeedbackSettings {
+  customQuestionText: string;
+  customQuestionOptions: string[];
+}
+
+const FEEDBACK_SETTINGS_KEY = 'twb_feedback_settings';
+
+export async function getFeedbackSettings(): Promise<FeedbackSettings> {
+  const data = await kv.get(FEEDBACK_SETTINGS_KEY);
+  if (!data) return {
+    customQuestionText: 'WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?',
+    customQuestionOptions: ['KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA']
+  };
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data) as FeedbackSettings;
+    }
+    return data as any as FeedbackSettings;
+  } catch (e) {
+    console.error("Failed to parse FeedbackSettings JSON from Redis", e);
+    return {
+      customQuestionText: 'WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?',
+      customQuestionOptions: ['KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA']
+    };
+  }
+}
+
+export async function saveFeedbackSettings(settings: FeedbackSettings): Promise<void> {
+  await kv.set(FEEDBACK_SETTINGS_KEY, JSON.stringify(settings));
+}

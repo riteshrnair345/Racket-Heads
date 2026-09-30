@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -1702,6 +1702,56 @@ function FeedbackView() {
 
   const [events, setEvents] = useState<any[]>([]);
 
+  // Settings
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsText, setSettingsText] = useState('');
+  const [settingsOptions, setSettingsOptions] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const loadSettings = async () => {
+    try {
+      const res = await fetch('/api/feedback/settings');
+      const data = await res.json();
+      if (data.success && data.settings) {
+        setSettingsText(data.settings.customQuestionText);
+        setSettingsOptions(data.settings.customQuestionOptions.join(', '));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const optionsArray = settingsOptions.split(',').map(o => o.trim()).filter(Boolean);
+      const res = await fetch('/api/feedback/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ADMIN_PIN}`
+        },
+        body: JSON.stringify({
+          settings: {
+            customQuestionText: settingsText,
+            customQuestionOptions: optionsArray
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Settings saved successfully!');
+        setShowSettings(false);
+      } else {
+        alert('Failed to save settings.');
+      }
+    } catch (err) {
+      alert('Error saving settings');
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -1761,18 +1811,29 @@ function FeedbackView() {
           </p>
         </div>
         
-        {!loading && feedbacks.length > 0 && (
-          <select 
-            value={filterEventId}
-            onChange={(e) => setFilterEventId(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              loadSettings();
+              setShowSettings(true);
+            }}
+            className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700 hover:text-brand-purple hover:border-brand-purple/30 transition-all flex items-center gap-2"
           >
-            <option value="ALL">All Events</option>
-            {events.map(ev => (
-              <option key={ev.id} value={ev.id}>{ev.name}</option>
-            ))}
-          </select>
-        )}
+            <Settings className="w-4 h-4" /> Edit Question
+          </button>
+          {!loading && feedbacks.length > 0 && (
+            <select 
+              value={filterEventId}
+              onChange={(e) => setFilterEventId(e.target.value)}
+              className="bg-white border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+            >
+              <option value="ALL">All Events</option>
+              {events.map(ev => (
+                <option key={ev.id} value={ev.id}>{ev.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1915,6 +1976,63 @@ function FeedbackView() {
                   <p className="text-slate-600 bg-slate-50 p-4 rounded-xl">{selectedFeedback.finalSuggestions}</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showSettings && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10 rounded-t-3xl">
+              <div>
+                <h2 className="text-xl font-black text-slate-800">Edit Feedback Question</h2>
+                <p className="text-sm text-slate-500 font-medium mt-1">Customize the multiple-choice question in the feedback form.</p>
+              </div>
+              <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-4">
+              <div className="space-y-2">
+                <label className="block font-bold text-slate-700">Question Text</label>
+                <input
+                  type="text"
+                  value={settingsText}
+                  onChange={e => setSettingsText(e.target.value)}
+                  placeholder="e.g. WHICH AREA IN THE CITY WOULD YOU PREFER FOR OUR FUTURE EVENTS?"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block font-bold text-slate-700">Options (comma separated)</label>
+                <textarea
+                  rows={3}
+                  value={settingsOptions}
+                  onChange={e => setSettingsOptions(e.target.value)}
+                  placeholder="e.g. KAKKANAD/TRIKKAKARA, THAMMANAM, KALOOR"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex justify-end gap-3">
+              <button 
+                onClick={() => setShowSettings(false)} 
+                className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveSettings}
+                disabled={savingSettings}
+                className="bg-brand-purple hover:bg-brand-purple/90 text-white px-8 py-2.5 rounded-xl font-bold transition-all shadow-md flex items-center gap-2"
+              >
+                {savingSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Settings'}
+              </button>
             </div>
           </div>
         </div>,

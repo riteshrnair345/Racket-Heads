@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react';
 import { Loader2, Star, CheckCircle, Smile, MessageSquare, Target, Heart, ArrowRight, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
-const BONUS_QUESTIONS = [
-  "Describe today's event in just three words.",
-  "Who was your toughest opponent today and why?",
-  "What was your most memorable moment on the court today?",
-  "If you could change one rule in badminton just for our events, what would it be?",
-  "What's one song that should be on our playlist for the next event?"
-];
+
 
 export default function FeedbackPage() {
   const [step, setStep] = useState(1);
@@ -51,7 +45,8 @@ export default function FeedbackPage() {
     
     threeWords: '', // legacy
     dynamicQuestion: '',
-    dynamicAnswer: ''
+    dynamicAnswer: '',
+    otherAreaText: ''
   });
 
   const handleRatingChange = (category: string, value: string) => {
@@ -74,9 +69,6 @@ export default function FeedbackPage() {
   const [customQuestionOptions, setCustomQuestionOptions] = useState(['KAKKANAD/TRIKKAKARA', 'THAMMANAM', 'KALOOR / KADAVANTHRA / KATHRIKADAVU', 'TRIPUNITHURA']);
 
   useEffect(() => {
-    // Pick a random bonus question
-    const randomQuestion = BONUS_QUESTIONS[Math.floor(Math.random() * BONUS_QUESTIONS.length)];
-    setFormData(prev => ({ ...prev, dynamicQuestion: randomQuestion }));
 
     const fetchData = async () => {
       try {
@@ -120,10 +112,17 @@ export default function FeedbackPage() {
     
     setIsSubmitting(true);
     try {
+      const finalPreferredAreas = formData.preferredAreas.map(area => 
+        area === 'Other' && formData.otherAreaText.trim() !== '' ? formData.otherAreaText.trim() : area
+      );
+
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          preferredAreas: finalPreferredAreas
+        })
       });
       if (res.ok) {
         setIsSuccess(true);
@@ -434,7 +433,16 @@ export default function FeedbackPage() {
 
               <div className="space-y-4">
                 <label className="block text-lg font-bold text-slate-800">13. {customQuestionText}</label>
-                {renderCheckboxes(customQuestionOptions, 'preferredAreas')}
+                {renderCheckboxes([...customQuestionOptions, 'Other'], 'preferredAreas')}
+                {formData.preferredAreas.includes('Other') && (
+                  <input 
+                    type="text"
+                    placeholder="Please specify"
+                    value={formData.otherAreaText}
+                    onChange={e => setFormData({...formData, otherAreaText: e.target.value})}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple mt-2"
+                  />
+                )}
               </div>
             </div>
           )}
@@ -461,17 +469,6 @@ export default function FeedbackPage() {
                 />
               </div>
 
-              <div className="space-y-4 pt-6 mt-6 border-t-2 border-dashed border-brand-yellow">
-                <div className="inline-block bg-brand-yellow text-brand-purple text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2">Bonus Question</div>
-                <label className="block text-xl font-black text-slate-800">{formData.dynamicQuestion}</label>
-                <input 
-                  type="text"
-                  value={formData.dynamicAnswer}
-                  onChange={e => setFormData({...formData, dynamicAnswer: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 font-bold text-brand-purple text-center focus:outline-none focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/20 transition-all text-xl" 
-                  placeholder="Your answer..."
-                />
-              </div>
             </div>
           )}
 

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X, Mail, CreditCard, AlertTriangle } from "lucide-react";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -478,6 +478,28 @@ function DashboardView() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addFormData, setAddFormData] = useState({ name: "", email: "", phone: "" });
   const [isAdding, setIsAdding] = useState(false);
+  const [sendingEmailPlayerId, setSendingEmailPlayerId] = useState<string | null>(null);
+  const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false);
+  const [reconcilePayments, setReconcilePayments] = useState<any[]>([]);
+  const [isFetchingReconcile, setIsFetchingReconcile] = useState(false);
+  const [importingPaymentId, setImportingPaymentId] = useState<string | null>(null);
+
+  const fetchReconcilePayments = async () => {
+    setIsFetchingReconcile(true);
+    try {
+      const res = await fetch('/api/admin/reconcile-payments', {
+        headers: { 'Authorization': `Bearer ${ADMIN_PIN}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReconcilePayments(data.payments);
+      }
+    } catch (err) {
+      console.error('Failed to fetch payments for reconciliation', err);
+    } finally {
+      setIsFetchingReconcile(false);
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -607,8 +629,26 @@ function DashboardView() {
         </div>
       ) : (
         <div className="bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
+          <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-wrap justify-between items-center gap-3">
             <h2 className="text-lg font-black text-slate-800">Live Roster</h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  fetchReconcilePayments();
+                  setIsReconcileModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all border border-indigo-100 shadow-sm"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                Payment Audit
+              </button>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-brand-purple hover:bg-brand-purple/90 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+              >
+                + Add Participant
+              </button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -695,7 +735,46 @@ function DashboardView() {
                           >
                             Promote
                           </button>
-                        ) : person.checkInTime ? new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}
+                        ) : person.checkInTime ? (
+                          <span>{new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                        <button
+                          disabled={sendingEmailPlayerId === person.id}
+                          onClick={async () => {
+                            if (!confirm(`Resend confirmation email with QR code ticket to ${person.name} (${person.email})?`)) return;
+                            setSendingEmailPlayerId(person.id);
+                            try {
+                              const res = await fetch('/api/admin/resend-email', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${ADMIN_PIN}`
+                                },
+                                body: JSON.stringify({ playerId: person.id, eventId: selectedEventId })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                alert(`Email sent successfully to ${person.email}!`);
+                              } else {
+                                alert(`Failed to send email: ${data.error}`);
+                              }
+                            } catch (e: any) {
+                              alert(`Failed to send email: ${e.message}`);
+                            } finally {
+                              setSendingEmailPlayerId(null);
+                            }
+                          }}
+                          className="ml-2 p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition-colors inline-flex items-center justify-center disabled:opacity-50"
+                          title="Resend Ticket & Email"
+                        >
+                          {sendingEmailPlayerId === person.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                          ) : (
+                            <Mail className="w-4 h-4" />
+                          )}
+                        </button>
                         <button
                           onClick={async () => {
                             if (!confirm(`Are you sure you want to remove ${person.name} from this event?`)) return;
@@ -783,6 +862,135 @@ function DashboardView() {
                 {isAdding ? "Adding..." : "Add to Event Roster"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isReconcileModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-3xl p-6 sm:p-8 shadow-2xl relative max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <button onClick={() => setIsReconcileModalOpen(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <XCircle className="w-6 h-6" />
+            </button>
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <CreditCard className="w-6 h-6 text-brand-purple" />
+                <h3 className="text-xl font-black text-brand-purple">Razorpay Payment Audit</h3>
+              </div>
+              <p className="text-sm font-medium text-slate-500">
+                Audits real-time captured payments from Razorpay to detect and recover any transactions missing from the player roster.
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {isFetchingReconcile ? (
+                <div className="py-16 text-center">
+                  <Loader2 className="w-10 h-10 text-brand-purple animate-spin mx-auto mb-3" />
+                  <p className="text-sm font-medium text-slate-500">Fetching payments from Razorpay...</p>
+                </div>
+              ) : reconcilePayments.length === 0 ? (
+                <div className="py-16 text-center text-slate-500 font-medium">
+                  No captured payments found.
+                </div>
+              ) : (
+                reconcilePayments.map((pay) => (
+                  <div 
+                    key={pay.id} 
+                    className={`p-4 rounded-2xl border transition-all ${
+                      pay.isLinked 
+                        ? 'bg-slate-50/60 border-slate-200/70' 
+                        : 'bg-amber-50/60 border-amber-200 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-slate-800 text-base">₹{pay.amount}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-slate-200/70 text-slate-700">
+                            {pay.method}
+                          </span>
+                          {pay.isLinked ? (
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" /> Linked in DB {pay.existingPlayerId ? `(${pay.existingPlayerId})` : ''}
+                            </span>
+                          ) : (
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" /> Unlinked / Missing
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs font-semibold text-slate-600 mt-1">
+                          {pay.email || 'No Email'} • {pay.contact || 'No Phone'}
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-0.5 font-mono">
+                          Payment: {pay.id} {pay.orderId ? `• Order: ${pay.orderId}` : ''} • {new Date(pay.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+
+                      {!pay.isLinked && (
+                        <button
+                          disabled={importingPaymentId === pay.id}
+                          onClick={async () => {
+                            if (!confirm(`Import payment ${pay.id} and confirm ticket for ${pay.email}?`)) return;
+                            setImportingPaymentId(pay.id);
+                            try {
+                              const res = await fetch('/api/admin/reconcile-payments', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${ADMIN_PIN}`
+                                },
+                                body: JSON.stringify({
+                                  paymentId: pay.id,
+                                  eventId: selectedEventId,
+                                  email: pay.email,
+                                  phone: pay.contact,
+                                  shouldEmail: true
+                                })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                alert(data.message);
+                                await fetchReconcilePayments();
+                                await fetchRoster();
+                              } else {
+                                alert(`Failed to import: ${data.error}`);
+                              }
+                            } catch (e: any) {
+                              alert(`Error importing payment: ${e.message}`);
+                            } finally {
+                              setImportingPaymentId(null);
+                            }
+                          }}
+                          className="px-4 py-2 bg-brand-purple hover:bg-brand-purple/90 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-50"
+                        >
+                          {importingPaymentId === pay.id ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Importing...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              Import & Send Ticket
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-slate-100 flex justify-end">
+              <button 
+                onClick={() => setIsReconcileModalOpen(false)}
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

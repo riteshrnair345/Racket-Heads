@@ -271,6 +271,46 @@ export async function deletePendingRegistration(email: string): Promise<void> {
   await kv.del(key);
 }
 
+export interface OrderRegistrationData {
+  name: string;
+  email: string;
+  phone: string;
+  age?: string;
+  proficiency?: string;
+  duration?: string;
+  shoes?: string;
+  heardFrom?: string;
+  eventId: string;
+}
+
+export async function saveOrderRegistration(orderId: string, data: OrderRegistrationData): Promise<void> {
+  const key = `order_reg:${orderId}`;
+  // Keep for 24 hours (86400 seconds)
+  await kv.set(key, JSON.stringify(data), 'EX', 86400);
+}
+
+export async function getOrderRegistration(orderId: string): Promise<OrderRegistrationData | null> {
+  const key = `order_reg:${orderId}`;
+  const data = await kv.get(key);
+  if (!data) return null;
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data) as OrderRegistrationData;
+    } else {
+      return data as any as OrderRegistrationData;
+    }
+  } catch (e) {
+    console.error("Failed to parse order reg from Redis", e);
+    return null;
+  }
+}
+
+export async function deleteOrderRegistration(orderId: string): Promise<void> {
+  const key = `order_reg:${orderId}`;
+  await kv.del(key);
+}
+
+
 export interface GalleryItem {
   id: string;
   url: string;

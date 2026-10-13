@@ -165,7 +165,18 @@ export default function Register() {
         const orderRes = await fetch('/api/razorpay/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: paymentAmount })
+          body: JSON.stringify({ 
+            amount: paymentAmount,
+            eventId: selectedEventId,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            age: formData.age,
+            proficiency: formData.proficiency,
+            duration: formData.duration,
+            shoes: 'Required',
+            heardFrom: formData.heardFrom,
+          })
         });
         const orderData = await orderRes.json();
         

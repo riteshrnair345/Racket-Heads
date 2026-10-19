@@ -237,6 +237,7 @@ export default function Register() {
         {/* Soft Background Glows */}
         <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.22] pointer-events-none mix-blend-multiply" />
         <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-[120px] pointer-events-none" />
+        <div className="fixed top-[20%] left-[-5%] w-[500px] h-[450px] rounded-full bg-yellow-400/[0.22] blur-[140px] pointer-events-none" />
         <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-brand-pink/15 blur-[140px] pointer-events-none" />
 
         <div className="max-w-md w-full bg-white/95 backdrop-blur-2xl border border-white/80 rounded-[2.5rem] p-7 sm:p-9 text-center space-y-6 shadow-[0_20px_60px_rgba(58,26,93,0.08)] relative z-10 overflow-hidden">
@@ -384,6 +385,7 @@ export default function Register() {
       {/* Soft Background Image & Glows */}
       <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.22] pointer-events-none mix-blend-multiply" />
       <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-[120px] pointer-events-none" />
+      <div className="fixed top-[20%] left-[-5%] w-[500px] h-[450px] rounded-full bg-yellow-400/[0.22] blur-[140px] pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-brand-pink/10 blur-[140px] pointer-events-none" />
 
       {/* Floating Back Pill */}

@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc; /* Crisp clean modern slate-50/white canvas */
-  --foreground: #0f172a; /* Deep obsidian slate for high contrast */
+  --background: #fafaf6; /* Warm clean modern canvas with soft sunny radiance */
+  --foreground: #0f172a; /* Deep obsidian slate for crisp high contrast */
   --brand-purple: #2e1065; /* Executive deep athletic violet */
   --brand-purple-deep: #1e0944;
   --brand-purple-light: #4c1d95;
   --brand-pink: #f43f5e; /* Crisp energetic sport rose/coral */
   --brand-pink-light: #fb7185;
   --brand-pink-soft: #fff1f2;
-  --brand-yellow: #38bdf8; /* Fresh electric cyan accent */
-  --brand-yellow-light: #ffffff; /* Crisp pure white text on dark buttons */
+  --brand-yellow: #facc15; /* Sunny badminton canary yellow matching logo */
+  --brand-yellow-sun: #f59e0b; /* Golden amber athletic tone */
+  --brand-yellow-light: #fef08a; /* Soft sunny cream highlight */
   --brand-cream-card: #ffffff;
   --surface-border: rgba(15, 23, 42, 0.08);
 }
@@ -20,8 +21,9 @@
   --color-foreground: var(--foreground);
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --color-brand-yellow: #38bdf8;
-  --color-brand-yellow-light: #ffffff;
+  --color-brand-yellow: #facc15;
+  --color-brand-yellow-sun: #f59e0b;
+  --color-brand-yellow-light: #fef08a;
   --color-brand-purple: #2e1065;
   --color-brand-purple-deep: #1e0944;
   --color-brand-pink: #f43f5e;
@@ -37,6 +39,12 @@ html {
 
 body {
   background-color: var(--background);
+  background-image: 
+    radial-gradient(at 15% 10%, rgba(254, 240, 138, 0.35) 0px, transparent 45%),
+    radial-gradient(at 85% 18%, rgba(250, 204, 21, 0.18) 0px, transparent 40%),
+    radial-gradient(at 50% 60%, rgba(253, 224, 71, 0.14) 0px, transparent 50%),
+    radial-gradient(at 10% 90%, rgba(254, 240, 138, 0.22) 0px, transparent 45%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.012em;

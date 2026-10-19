@@ -37,7 +37,9 @@ export default function GalleryPage() {
       
       {/* Background ambient accents */}
       <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-[120px] pointer-events-none" />
+      <div className="fixed top-[20%] left-[-5%] w-[500px] h-[450px] rounded-full bg-yellow-400/[0.20] blur-[140px] pointer-events-none" />
       <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-brand-pink/10 blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-[20%] right-[10%] w-[450px] h-[350px] rounded-full bg-amber-300/[0.16] blur-[130px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto w-full relative z-10">
         

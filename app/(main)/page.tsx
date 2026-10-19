@@ -24,24 +24,29 @@ export default function LandingPage() {
   return (
     <>
       {/* Ambient background glows & subtle court lines */}
-      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.06] pointer-events-none mix-blend-multiply" />
-      <div className="fixed top-[-8%] right-[-6%] w-[550px] h-[550px] rounded-full bg-brand-purple/[0.07] blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] left-[-6%] w-[650px] h-[650px] rounded-full bg-brand-pink/[0.08] blur-[140px] pointer-events-none" />
-      <div className="fixed top-[45%] left-[50%] -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-sky-400/[0.08] blur-[130px] pointer-events-none" />
+      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.05] pointer-events-none mix-blend-multiply" />
+      <div className="fixed top-[-6%] left-[12%] w-[550px] h-[450px] rounded-full bg-yellow-400/[0.22] blur-[140px] pointer-events-none" />
+      <div className="fixed top-[18%] right-[-5%] w-[500px] h-[500px] rounded-full bg-amber-300/[0.18] blur-[150px] pointer-events-none" />
+      <div className="fixed top-[-8%] right-[-6%] w-[550px] h-[550px] rounded-full bg-brand-purple/[0.06] blur-[130px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[-6%] w-[650px] h-[650px] rounded-full bg-brand-pink/[0.06] blur-[140px] pointer-events-none" />
+      <div className="fixed bottom-[15%] right-[15%] w-[500px] h-[400px] rounded-full bg-yellow-300/[0.18] blur-[140px] pointer-events-none" />
 
       {/* Main Content */}
       <main className="flex-grow relative z-10 flex flex-col items-center">
         
         {/* Hero Section */}
         <section className="w-full max-w-5xl mx-auto px-4 py-20 sm:py-28 flex flex-col items-center text-center">
-          <img 
-            src="/logo.jpg" 
-            alt="RacketHeads Kochi Logo" 
-            className="h-28 w-auto rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] mb-8 rotate-3 hover:rotate-6 transition-transform object-contain border border-slate-200" 
-          />
+          <div className="relative mb-8 group">
+            <div className="absolute inset-0 bg-yellow-400/30 blur-2xl rounded-full scale-110 pointer-events-none group-hover:bg-yellow-400/40 transition-all" />
+            <img 
+              src="/logo.jpg" 
+              alt="RacketHeads Kochi Logo" 
+              className="relative h-28 w-auto rounded-3xl shadow-[0_12px_36px_rgba(250,204,21,0.25)] rotate-3 hover:rotate-6 transition-transform object-contain border border-amber-200/90" 
+            />
+          </div>
           
           <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-brand-purple mb-6 drop-shadow-sm">
-            RacketHeads <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink">Kochi</span>
+            RacketHeads <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple via-brand-pink to-amber-500">Kochi</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-brand-purple/70 font-medium max-w-2xl mb-12 leading-relaxed">

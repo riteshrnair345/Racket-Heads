@@ -321,18 +321,86 @@ export interface GalleryItem {
 
 const GALLERY_KEY = 'twb_gallery';
 
+export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
+  {
+    id: "gal_1",
+    url: "/uploads/upload_1784530584477-865641431.jpg",
+    alt: "RacketHeads Kochi Squad on Court",
+    type: "image",
+    createdAt: "2026-07-20T12:26:00.000Z"
+  },
+  {
+    id: "gal_2",
+    url: "/uploads/upload_1784530539969-112259766.jpg",
+    alt: "RacketHeads Badminton Action",
+    type: "image",
+    createdAt: "2026-07-20T12:25:00.000Z"
+  },
+  {
+    id: "gal_3",
+    url: "/uploads/upload_1784530226010-378221633.jpg",
+    alt: "Court Warmup and Smashes",
+    type: "image",
+    createdAt: "2026-07-20T12:20:00.000Z"
+  },
+  {
+    id: "gal_4",
+    url: "/uploads/upload_1784530196186-313953377.jpg",
+    alt: "Badminton Doubles Session",
+    type: "image",
+    createdAt: "2026-07-20T12:19:00.000Z"
+  },
+  {
+    id: "gal_5",
+    url: "/uploads/upload_1784529967483-321472478.jpg",
+    alt: "Weekend Game Rally",
+    type: "image",
+    createdAt: "2026-07-20T12:16:00.000Z"
+  },
+  {
+    id: "gal_6",
+    url: "/uploads/upload_1784529751203-991221310.jpg",
+    alt: "Match Highlights",
+    type: "image",
+    createdAt: "2026-07-20T12:12:00.000Z"
+  },
+  {
+    id: "gal_7",
+    url: "/uploads/upload_1784529740897-211596810.jpg",
+    alt: "Community Smiles",
+    type: "image",
+    createdAt: "2026-07-20T12:12:00.000Z"
+  },
+  {
+    id: "gal_8",
+    url: "/uploads/upload_1784529488207-659977027.jpg",
+    alt: "Post Match Energy",
+    type: "image",
+    createdAt: "2026-07-20T12:08:00.000Z"
+  }
+];
+
 export async function getGalleryItems(): Promise<GalleryItem[]> {
-  const data = await kv.get(GALLERY_KEY);
-  if (!data) return [];
   try {
+    const data = await kv.get(GALLERY_KEY);
+    if (!data) return DEFAULT_GALLERY_ITEMS;
+    
+    let items: GalleryItem[] = [];
     if (typeof data === 'string') {
-      return JSON.parse(data) as GalleryItem[];
+      items = JSON.parse(data) as GalleryItem[];
     } else {
-      return data as any as GalleryItem[];
+      items = data as any as GalleryItem[];
     }
+
+    // Filter out broken discontinued vercel-storage blob URLs if any
+    const validItems = items.filter(it => it && it.url && !it.url.includes('gzjt0cyyan0lyo3j.public.blob.vercel-storage.com'));
+    if (validItems.length === 0) {
+      return DEFAULT_GALLERY_ITEMS;
+    }
+    return validItems;
   } catch (e) {
     console.error("Failed to parse Gallery JSON from Redis", e);
-    return [];
+    return DEFAULT_GALLERY_ITEMS;
   }
 }
 

@@ -138,16 +138,20 @@ export default function FeedbackPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="bg-white max-w-lg w-full rounded-[2rem] p-8 sm:p-12 text-center shadow-xl border border-slate-100">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Heart className="w-10 h-10 text-emerald-500 fill-emerald-500" />
+      <div className="flex-grow flex items-center justify-center p-4 py-16 selection:bg-brand-pink/20">
+        <div className="bg-white max-w-lg w-full rounded-[2.5rem] p-8 sm:p-12 text-center shadow-[0_20px_50px_rgba(58,26,93,0.08)] border border-brand-purple/10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-purple via-brand-pink to-brand-yellow" />
+          <div className="w-20 h-20 bg-brand-pink/15 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-pink/30">
+            <Heart className="w-10 h-10 text-brand-pink fill-brand-pink" />
           </div>
-          <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">Thank You!</h2>
-          <p className="text-slate-500 text-lg mb-8 leading-relaxed">
-            Thank you for being part of {formData.eventName ? `our ${formData.eventName} event` : 'our badminton community event'}! 🏸 Your feedback means a lot to us and will directly shape our future events. We hope to see you back on court soon! 💙
+          <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink px-3 py-1 rounded-full bg-brand-pink/10 inline-block mb-3">
+            Feedback Received
+          </span>
+          <h2 className="text-3xl font-black text-brand-purple mb-3 tracking-tight">Thank You!</h2>
+          <p className="text-brand-purple/75 text-sm sm:text-base mb-8 leading-relaxed font-medium">
+            Thank you for being part of {formData.eventName ? `our ${formData.eventName} session` : 'our badminton community session'}! 🏸 Your insights directly help us curate better matchups, timings, and court experiences.
           </p>
-          <Link href="/" className="inline-block bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md">
+          <Link href="/" className="inline-flex items-center justify-center bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-bold py-4 px-8 rounded-full transition-all shadow-md hover:shadow-lg text-sm sm:text-base">
             Return to Homepage
           </Link>
         </div>
@@ -162,9 +166,9 @@ export default function FeedbackPage() {
           key={star}
           type="button"
           onClick={() => onChange(star)}
-          className={`p-2 transition-all ${value >= star ? 'scale-110' : 'opacity-40 hover:opacity-70 hover:scale-105'}`}
+          className={`p-2 transition-all ${value >= star ? 'scale-110' : 'opacity-35 hover:opacity-75 hover:scale-105'}`}
         >
-          <Star className={`w-10 h-10 ${value >= star ? 'text-amber-400 fill-amber-400 drop-shadow-md' : 'text-slate-300 fill-slate-300'}`} />
+          <Star className={`w-9 h-9 sm:w-10 sm:h-10 ${value >= star ? 'text-amber-400 fill-amber-400 drop-shadow-md' : 'text-slate-300 fill-slate-300'}`} />
         </button>
       ))}
     </div>
@@ -177,10 +181,10 @@ export default function FeedbackPage() {
           key={num}
           type="button"
           onClick={() => onChange(num)}
-          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full font-bold transition-all ${
+          className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full font-bold text-xs sm:text-sm transition-all ${
             value === num 
-              ? 'bg-brand-purple text-white shadow-md scale-110' 
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              ? 'bg-brand-purple text-brand-yellow-light shadow-md scale-110 ring-2 ring-brand-purple/30' 
+              : 'bg-brand-purple/[0.04] text-brand-purple/70 hover:bg-brand-purple/10 border border-brand-purple/10'
           }`}
         >
           {num}
@@ -190,8 +194,8 @@ export default function FeedbackPage() {
   );
 
   const renderRadioGrid = (label: string, category: string) => (
-    <div className="py-4 border-b border-slate-100 last:border-0">
-      <div className="font-bold text-slate-700 mb-3">{label}</div>
+    <div className="py-3.5 border-b border-brand-purple/5 last:border-0">
+      <div className="font-extrabold text-sm sm:text-base text-brand-purple mb-2.5">{label}</div>
       <div className="flex flex-wrap gap-2">
         {['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'].map(option => {
           const isSelected = (formData.ratings as any)[category] === option;
@@ -200,10 +204,10 @@ export default function FeedbackPage() {
               key={option}
               type="button"
               onClick={() => handleRatingChange(category, option)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex-1 min-w-[80px] sm:flex-none ${
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex-1 min-w-[70px] sm:flex-none ${
                 isSelected
-                  ? 'bg-brand-purple text-white shadow-md'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  ? 'bg-brand-purple text-white shadow-sm'
+                  : 'bg-slate-50 text-slate-700 hover:bg-white border border-slate-200'
               }`}
             >
               {option}
@@ -215,16 +219,16 @@ export default function FeedbackPage() {
   );
 
   const renderSelectButtons = (options: string[], value: string, onChange: (v: string) => void) => (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2.5">
       {options.map(option => (
         <button
           key={option}
           type="button"
           onClick={() => onChange(option)}
-          className={`px-5 py-3 rounded-xl font-bold transition-all ${
+          className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
             value === option
-              ? 'bg-brand-purple text-white shadow-md ring-2 ring-brand-purple ring-offset-2'
-              : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+              ? 'bg-brand-purple text-white shadow-md ring-2 ring-brand-purple/20 ring-offset-2'
+              : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-white hover:border-slate-300'
           }`}
         >
           {option}
@@ -234,20 +238,20 @@ export default function FeedbackPage() {
   );
 
   const renderCheckboxes = (options: string[], field: 'futureEventsWanted' | 'preferredDays' | 'preferredAreas') => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
       {options.map(option => {
         const isSelected = formData[field].includes(option);
         return (
-          <label key={option} className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all border ${
-            isSelected ? 'border-brand-purple bg-brand-purple/5' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+          <label key={option} className={`flex items-center gap-3 p-3.5 rounded-2xl cursor-pointer transition-all border ${
+            isSelected ? 'border-brand-purple bg-brand-purple/[0.06] shadow-sm' : 'border-slate-200 bg-slate-50 hover:bg-white'
           }`}>
             <input 
               type="checkbox" 
               checked={isSelected}
               onChange={() => toggleArray(field, option)}
-              className="w-5 h-5 text-brand-purple rounded border-slate-300 focus:ring-brand-purple"
+              className="w-4 h-4 text-brand-purple rounded border-brand-purple/30 focus:ring-brand-purple"
             />
-            <span className={`font-bold ${isSelected ? 'text-brand-purple' : 'text-slate-600'}`}>{option}</span>
+            <span className={`text-xs sm:text-sm font-bold ${isSelected ? 'text-brand-purple' : 'text-slate-700'}`}>{option}</span>
           </label>
         );
       })}
@@ -255,74 +259,84 @@ export default function FeedbackPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-32 pb-12 px-4 font-sans selection:bg-brand-purple/20">
+    <div className="flex-grow flex flex-col relative z-10 py-10 sm:py-16 px-4 selection:bg-brand-pink/20">
       <div className="max-w-3xl mx-auto">
         
         {/* Header */}
         <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
-          <Link href="/" className="inline-block mb-6">
-            <span className="bg-brand-yellow text-brand-purple font-black px-4 py-2 rounded-lg text-2xl transform -rotate-2 inline-block shadow-md">
-              RacketHeads Kochi
-            </span>
-          </Link>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">Event Feedback</h1>
-          <p className="text-slate-500 mt-2 font-medium">Help us shape the future of our badminton community.</p>
+          <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink px-3.5 py-1.5 rounded-full bg-brand-pink/10 border border-brand-pink/20 inline-block mb-3.5">
+            Player Survey
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-black text-brand-purple tracking-tight mb-2">Event Feedback</h1>
+          <p className="text-brand-purple/70 font-medium text-sm sm:text-base">Help us shape the future of our badminton community in Kochi.</p>
           
           {/* Progress Bar */}
-          <div className="flex gap-2 mt-8">
+          <div className="flex gap-2.5 mt-8 max-w-md mx-auto">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-500 ${step >= i ? 'bg-brand-purple' : 'bg-slate-200'}`} />
+              <div 
+                key={i} 
+                className={`h-2 flex-1 rounded-full transition-all duration-500 ${
+                  step >= i 
+                    ? 'bg-gradient-to-r from-brand-purple to-brand-pink' 
+                    : 'bg-brand-purple/10'
+                }`} 
+              />
             ))}
           </div>
         </div>
 
         {loadingEvents ? (
-          <div className="text-center py-20 text-slate-500 font-bold flex flex-col items-center justify-center gap-4 bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10">
+          <div className="text-center py-20 text-brand-purple/70 font-bold flex flex-col items-center justify-center gap-4 bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-brand-purple/10 p-10">
             <Loader2 className="w-10 h-10 animate-spin text-brand-purple" />
-            Loading Feedback Form...
+            <span>Loading Feedback Form...</span>
           </div>
         ) : events.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-[2rem] shadow-xl border border-slate-100 p-10">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-slate-400" />
+          <div className="text-center py-16 bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-brand-purple/10 p-8 sm:p-12 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-brand-purple/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand-purple/10">
+              <CheckCircle className="w-8 h-8 text-brand-purple/40" />
             </div>
-            <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">Feedback Closed</h2>
-            <p className="text-slate-500 text-lg mb-8 leading-relaxed">
-              There are currently no active events accepting feedback. Please check back later!
+            <h2 className="text-2xl font-black text-brand-purple mb-2 tracking-tight">Feedback Closed</h2>
+            <p className="text-brand-purple/70 text-sm mb-6 leading-relaxed font-medium">
+              There are currently no active events accepting feedback. Please check back after the upcoming weekend session!
             </p>
-            <Link href="/" className="inline-block bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-md">
+            <Link href="/" className="inline-block bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-bold py-3.5 px-7 rounded-full transition-all text-sm shadow-sm">
               Return to Homepage
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-6 sm:p-10 shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-300">
+          <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-2xl rounded-[2.5rem] p-6 sm:p-10 shadow-[0_20px_50px_rgba(58,26,93,0.06)] border border-brand-purple/10 animate-in fade-in zoom-in-95 duration-300">
           
           {step === 1 && (
-            <div className="space-y-10 animate-in slide-in-from-right-8 duration-300">
-              <div className="flex items-center gap-3 text-brand-purple mb-2 border-b border-slate-100 pb-4">
-                <Smile className="w-6 h-6" />
-                <h2 className="text-2xl font-black">Section 1: Overall Experience</h2>
+            <div className="space-y-8 sm:space-y-10 animate-in slide-in-from-right-8 duration-300">
+              <div className="flex items-center gap-3 text-brand-purple mb-2 border-b border-brand-purple/10 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-brand-pink/15 text-brand-pink flex items-center justify-center">
+                  <Smile className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black">Section 1: Overall Experience</h2>
+                  <span className="text-xs text-brand-purple/60 font-medium">Your general feel for the event</span>
+                </div>
               </div>
               
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">Your Name</label>
+              <div className="space-y-2.5">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">Your Name</label>
                 <input 
                   required
                   type="text" 
                   value={formData.playerName}
                   onChange={(e) => setFormData({...formData, playerName: e.target.value})}
                   placeholder="Enter your name..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-brand-purple"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 font-medium text-slate-900 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all text-sm sm:text-base shadow-sm"
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">1. How would you rate your overall experience at {formData.eventName ? formData.eventName : 'our event'}?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">1. How would you rate your overall experience at {formData.eventName ? formData.eventName : 'our event'}?</label>
                 {renderStarRating(formData.overallRating, (v) => setFormData({...formData, overallRating: v}))}
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">2. How likely are you to attend our next event?</label>
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">2. How likely are you to attend our next event?</label>
                 <div className="flex justify-between text-xs font-bold text-slate-400 mb-1 px-2 uppercase tracking-wide">
                   <span>0 - Not likely</span>
                   <span>10 - Very likely</span>
@@ -331,7 +345,7 @@ export default function FeedbackPage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">3. How likely are you to recommend our community to friends?</label>
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">3. How likely are you to recommend our community to friends?</label>
                 <div className="flex justify-between text-xs font-bold text-slate-400 mb-1 px-2 uppercase tracking-wide">
                   <span>0 - Not likely</span>
                   <span>10 - Very likely</span>
@@ -342,26 +356,31 @@ export default function FeedbackPage() {
           )}
 
           {step === 2 && (
-            <div className="space-y-10 animate-in slide-in-from-right-8 duration-300">
+            <div className="space-y-8 sm:space-y-10 animate-in slide-in-from-right-8 duration-300">
               <div className="flex items-center gap-3 text-brand-purple mb-2 border-b border-slate-100 pb-4">
-                <Target className="w-6 h-6" />
-                <h2 className="text-2xl font-black">Section 2: Event Experience</h2>
+                <div className="w-10 h-10 rounded-xl bg-brand-pink/15 text-brand-pink flex items-center justify-center">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black">Section 2: Event Experience</h2>
+                  <span className="text-xs text-slate-500 font-medium">Ratings and match opportunities</span>
+                </div>
               </div>
               
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">4. What did you enjoy the most about the event?</label>
+              <div className="space-y-2.5">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">4. What did you enjoy the most about the event?</label>
                 <textarea 
                   rows={3} 
                   value={formData.enjoyedMost}
                   onChange={e => setFormData({...formData, enjoyedMost: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all resize-none" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all resize-none text-sm sm:text-base shadow-sm" 
                   placeholder="Tell us what you loved..."
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-lg font-bold text-slate-800 mb-2">5. How would you rate the following?</label>
-                <div className="bg-slate-50/50 rounded-2xl p-4 sm:p-6 border border-slate-100">
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">5. How would you rate the following?</label>
+                <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-6 border border-slate-200">
                   {renderRadioGrid("Event organization", "organization")}
                   {renderRadioGrid("Match scheduling", "scheduling")}
                   {renderRadioGrid("Venue", "venue")}
@@ -372,67 +391,74 @@ export default function FeedbackPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">6. Were the matches fair and balanced?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">6. Were the matches fair and balanced?</label>
                 {renderSelectButtons(['Yes', 'Mostly', 'Somewhat', 'No'], formData.matchesFair, (v) => setFormData({...formData, matchesFair: v}))}
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">7. Did you have enough opportunities to play?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">7. Did you have enough opportunities to play?</label>
                 {renderSelectButtons(['Yes', 'Mostly', 'Not really'], formData.enoughPlayTime, (v) => setFormData({...formData, enoughPlayTime: v}))}
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">8. Was the duration of the event appropriate?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">8. Was the duration of the event appropriate?</label>
                 {renderSelectButtons(['Too Short', 'Just Right', 'Too Long'], formData.durationAppropriate, (v) => setFormData({...formData, durationAppropriate: v}))}
               </div>
             </div>
           )}
 
           {step === 3 && (
-            <div className="space-y-10 animate-in slide-in-from-right-8 duration-300">
+            <div className="space-y-8 sm:space-y-10 animate-in slide-in-from-right-8 duration-300">
               <div className="flex items-center gap-3 text-brand-purple mb-2 border-b border-slate-100 pb-4">
-                <RefreshCw className="w-6 h-6" />
-                <h2 className="text-2xl font-black">Section 3: Improvement</h2>
+                <div className="w-10 h-10 rounded-xl bg-brand-pink/15 text-brand-pink flex items-center justify-center">
+                  <RefreshCw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black">Section 3: Improvement</h2>
+                  <span className="text-xs text-slate-500 font-medium">Suggestions and preferred timings</span>
+                </div>
               </div>
               
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">9. What could we improve for the next event?</label>
+              <div className="space-y-2.5">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">9. What could we improve for the next event?</label>
                 <textarea 
                   rows={3} 
                   value={formData.improvements}
                   onChange={e => setFormData({...formData, improvements: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all resize-none" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all resize-none text-sm sm:text-base shadow-sm" 
+                  placeholder="Tell us where we can do better..."
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">10. Did you face any issues during the event?</label>
+              <div className="space-y-2.5">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">10. Did you face any issues during the event?</label>
                 <textarea 
                   rows={3} 
                   value={formData.issuesFaced}
                   onChange={e => setFormData({...formData, issuesFaced: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all resize-none" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all resize-none text-sm sm:text-base shadow-sm" 
+                  placeholder="Any hiccups, court issues, or confusion?"
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">11. What time slot would be most convenient for you?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">11. What time slot would be most convenient for you?</label>
                 {renderCheckboxes([
                   '9-11am', '10am-12pm', '4-6pm', '5-7pm', '6-8pm'
                 ], 'futureEventsWanted')}
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">12. Which days do you prefer for future events?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">12. Which days do you prefer for future events?</label>
                 {renderCheckboxes([
                   'Saturday Morning', 'Saturday Evening', 'Sunday Morning', 
                   'Sunday Evening', 'Weekday Evenings'
                 ], 'preferredDays')}
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">13. {customQuestionText}</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">13. {customQuestionText}</label>
                 {renderCheckboxes([...customQuestionOptions, 'Other'], 'preferredAreas')}
                 {formData.preferredAreas.includes('Other') && (
                   <input 
@@ -440,7 +466,7 @@ export default function FeedbackPage() {
                     placeholder="Please specify"
                     value={formData.otherAreaText}
                     onChange={e => setFormData({...formData, otherAreaText: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple mt-2"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all text-sm mt-2 shadow-sm"
                   />
                 )}
               </div>
@@ -448,36 +474,42 @@ export default function FeedbackPage() {
           )}
 
           {step === 4 && (
-            <div className="space-y-10 animate-in slide-in-from-right-8 duration-300">
+            <div className="space-y-8 sm:space-y-10 animate-in slide-in-from-right-8 duration-300">
               <div className="flex items-center gap-3 text-brand-purple mb-2 border-b border-slate-100 pb-4">
-                <MessageSquare className="w-6 h-6" />
-                <h2 className="text-2xl font-black">Section 4: Community</h2>
+                <div className="w-10 h-10 rounded-xl bg-brand-pink/15 text-brand-pink flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black">Section 4: Community</h2>
+                  <span className="text-xs text-slate-500 font-medium">Outreach & final notes</span>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">14. How did you hear about us?</label>
+              <div className="space-y-3">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">14. How did you hear about us?</label>
                 {renderSelectButtons(['Instagram', 'Friend', 'WhatsApp', 'LinkedIn', 'Other'], formData.heardFrom, (v) => setFormData({...formData, heardFrom: v}))}
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-lg font-bold text-slate-800">15. Any final suggestions or message for our team?</label>
+              <div className="space-y-2.5">
+                <label className="block text-sm sm:text-base font-extrabold text-brand-purple">15. Any final suggestions or message for our team?</label>
                 <textarea 
                   rows={3} 
                   value={formData.finalSuggestions}
                   onChange={e => setFormData({...formData, finalSuggestions: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all resize-none" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all resize-none text-sm sm:text-base shadow-sm" 
+                  placeholder="Drop a note for the organizers..."
                 />
               </div>
 
             </div>
           )}
 
-          <div className="mt-12 pt-6 border-t border-slate-100 flex gap-4">
+          <div className="mt-10 pt-6 border-t border-brand-purple/10 flex gap-4">
             {step > 1 && (
               <button 
                 type="button" 
                 onClick={() => { setStep(step - 1); window.scrollTo(0, 0); }}
-                className="px-6 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-extrabold text-brand-purple bg-brand-purple/[0.06] hover:bg-brand-purple/10 border border-brand-purple/10 transition-all text-sm sm:text-base"
               >
                 Back
               </button>
@@ -486,7 +518,7 @@ export default function FeedbackPage() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="flex-1 bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 group"
+              className="flex-1 bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-extrabold py-3.5 sm:py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_-5px_rgba(58,26,93,0.3)] hover:shadow-lg flex justify-center items-center gap-2 group text-sm sm:text-base"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>

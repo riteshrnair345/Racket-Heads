@@ -1,21 +1,29 @@
 import nodemailer from 'nodemailer';
 import { Player, Event } from './db';
 
-export async function sendConfirmationEmail(player: Player, event?: Event, isWaitlisted: boolean = false): Promise<boolean> {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    console.warn("Email credentials missing, skipping confirmation email.");
-    return false;
-  }
+export const EMAIL_FROM = process.env.EMAIL_FROM || 'racketheadskochi@gmail.com';
 
-  const transporter = nodemailer.createTransport({
+export function getTransporter() {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    return null;
+  }
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '465', 10),
     secure: (process.env.SMTP_PORT || '465') === '465',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
+      user: process.env.EMAIL_AUTH_USER || process.env.EMAIL_USER,
+      pass: process.env.EMAIL_AUTH_PASSWORD || process.env.EMAIL_PASSWORD,
     },
   });
+}
+
+export async function sendConfirmationEmail(player: Player, event?: Event, isWaitlisted: boolean = false): Promise<boolean> {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("Email credentials missing, skipping confirmation email.");
+    return false;
+  }
 
   const isDoubles = event?.eventType === 'doubles';
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(player.qrId)}`;
@@ -77,7 +85,8 @@ export async function sendConfirmationEmail(player: Player, event?: Event, isWai
 
   try {
     const info = await transporter.sendMail({
-      from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
+      from: `"RacketHeads Kochi" <${EMAIL_FROM}>`,
+      replyTo: EMAIL_FROM,
       to: player.email,
       subject: isWaitlisted ? "⏳ You're on the Waitlist for RacketHeads Kochi" : "🏸 You're in! Welcome to RacketHeads Kochi 🏸",
       html: htmlBody,

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPlayerByEmail, generateNextPlayerId, upsertPlayer, Player, getPlayers, getEvents } from '@/lib/db';
-import { sendConfirmationEmail } from '@/lib/email';
-import nodemailer from 'nodemailer';
+import { sendConfirmationEmail, getTransporter, EMAIL_FROM } from '@/lib/email';
 import crypto from 'crypto';
 
 export async function POST(request: Request) {
@@ -189,17 +188,8 @@ export async function POST(request: Request) {
         // Trigger emails to the waitlisted players to pay
         const playersToEmail = waitlistGroup.slice(0, targetEvent?.waitlistThreshold ?? 6);
         
-        if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-          const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '465', 10),
-            secure: (process.env.SMTP_PORT || '465') === '465',
-            auth: {
-              user: process.env.EMAIL_USER,
-              pass: process.env.EMAIL_PASSWORD,
-            },
-          });
-          
+        const transporter = getTransporter();
+        if (transporter) {
           const host = request.headers.get('host') || 'racketheads.club';
           const protocol = host.includes('localhost') ? 'http' : 'https';
           
@@ -225,7 +215,8 @@ export async function POST(request: Request) {
             
             try {
               await transporter.sendMail({
-                from: '"RacketHeads Kochi" <' + process.env.EMAIL_USER + '>',
+                from: `"RacketHeads Kochi" <${EMAIL_FROM}>`,
+                replyTo: EMAIL_FROM,
                 to: wp.email,
                 subject: `🏸 Session confirmed on ${targetEvent?.date || 'TBD'}`,
                 html: waitlistHtml,

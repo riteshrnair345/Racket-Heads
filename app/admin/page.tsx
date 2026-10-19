@@ -71,7 +71,7 @@ export default function WeekendBaddieApp() {
 
   if (isLoadingAuth) {
     return (
-      <div className="min-h-screen bg-brand-yellow-light flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-brand-purple animate-spin" />
       </div>
     );
@@ -82,8 +82,8 @@ export default function WeekendBaddieApp() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-yellow-light text-brand-purple font-sans selection:bg-brand-pink/20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-60 pointer-events-none mix-blend-multiply" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-brand-pink/20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.06] pointer-events-none mix-blend-multiply" />
 
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -250,7 +250,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-brand-yellow-light flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-multiply pointer-events-none" />
       <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-brand-purple/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -286,7 +286,7 @@ function LoginView({ onLogin }: { onLogin: () => void }) {
           </div>
           <button
             type="submit"
-            className="w-full bg-brand-purple hover:bg-[#2A1244] text-brand-yellow-light font-bold py-4 px-4 rounded-2xl transition-all shadow-[0_8px_20px_rgba(58,26,93,0.25)] hover:shadow-[0_12px_25px_rgba(58,26,93,0.35)] hover:-translate-y-0.5"
+            className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-4 px-4 rounded-2xl transition-all shadow-[0_8px_20px_rgba(58,26,93,0.25)] hover:shadow-[0_12px_25px_rgba(58,26,93,0.35)] hover:-translate-y-0.5"
           >
             Unlock App
           </button>
@@ -601,7 +601,7 @@ function DashboardView() {
           <button
             onClick={fetchRoster}
             disabled={loading || !selectedEventId}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-white hover:bg-brand-yellow-light disabled:opacity-50 text-brand-purple rounded-2xl font-bold transition-all border border-brand-purple/20 shadow-sm"
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-white hover:bg-slate-50 disabled:opacity-50 text-brand-purple rounded-2xl font-bold transition-all border border-slate-200 shadow-sm"
           >
             <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin text-brand-purple" : "text-brand-purple/60"}`} />
             Refresh Roster
@@ -731,7 +731,7 @@ function DashboardView() {
                                 alert(`Failed to promote player: ${e.message}`);
                               }
                             }}
-                            className="bg-brand-purple text-brand-yellow-light px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-purple/90 transition-colors"
+                            className="bg-brand-purple text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-purple/90 transition-colors"
                           >
                             Promote
                           </button>
@@ -1017,7 +1017,9 @@ function EventsView() {
     "Play 2 Win Kadavanthra": { price: 350, courts: 4 },
     "Olympus Arena Thammanam": { price: 400, courts: 4 },
     "Fitness Soul Kakkanad": { price: 340, courts: 4 },
-    "United Sports Center, Kakkanad": { price: 350, courts: 4 }
+    "United Sports Center, Kakkanad": { price: 350, courts: 4 },
+    "Smash Arena, Kathrikadavu": { price: 350, courts: 4 },
+    "Smash Arena": { price: 350, courts: 4 }
   };
 
   useEffect(() => {
@@ -1204,6 +1206,7 @@ function EventsView() {
                 <option value="Olympus Arena Thammanam">Olympus Arena Thammanam</option>
                 <option value="Fitness Soul Kakkanad">Fitness Soul Kakkanad</option>
                 <option value="United Sports Center, Kakkanad">United Sports Center, Kakkanad</option>
+                <option value="Smash Arena, Kathrikadavu">Smash Arena, Kathrikadavu</option>
               </select>
             </div>
             <div>

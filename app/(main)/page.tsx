@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Trophy, Zap, Users, Info, MapPin } from 'lucide-react';
-import Footer from '@/components/Footer';
-import { useState, useEffect, useRef } from 'react';
+import { ArrowRight, Trophy, Zap, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
 
 export default function LandingPage() {
@@ -14,7 +13,7 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success && data.items) {
-          // take the latest 10 items (images and videos) for performance
+          // Take latest 10 items for performance
           const itemsToDisplay = data.items.slice(0, 10);
           setGalleryItems(itemsToDisplay);
         }
@@ -24,20 +23,21 @@ export default function LandingPage() {
 
   return (
     <>
-      {/* Background elements */}
-      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none mix-blend-multiply" />
-      <div className="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-brand-purple/10 blur-[100px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-brand-pink/10 blur-[120px] pointer-events-none" />
+      {/* Ambient background glows & subtle court lines */}
+      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.06] pointer-events-none mix-blend-multiply" />
+      <div className="fixed top-[-8%] right-[-6%] w-[550px] h-[550px] rounded-full bg-brand-purple/[0.07] blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[-6%] w-[650px] h-[650px] rounded-full bg-brand-pink/[0.08] blur-[140px] pointer-events-none" />
+      <div className="fixed top-[45%] left-[50%] -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-sky-400/[0.08] blur-[130px] pointer-events-none" />
 
       {/* Main Content */}
       <main className="flex-grow relative z-10 flex flex-col items-center">
         
         {/* Hero Section */}
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 sm:py-32 flex flex-col items-center text-center">
+        <section className="w-full max-w-5xl mx-auto px-4 py-20 sm:py-28 flex flex-col items-center text-center">
           <img 
             src="/logo.jpg" 
             alt="RacketHeads Kochi Logo" 
-            className="h-28 w-auto rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] mb-8 rotate-3 hover:rotate-6 transition-transform object-contain" 
+            className="h-28 w-auto rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] mb-8 rotate-3 hover:rotate-6 transition-transform object-contain border border-slate-200" 
           />
           
           <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-brand-purple mb-6 drop-shadow-sm">
@@ -50,7 +50,7 @@ export default function LandingPage() {
           
           <Link 
             href="/register" 
-            className="group relative inline-flex items-center justify-center gap-3 bg-brand-purple text-brand-yellow-light font-bold text-lg px-8 py-4 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-[0_20px_40px_rgba(58,26,93,0.2)] active:scale-95"
+            className="group relative inline-flex items-center justify-center gap-3 bg-brand-purple text-white font-bold text-lg px-8 py-4 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-[0_20px_40px_rgba(46,16,101,0.2)] active:scale-95 shadow-sm"
           >
             <span className="relative z-10 flex items-center gap-2">
               Book Your Spot <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -59,8 +59,8 @@ export default function LandingPage() {
           </Link>
         </section>
 
-        {/* About Section */}
-        <section className="w-full bg-white/80 backdrop-blur-xl border-y border-white/50 py-20">
+        {/* Why Join Us Section */}
+        <section className="w-full bg-white/80 backdrop-blur-xl border-y border-slate-200/80 py-20">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">Why Join Us?</h2>
@@ -73,46 +73,47 @@ export default function LandingPage() {
                 { icon: Zap, title: "Premium Courts", desc: "Play on high-quality courts with excellent lighting and ventilation." },
                 { icon: Users, title: "Great Community", desc: "Meet like-minded individuals, network, and enjoy a healthy weekend activity." }
               ].map((feature, i) => (
-                <div key={i} className="bg-white/60 border border-brand-purple/10 p-8 rounded-3xl text-center hover:shadow-lg transition-shadow">
-                  <div className="w-14 h-14 bg-brand-pink/10 text-brand-pink rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <div key={i} className="bg-white/70 border border-slate-200/80 p-8 rounded-3xl text-center hover:shadow-lg transition-all duration-300">
+                  <div className="w-14 h-14 bg-brand-pink/10 text-brand-pink rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-pink/20">
                     <feature.icon className="w-7 h-7" />
                   </div>
                   <h3 className="text-xl font-bold text-brand-purple mb-3">{feature.title}</h3>
-                  <p className="text-brand-purple/70 font-medium leading-relaxed">{feature.desc}</p>
+                  <p className="text-brand-purple/70 font-medium leading-relaxed text-sm sm:text-base">{feature.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Gallery Marquee Section */}
+        {/* Moments from the Court (Gallery Marquee) */}
         {galleryItems.length > 0 && (
-          <section className="w-full bg-white/40 backdrop-blur-md border-y border-white/50 py-16 overflow-hidden">
+          <section className="w-full py-16 overflow-hidden">
             <div className="text-center mb-10 px-4">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">Moments from the Court</h2>
               <p className="text-brand-purple/70 font-medium">Join the action this weekend.</p>
             </div>
             
-            <div className="relative w-full flex overflow-hidden group">
+            {/* Feather-masked Marquee Track */}
+            <div className="relative w-full flex overflow-hidden group mask-marquee">
               <div className="flex w-max animate-scroll gap-4 px-2 hover:[animation-play-state:paused]">
                 <div className="flex gap-4">
                   {galleryItems.map((item, i) => (
-                    <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
+                    <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
                       {item.type === 'video' ? (
-                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
                       ) : (
-                        <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
                       )}
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-4">
                   {galleryItems.map((item, i) => (
-                    <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60">
+                    <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
                       {item.type === 'video' ? (
-                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
                       ) : (
-                        <img src={item.url} alt={item.alt} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+                        <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
                       )}
                     </div>
                   ))}
@@ -122,18 +123,19 @@ export default function LandingPage() {
             
             <div className="text-center mt-10">
               <Link href="/gallery" className="inline-flex items-center gap-2 text-brand-pink font-bold hover:text-brand-purple transition-colors">
-                View Full Gallery <ArrowRight className="w-4 h-4" />
+                <span>View Full Gallery</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </section>
         )}
 
-        {/* Pricing Section */}
-        <section className="w-full max-w-5xl mx-auto px-4 py-24 text-center">
+        {/* Pricing / Session Details Section */}
+        <section className="w-full max-w-5xl mx-auto px-4 py-20 text-center">
           <h2 className="text-3xl font-bold text-brand-purple mb-4">Session Details</h2>
           <p className="text-brand-purple/70 font-medium mb-12">Everything you get when you book a slot.</p>
           
-          <div className="max-w-md mx-auto bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-[0_8px_40px_rgba(58,26,93,0.06)] border border-brand-purple/10 relative overflow-hidden">
+          <div className="max-w-md mx-auto bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-[0_8px_40px_rgba(46,16,101,0.06)] border border-slate-200/80 relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-purple to-brand-pink" />
             
             <h3 className="text-2xl font-bold text-brand-purple mb-8">Session Inclusions</h3>
@@ -147,16 +149,18 @@ export default function LandingPage() {
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-brand-purple/80 font-medium">
                   <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                  {item}
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
             
             <Link 
               href="/register" 
-              className="block w-full bg-brand-yellow hover:opacity-90 text-brand-purple font-bold py-4 rounded-2xl transition-opacity"
+              className="block w-full bg-brand-purple hover:bg-brand-purple-deep text-white font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 text-center"
             >
               Book Now
             </Link>

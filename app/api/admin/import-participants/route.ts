@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPlayers, savePlayers, getEvents } from '@/lib/db';
-import nodemailer from 'nodemailer';
+import { getTransporter, EMAIL_FROM } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -19,18 +19,7 @@ export async function POST(request: Request) {
     const events = await getEvents();
     const targetEvent = events.find(e => e.id === eventId);
     
-    let transporter: any = null;
-    if (sendEmail && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-      transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '465', 10),
-        secure: (process.env.SMTP_PORT || '465') === '465',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
-    }
+    const transporter = sendEmail ? getTransporter() : null;
 
     const now = new Date().toISOString();
     let importedCount = 0;
@@ -87,7 +76,8 @@ export async function POST(request: Request) {
 
           try {
             await transporter.sendMail({
-              from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
+              from: `"RacketHeads Kochi" <${EMAIL_FROM}>`,
+              replyTo: EMAIL_FROM,
               to: player.email,
               subject: "🏸 You're in! Welcome to RacketHeads Kochi 🏸",
               html: htmlBody,

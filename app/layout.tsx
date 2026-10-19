@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Tracker from '@/components/Tracker';
 
 export const metadata: Metadata = {
-  title: "RacketHeads Kochi",
-  description: "Check-in portal for RacketHeads Kochi events",
+  title: "RacketHeads Kochi | The Weekend Badminton Community",
+  description: "Join Kochi's premier badminton community. Play casual and competitive matches, connect with great players, and elevate your weekend.",
+  keywords: ["badminton kochi", "racketheads", "badminton community kochi", "weekend sports kochi"],
+  openGraph: {
+    title: "RacketHeads Kochi | The Weekend Badminton Community",
+    description: "Join Kochi's premier badminton community. Play casual and competitive matches, connect with great players, and elevate your weekend.",
+    type: "website",
+  },
 };
-
-import Tracker from '@/components/Tracker';
 
 export default function RootLayout({
   children,
@@ -28,9 +22,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col font-sans">
         {children}
         <Analytics />
         <Tracker />

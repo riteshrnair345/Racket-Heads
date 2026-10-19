@@ -1,37 +1,119 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fdfaf0; /* brand-yellow-light */
-  --foreground: #3a1a5d; /* brand-purple */
+  --background: #f8fafc; /* Crisp clean modern slate-50/white canvas */
+  --foreground: #0f172a; /* Deep obsidian slate for high contrast */
+  --brand-purple: #2e1065; /* Executive deep athletic violet */
+  --brand-purple-deep: #1e0944;
+  --brand-purple-light: #4c1d95;
+  --brand-pink: #f43f5e; /* Crisp energetic sport rose/coral */
+  --brand-pink-light: #fb7185;
+  --brand-pink-soft: #fff1f2;
+  --brand-yellow: #38bdf8; /* Fresh electric cyan accent */
+  --brand-yellow-light: #ffffff; /* Crisp pure white text on dark buttons */
+  --brand-cream-card: #ffffff;
+  --surface-border: rgba(15, 23, 42, 0.08);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-brand-yellow: #f2e185;
-  --color-brand-yellow-light: #fdfaf0;
-  --color-brand-purple: #3a1a5d;
-  --color-brand-pink: #eb4f82;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --color-brand-yellow: #38bdf8;
+  --color-brand-yellow-light: #ffffff;
+  --color-brand-purple: #2e1065;
+  --color-brand-purple-deep: #1e0944;
+  --color-brand-pink: #f43f5e;
+  --color-brand-pink-light: #fb7185;
+  --color-brand-pink-soft: #fff1f2;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.012em;
+  min-height: 100vh;
 }
 
+/* Glassmorphism & UI elevation utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(255, 255, 255, 1);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Feathered edge mask for smooth marquees */
+.mask-marquee {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Subtle glow effects */
+.glow-brand-purple {
+  box-shadow: 0 0 40px -10px rgba(46, 16, 101, 0.22);
+}
+
+.glow-brand-pink {
+  box-shadow: 0 0 40px -10px rgba(244, 63, 94, 0.3);
+}
+
+/* Smooth continuous marquee scroll */
 @keyframes scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(calc(-50% - 0.5rem)); }
 }
 
 .animate-scroll {
-  animation: scroll 30s linear infinite;
+  animation: scroll 32s linear infinite;
+  will-change: transform;
 }
 
 .animate-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.16);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.28);
+}
+

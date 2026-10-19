@@ -19,11 +19,13 @@ async function testEmail() {
     },
   });
 
+  const fromEmail = process.env.EMAIL_FROM || 'racketheadskochi@gmail.com';
   try {
     const info = await transporter.sendMail({
-      from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
+      from: `"RacketHeads Kochi" <${fromEmail}>`,
+      replyTo: fromEmail,
       to: process.env.EMAIL_USER,
-      subject: "Test Email",
+      subject: "Test Email from RacketHeads Kochi",
       text: "This is a test email to verify configuration."
     });
     console.log("Email sent successfully: ", info.messageId);

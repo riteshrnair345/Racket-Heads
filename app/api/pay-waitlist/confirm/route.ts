@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPlayers, upsertPlayer, getEvents } from '@/lib/db';
+import { getTransporter, EMAIL_FROM } from '@/lib/email';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
@@ -49,17 +49,8 @@ export async function POST(request: Request) {
     const targetEvent = events.find(e => e.id === eventId);
 
     // Send confirmation email with QR Code
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '465', 10),
-        secure: (process.env.SMTP_PORT || '465') === '465',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
-
+    const transporter = getTransporter();
+    if (transporter) {
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(player.qrId)}`;
       
       const htmlBody = `
@@ -93,7 +84,8 @@ export async function POST(request: Request) {
 
       try {
         await transporter.sendMail({
-          from: `"RacketHeads Kochi" <${process.env.EMAIL_USER}>`,
+          from: `"RacketHeads Kochi" <${EMAIL_FROM}>`,
+          replyTo: EMAIL_FROM,
           to: player.email,
           subject: "🏸 You're in! Spot Confirmed for RacketHeads Kochi 🏸",
           html: htmlBody,

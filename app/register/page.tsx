@@ -384,6 +384,32 @@ export default function Register() {
 
   const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
 
+  const getCourtDuration = (event?: EventStatus | null) => {
+    if (!event) return '1 hr';
+    if (event.eventType === 'doubles') return '1 hr';
+    if (event.time) {
+      const match = event.time.match(/(\d+)(?::(\d+))?\s*(AM|PM)\s*-\s*(\d+)(?::(\d+))?\s*(AM|PM)/i);
+      if (match) {
+        let startH = parseInt(match[1]);
+        const startM = parseInt(match[2] || '0');
+        const startMer = match[3].toUpperCase();
+        let endH = parseInt(match[4]);
+        const endM = parseInt(match[5] || '0');
+        const endMer = match[6].toUpperCase();
+        if (startMer === 'PM' && startH < 12) startH += 12;
+        if (startMer === 'AM' && startH === 12) startH = 0;
+        if (endMer === 'PM' && endH < 12) endH += 12;
+        if (endMer === 'AM' && endH === 12) endH = 0;
+        let diff = (endH * 60 + endM) - (startH * 60 + startM);
+        if (diff < 0) diff += 24 * 60;
+        const hrs = diff / 60;
+        if (hrs > 1) return `${hrs} hours`;
+        return '1 hr';
+      }
+    }
+    return '1 hr';
+  };
+
   return (
     <div className="min-h-screen bg-brand-yellow-light text-brand-purple p-4 sm:p-8 flex flex-col items-center justify-center selection:bg-brand-pink/20 relative overflow-hidden">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
@@ -788,7 +814,7 @@ export default function Register() {
                       <span className="text-base font-black">₹{selectedEvent?.amount ?? 150}</span>
                     </p>
                     <p className="text-emerald-700/80 text-xs mt-1 font-medium">
-                      Covers 2 hours of reserved court time + quality tournament shuttlecocks.
+                      Covers {getCourtDuration(selectedEvent)} of reserved court time + quality tournament shuttlecocks.
                     </p>
                   </div>
                 ) : null}

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       if (!event) return NextResponse.json({ success: false, error: 'Event not found' }, { status: 404 });
       
       const currentCount = players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus !== 'Waitlisted')).length;
-      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus === 'Waitlisted')).length;
+      const waitlistedCount = event.eventType === 'doubles' ? 0 : players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus === 'Waitlisted')).length;
       return NextResponse.json({ 
         success: true, 
         count: currentCount,
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     const activeEvents = events.filter(e => e.isActive);
     const eventStatuses = activeEvents.map(event => {
       const currentCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus !== 'Waitlisted')).length;
-      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
+      const waitlistedCount = event.eventType === 'doubles' ? 0 : players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
       return {
         id: event.id,
         name: event.name,

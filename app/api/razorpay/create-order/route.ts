@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { randomUUID } from 'crypto';
-import { saveOrderRegistration } from '@/lib/db';
+import { saveOrderRegistration, getEvents, getPlayers } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +18,18 @@ export async function POST(request: Request) {
       shoes,
       heardFrom
     } = body;
+
+    if (eventId) {
+      const events = await getEvents();
+      const targetEvent = events.find(e => e.id === eventId);
+      if (targetEvent?.eventType === 'doubles') {
+        const players = await getPlayers();
+        const confirmedCount = players.filter(p => p.registrations?.some(r => r.eventId === eventId && r.registrationStatus !== 'Waitlisted')).length;
+        if (confirmedCount >= targetEvent.participantLimit) {
+          return NextResponse.json({ success: false, error: 'This regular game session is full. Registrations are closed.' }, { status: 400 });
+        }
+      }
+    }
 
     const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
 

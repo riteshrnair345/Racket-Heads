@@ -67,9 +67,17 @@ export async function POST(request: Request) {
       });
     }
     
+    // For doubles match-up sessions (regular game sessions), waiting list is completely disabled.
+    // If the session is full, registration must be rejected.
+    if (targetEvent?.eventType === 'doubles' && confirmedCount >= participantLimit && (!existingRegistration || existingRegistration.registrationStatus === 'Waitlisted')) {
+      return NextResponse.json({ success: false, error: 'This regular game session is full. Registrations are closed.' }, { status: 400 });
+    }
+    
     // If they have completed payment, they are confirmed (do not false-waitlist paying customers)
     let isWaitlisted = false;
-    if (razorpay_payment_id) {
+    if (targetEvent?.eventType === 'doubles') {
+      isWaitlisted = false;
+    } else if (razorpay_payment_id) {
       isWaitlisted = false;
     } else {
       isWaitlisted = existingRegistration ? 
@@ -177,8 +185,8 @@ export async function POST(request: Request) {
     // Send confirmation email
     await sendConfirmationEmail(player, targetEvent, isWaitlisted);
 
-    // Waitlist threshold logic
-    if (isWaitlisted) {
+    // Waitlist threshold logic (community events only)
+    if (isWaitlisted && targetEvent?.eventType !== 'doubles' && (targetEvent?.waitlistThreshold ?? 0) > 0) {
       // Fetch latest players to get accurate waitlist count including this newly inserted player
       const updatedPlayersList = await getPlayers();
       const updatedEventPlayers = updatedPlayersList.filter(p => p.registrations?.some(r => r.eventId === targetEventId));

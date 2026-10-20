@@ -1019,7 +1019,9 @@ function EventsView() {
     "Fitness Soul Kakkanad": { price: 340, courts: 4 },
     "United Sports Center, Kakkanad": { price: 350, courts: 4 },
     "Smash Arena, Kathrikadavu": { price: 350, courts: 4 },
-    "Smash Arena": { price: 350, courts: 4 }
+    "Smash Arena": { price: 350, courts: 4 },
+    "Feather Touch, Kathrikadavu": { price: 350, courts: 4 },
+    "Feather Touch": { price: 350, courts: 4 }
   };
 
   useEffect(() => {
@@ -1067,7 +1069,7 @@ function EventsView() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${ADMIN_PIN}`
         },
-        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, waitlistThreshold, eventType, isActive: true })
+        body: JSON.stringify({ name, date, time, venue, requiresPayment, amount, participantLimit: limit, waitlistThreshold: eventType === 'doubles' ? 0 : waitlistThreshold, eventType, isActive: true })
       });
       if (res.ok) {
         setName("");
@@ -1137,7 +1139,7 @@ function EventsView() {
           requiresPayment: editForm.requiresPayment,
           amount: editForm.amount,
           participantLimit: editForm.participantLimit,
-          waitlistThreshold: editForm.waitlistThreshold,
+          waitlistThreshold: editForm.eventType === 'doubles' ? 0 : editForm.waitlistThreshold,
           eventType: editForm.eventType
         })
       });
@@ -1193,6 +1195,7 @@ function EventsView() {
                 <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
                 <option value="7:00 PM - 9:00 PM">7:00 PM - 9:00 PM</option>
                 <option value="8:00 PM - 10:00 PM">8:00 PM - 10:00 PM</option>
+                <option value="9:00 PM - 10:00 PM">9:00 PM - 10:00 PM</option>
                 <option value="9:00 PM - 11:00 PM">9:00 PM - 11:00 PM</option>
               </select>
             </div>
@@ -1207,15 +1210,8 @@ function EventsView() {
                 <option value="Fitness Soul Kakkanad">Fitness Soul Kakkanad</option>
                 <option value="United Sports Center, Kakkanad">United Sports Center, Kakkanad</option>
                 <option value="Smash Arena, Kathrikadavu">Smash Arena, Kathrikadavu</option>
+                <option value="Feather Touch, Kathrikadavu">Feather Touch, Kathrikadavu</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
-              <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Waitlist Auto-Unlock Threshold</label>
-              <input required type="number" value={waitlistThreshold || ''} onChange={e=>setWaitlistThreshold(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-500 mb-1">Event Type</label>
@@ -1224,6 +1220,16 @@ function EventsView() {
                 <option value="doubles">Doubles Match-up Session</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
+              <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+            </div>
+            {eventType !== 'doubles' && (
+              <div>
+                <label className="block text-sm font-bold text-slate-500 mb-1">Waitlist Auto-Unlock Threshold</label>
+                <input required type="number" value={waitlistThreshold || ''} onChange={e=>setWaitlistThreshold(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <label className="block text-sm font-bold text-slate-500">Requires Payment</label>
               <button
@@ -1299,7 +1305,9 @@ function EventsView() {
                               </td>
                               <td className="px-6 py-5 space-y-2">
                                 <input type="number" value={editForm.participantLimit || ''} onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Limit" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Participant Limit" />
-                                <input type="number" value={editForm.waitlistThreshold || ''} onChange={e=>setEditForm({...editForm, waitlistThreshold: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Waitlist Unlock Threshold" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Waitlist Auto-Unlock Threshold" />
+                                {editForm.eventType !== 'doubles' && (
+                                  <input type="number" value={editForm.waitlistThreshold || ''} onChange={e=>setEditForm({...editForm, waitlistThreshold: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Waitlist Unlock Threshold" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Waitlist Auto-Unlock Threshold" />
+                                )}
                               </td>
                               <td className="px-6 py-5 space-y-2">
                                 <button
@@ -1343,7 +1351,7 @@ function EventsView() {
                               <td className="px-6 py-5">
                                 <div className="flex flex-col gap-1 text-xs font-bold">
                                   <span className="text-emerald-600">{event.confirmedCount ?? 0} Confirmed</span>
-                                  {(event.waitlistedCount ?? 0) > 0 && (
+                                  {event.eventType !== 'doubles' && (event.waitlistedCount ?? 0) > 0 && (
                                     <span className="text-amber-600">{event.waitlistedCount} Waitlisted</span>
                                   )}
                                 </div>
@@ -1380,7 +1388,7 @@ function EventsView() {
                                       requiresPayment: event.requiresPayment ?? true,
                                       amount: event.amount ?? 150,
                                       participantLimit: event.participantLimit,
-                                      waitlistThreshold: (event as any).waitlistThreshold ?? 6,
+                                      waitlistThreshold: event.eventType === 'doubles' ? 0 : ((event as any).waitlistThreshold ?? 6),
                                       eventType: event.eventType || 'community'
                                     });
                                   }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">

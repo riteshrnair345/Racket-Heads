@@ -11,7 +11,7 @@ export async function GET() {
     // Return events sorted by date descending (newest first)
     const sortedEvents = [...events].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(event => {
       const confirmedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus !== 'Waitlisted')).length;
-      const waitlistedCount = players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
+      const waitlistedCount = event.eventType === 'doubles' ? 0 : players.filter(p => p.registrations?.some(r => r.eventId === event.id && r.registrationStatus === 'Waitlisted')).length;
       return { ...event, confirmedCount, waitlistedCount };
     });
     
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       requiresPayment: requiresPayment ?? true, // default to true if not specified
       amount: amount ?? 150, // default 150 INR
       participantLimit,
-      waitlistThreshold: waitlistThreshold ?? 6,
+      waitlistThreshold: eventType === 'doubles' ? 0 : (waitlistThreshold ?? 6),
       eventType: eventType || 'community', // default to community
       isActive: isActive || false,
       isFeedbackOpen: isFeedbackOpen || false,
@@ -95,8 +95,10 @@ export async function PUT(request: Request) {
     if (time !== undefined) events[eventIndex].time = time;
     if (venue !== undefined) events[eventIndex].venue = venue;
     if (typeof participantLimit === 'number') events[eventIndex].participantLimit = participantLimit;
-    if (typeof waitlistThreshold === 'number') events[eventIndex].waitlistThreshold = waitlistThreshold;
     if (eventType) events[eventIndex].eventType = eventType;
+    if (typeof waitlistThreshold === 'number') {
+      events[eventIndex].waitlistThreshold = events[eventIndex].eventType === 'doubles' ? 0 : waitlistThreshold;
+    }
     if (typeof isActive === 'boolean') events[eventIndex].isActive = isActive;
     if (typeof requiresPayment === 'boolean') events[eventIndex].requiresPayment = requiresPayment;
     if (typeof amount === 'number') events[eventIndex].amount = amount;

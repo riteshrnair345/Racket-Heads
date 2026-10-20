@@ -123,7 +123,13 @@ export default function Register() {
     localStorage.setItem('twb_register_draft', JSON.stringify(formData));
 
     try {
-      const isWaitlistExpected = selectedEvent?.isFull;
+      if (selectedEvent?.eventType === 'doubles' && selectedEvent?.isFull) {
+        setError("This regular game session is full. Registrations are closed.");
+        setIsLoading(false);
+        return;
+      }
+
+      const isWaitlistExpected = selectedEvent?.eventType === 'doubles' ? false : selectedEvent?.isFull;
       const requiresPayment = selectedEvent?.requiresPayment ?? true;
 
       const completeRegistration = async (paymentData: any = {}) => {
@@ -438,8 +444,12 @@ export default function Register() {
                   {activeEvents.filter(e => e.eventType === 'doubles').map(event => (
                     <div 
                       key={event.id}
-                      onClick={() => setSelectedEventId(event.id)}
-                      className="bg-white/90 backdrop-blur-xl border border-brand-purple/10 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden"
+                      onClick={() => {
+                        if (!event.isFull) setSelectedEventId(event.id);
+                      }}
+                      className={`bg-white/90 backdrop-blur-xl border border-brand-purple/10 rounded-[2rem] p-6 shadow-sm transition-all group relative overflow-hidden ${
+                        event.isFull ? 'opacity-65 cursor-not-allowed bg-slate-50/80' : 'hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                      }`}
                     >
                       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-pink to-brand-yellow opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="relative z-10 flex flex-col h-full">
@@ -453,12 +463,18 @@ export default function Register() {
                           </div>
                         )}
                         <div className="mt-auto pt-3 border-t border-brand-purple/10 flex items-center justify-between">
-                          <span className="text-xs font-bold text-brand-purple/60">
-                            {event.isFull ? 'Waitlist open' : 'Slots available'}
+                          <span className={`text-xs font-bold ${event.isFull ? 'text-rose-600' : 'text-brand-purple/60'}`}>
+                            {event.isFull ? '🔴 Session Full' : 'Slots available'}
                           </span>
-                          <span className="text-brand-pink font-black text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                            Select Session &rarr;
-                          </span>
+                          {!event.isFull ? (
+                            <span className="text-brand-pink font-black text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                              Select Session &rarr;
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-bold text-xs">
+                              Registrations Closed
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -756,7 +772,16 @@ export default function Register() {
 
               {/* Fee Breakdown & Submission Button */}
               <div className="pt-6 border-t border-brand-purple/10">
-                {selectedEvent?.requiresPayment !== false && !selectedEvent?.isFull && (
+                {selectedEvent?.eventType === 'doubles' && selectedEvent?.isFull ? (
+                  <div className="mb-5 bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-center">
+                    <p className="text-rose-800 text-sm font-extrabold flex items-center justify-center gap-1.5">
+                      <span>🔴 Session is Full</span>
+                    </p>
+                    <p className="text-rose-700/80 text-xs mt-1 font-medium">
+                      All slots for this regular game session have been booked. Please choose another session.
+                    </p>
+                  </div>
+                ) : selectedEvent?.requiresPayment !== false && !selectedEvent?.isFull ? (
                   <div className="mb-5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-center">
                     <p className="text-emerald-800 text-sm font-extrabold flex items-center justify-center gap-1.5">
                       <span>Session Pass Fee:</span>
@@ -766,17 +791,26 @@ export default function Register() {
                       Covers 2 hours of reserved court time + quality tournament shuttlecocks.
                     </p>
                   </div>
-                )}
+                ) : null}
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full py-4 sm:py-4.5 bg-gradient-to-r from-brand-purple via-[#3e1b64] to-[#4e237c] hover:opacity-95 text-brand-yellow-light font-black text-base sm:text-lg rounded-2xl transition-all shadow-[0_10px_30px_rgba(58,26,93,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_15px_40px_rgba(58,26,93,0.4)] hover:-translate-y-0.5 active:translate-y-0"
+                  disabled={isLoading || (selectedEvent?.eventType === 'doubles' && selectedEvent?.isFull)}
+                  className={`w-full py-4 sm:py-4.5 font-black text-base sm:text-lg rounded-2xl transition-all flex items-center justify-center gap-3 ${
+                    selectedEvent?.eventType === 'doubles' && selectedEvent?.isFull
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                      : 'bg-gradient-to-r from-brand-purple via-[#3e1b64] to-[#4e237c] hover:opacity-95 text-brand-yellow-light shadow-[0_10px_30px_rgba(58,26,93,0.3)] disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_15px_40px_rgba(58,26,93,0.4)] hover:-translate-y-0.5 active:translate-y-0'
+                  }`}
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       <span>Locking in your spot...</span>
+                    </>
+                  ) : selectedEvent?.eventType === 'doubles' && selectedEvent?.isFull ? (
+                    <>
+                      <User className="w-5 h-5" />
+                      <span>Session Full (Registrations Closed)</span>
                     </>
                   ) : selectedEvent?.isFull ? (
                     <>

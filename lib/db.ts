@@ -377,6 +377,27 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItem[] = [
     alt: "Post Match Energy",
     type: "image",
     createdAt: "2026-07-20T12:08:00.000Z"
+  },
+  {
+    id: "gal_9",
+    url: "/uploads/upload_1784529419919-496364669.jpg",
+    alt: "Warmup & Squad Energy",
+    type: "image",
+    createdAt: "2026-07-20T12:06:00.000Z"
+  },
+  {
+    id: "gal_v1",
+    url: "/uploads/upload_1784529617794-310052347.mp4",
+    alt: "Smash Rally Reel",
+    type: "video",
+    createdAt: "2026-07-20T12:10:00.000Z"
+  },
+  {
+    id: "gal_v2",
+    url: "/uploads/upload_1784529661715-787593625.mp4",
+    alt: "Court Highlights & Action",
+    type: "video",
+    createdAt: "2026-07-20T12:11:00.000Z"
   }
 ];
 

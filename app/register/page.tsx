@@ -385,29 +385,25 @@ export default function Register() {
   const selectedEvent = activeEvents.find(e => e.id === selectedEventId);
 
   const getCourtDuration = (event?: EventStatus | null) => {
-    if (!event) return '1 hr';
-    if (event.eventType === 'doubles') return '1 hr';
-    if (event.time) {
-      const match = event.time.match(/(\d+)(?::(\d+))?\s*(AM|PM)\s*-\s*(\d+)(?::(\d+))?\s*(AM|PM)/i);
-      if (match) {
-        let startH = parseInt(match[1]);
-        const startM = parseInt(match[2] || '0');
-        const startMer = match[3].toUpperCase();
-        let endH = parseInt(match[4]);
-        const endM = parseInt(match[5] || '0');
-        const endMer = match[6].toUpperCase();
-        if (startMer === 'PM' && startH < 12) startH += 12;
-        if (startMer === 'AM' && startH === 12) startH = 0;
-        if (endMer === 'PM' && endH < 12) endH += 12;
-        if (endMer === 'AM' && endH === 12) endH = 0;
-        let diff = (endH * 60 + endM) - (startH * 60 + startM);
-        if (diff < 0) diff += 24 * 60;
-        const hrs = diff / 60;
-        if (hrs > 1) return `${hrs} hours`;
-        return '1 hr';
-      }
-    }
-    return '1 hr';
+    if (!event || !event.time) return '1 hr';
+    const regex = /(\d+)(?::(\d+))?\s*(am|pm)?\s*(?:-|to)\s*(\d+)(?::(\d+))?\s*(am|pm)/i;
+    const match = event.time.match(regex);
+    if (!match) return '1 hr';
+    let [_, h1, m1 = 0, mer1, h2, m2 = 0, mer2] = match;
+    mer2 = mer2.toUpperCase();
+    mer1 = (mer1 || mer2).toUpperCase();
+    let hour1 = parseInt(h1);
+    let hour2 = parseInt(h2);
+    let min1 = parseInt(String(m1));
+    let min2 = parseInt(String(m2));
+    if (mer1 === 'PM' && hour1 < 12) hour1 += 12;
+    if (mer1 === 'AM' && hour1 === 12) hour1 = 0;
+    if (mer2 === 'PM' && hour2 < 12) hour2 += 12;
+    if (mer2 === 'AM' && hour2 === 12) hour2 = 0;
+    let diffMin = (hour2 * 60 + min2) - (hour1 * 60 + min1);
+    if (diffMin < 0) diffMin += 24 * 60;
+    const hrs = diffMin / 60;
+    return hrs === 1 ? '1 hr' : `${hrs} hrs`;
   };
 
   return (

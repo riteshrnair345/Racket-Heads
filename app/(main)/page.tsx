@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Trophy, Zap, Users } from 'lucide-react';
+import { ArrowRight, Trophy, Zap, Users, Play } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import VideoPlayer from '@/components/VideoPlayer';
+import VideoPlayer, { getInstagramReelId, InstagramIcon } from '@/components/VideoPlayer';
 
 export default function LandingPage() {
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
@@ -102,26 +102,82 @@ export default function LandingPage() {
             <div className="relative w-full flex overflow-hidden group mask-marquee">
               <div className="flex w-max animate-scroll gap-4 px-2 hover:[animation-play-state:paused]">
                 <div className="flex gap-4">
-                  {galleryItems.map((item, i) => (
-                    <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
-                      {item.type === 'video' ? (
-                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                      ) : (
-                        <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                      )}
-                    </div>
-                  ))}
+                  {galleryItems.map((item, i) => {
+                    const isInstagram = getInstagramReelId(item.url);
+                    return (
+                      <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
+                        {isInstagram ? (
+                          <a 
+                            href={item.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="absolute inset-0 w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-5 sm:p-6 flex flex-col justify-between text-white group/ig cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-xs font-bold shadow-sm">
+                                <InstagramIcon className="w-3.5 h-3.5 text-pink-200" />
+                                <span>Instagram Reel</span>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center group-hover/ig:scale-110 transition-transform shadow-md">
+                                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                              </div>
+                            </div>
+                            <div className="z-10">
+                              <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
+                                {item.alt || "Watch Community Moments on Instagram"}
+                              </p>
+                              <span className="text-[11px] font-semibold text-white/90 underline decoration-white/50 underline-offset-2">
+                                Open Reel in Instagram ↗
+                              </span>
+                            </div>
+                          </a>
+                        ) : item.type === 'video' ? (
+                          <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+                        ) : (
+                          <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="flex gap-4">
-                  {galleryItems.map((item, i) => (
-                    <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
-                      {item.type === 'video' ? (
-                        <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                      ) : (
-                        <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                      )}
-                    </div>
-                  ))}
+                  {galleryItems.map((item, i) => {
+                    const isInstagram = getInstagramReelId(item.url);
+                    return (
+                      <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
+                        {isInstagram ? (
+                          <a 
+                            href={item.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="absolute inset-0 w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-5 sm:p-6 flex flex-col justify-between text-white group/ig cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-xs font-bold shadow-sm">
+                                <InstagramIcon className="w-3.5 h-3.5 text-pink-200" />
+                                <span>Instagram Reel</span>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center group-hover/ig:scale-110 transition-transform shadow-md">
+                                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                              </div>
+                            </div>
+                            <div className="z-10">
+                              <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
+                                {item.alt || "Watch Community Moments on Instagram"}
+                              </p>
+                              <span className="text-[11px] font-semibold text-white/90 underline decoration-white/50 underline-offset-2">
+                                Open Reel in Instagram ↗
+                              </span>
+                            </div>
+                          </a>
+                        ) : item.type === 'video' ? (
+                          <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+                        ) : (
+                          <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       id: `gal_${Date.now()}`,
       url,
       alt: alt || 'Gallery Media',
-      type: type || (url.match(/\.(mp4|webm|ogg|mov|m4v|avi)$/i) || url.includes('youtube.com') || url.includes('youtu.be') ? 'video' : 'image'),
+      type: type || (url.match(/\.(mp4|webm|ogg|mov|m4v|avi)$/i) || url.includes('youtube.com') || url.includes('youtu.be') || /instagram\.com\/(?:reel|reels|p)\//i.test(url) ? 'video' : 'image'),
       createdAt: new Date().toISOString()
     };
     

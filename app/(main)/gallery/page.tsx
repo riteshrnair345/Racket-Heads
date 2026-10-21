@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Camera, Loader2, Play, Sparkles, ArrowRight, Image as ImageIcon, Film } from 'lucide-react';
+import { Camera, Loader2, Play, Sparkles, ArrowRight, Image as ImageIcon, Film, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import VideoPlayer from '@/components/VideoPlayer';
+import VideoPlayer, { getInstagramReelId, InstagramIcon } from '@/components/VideoPlayer';
 
 export default function GalleryPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -117,10 +117,29 @@ export default function GalleryPage() {
                       src={item.url}
                       className="w-full aspect-[9/16] object-cover transform group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 left-4 z-10 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5">
-                      <Play className="w-3 h-3 fill-white" />
-                      <span>Video</span>
-                    </div>
+                    {getInstagramReelId(item.url) ? (
+                      <>
+                        <div className="absolute top-4 left-4 z-10 px-3 py-1 rounded-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white text-[11px] font-bold flex items-center gap-1.5 shadow-md">
+                          <InstagramIcon className="w-3.5 h-3.5" />
+                          <span>Instagram Reel</span>
+                        </div>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute bottom-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105"
+                        >
+                          <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C]" />
+                          <span>View on Instagram</span>
+                          <ExternalLink className="w-3 h-3 text-slate-400" />
+                        </a>
+                      </>
+                    ) : (
+                      <div className="absolute top-4 left-4 z-10 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5">
+                        <Play className="w-3 h-3 fill-white" />
+                        <span>Video</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="relative overflow-hidden">

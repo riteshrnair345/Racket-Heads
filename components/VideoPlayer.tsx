@@ -8,8 +8,25 @@ export function getYouTubeId(url: string): string | null {
   return ytMatch ? ytMatch[1] : null;
 }
 
+export function getInstagramReelId(url: string): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:instagram\.com|instagr\.am)\/(?:reel|reels|p|tv)\/([a-zA-Z0-9_-]+)/i);
+  return match ? match[1] : null;
+}
+
+export function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
 export default function VideoPlayer({ src, className = "" }: { src: string, className?: string }) {
   const ytId = getYouTubeId(src);
+  const igId = getInstagramReelId(src);
 
   if (ytId) {
     // Autoplay, loop, mute, hide controls
@@ -20,6 +37,19 @@ export default function VideoPlayer({ src, className = "" }: { src: string, clas
         className={`pointer-events-none scale-[1.35] ${className}`}
         allow="autoplay; encrypted-media"
         allowFullScreen
+        style={{ border: 'none' }}
+      />
+    );
+  }
+
+  if (igId) {
+    return (
+      <iframe
+        src={`https://www.instagram.com/reel/${igId}/embed/`}
+        className={`w-full h-full min-h-[480px] bg-white rounded-2xl ${className}`}
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        allowFullScreen
+        scrolling="no"
         style={{ border: 'none' }}
       />
     );

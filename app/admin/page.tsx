@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
 import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X, Mail, CreditCard, AlertTriangle } from "lucide-react";
+import VideoPlayer, { getInstagramReelId, InstagramIcon } from "@/components/VideoPlayer";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
 
@@ -1721,6 +1722,8 @@ function GalleryView() {
         }
         finalUrl = uploadData.url;
         finalType = file.type.startsWith('video/') ? 'video' : 'image';
+      } else if (getInstagramReelId(url)) {
+        finalType = 'video';
       }
 
       await fetch('/api/gallery', {
@@ -1788,9 +1791,12 @@ function GalleryView() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 mb-8">
-        <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-black text-slate-800 mb-2 flex items-center gap-2">
           <ImageIcon className="w-5 h-5 text-brand-pink" /> Add Media to Gallery
         </h2>
+        <p className="text-xs text-slate-500 mb-6 font-medium">
+          Upload local images/videos or paste an Instagram Reel / Post link to embed community content directly.
+        </p>
         <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end min-w-0">
           <div className="lg:col-span-2 min-w-0">
             <label className="block text-sm font-bold text-slate-500 mb-1">Local File (Overrides URL)</label>
@@ -1829,28 +1835,35 @@ function GalleryView() {
                   setFile(selected);
                 }
               }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm" 
             />
           </div>
-          <div className="lg:col-span-1 min-w-0">
-            <label className="block text-sm font-bold text-slate-500 mb-1">OR Media URL</label>
+          <div className="lg:col-span-2 min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-bold text-slate-500">OR Media / Reel URL</label>
+              {getInstagramReelId(url) && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200 animate-in fade-in">
+                  <InstagramIcon className="w-3 h-3 text-[#E1306C]" /> Reel Detected
+                </span>
+              )}
+            </div>
             <input 
               type="url" 
               value={url} 
               onChange={e=>setUrl(e.target.value)} 
-              placeholder="https://..."
+              placeholder="https://... or Instagram Reel link"
               disabled={!!file}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50" 
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50 text-sm" 
             />
           </div>
-          <div className="lg:col-span-2 min-w-0">
-            <label className="block text-sm font-bold text-slate-500 mb-1">Alt Text (Optional)</label>
+          <div className="lg:col-span-1 min-w-0">
+            <label className="block text-sm font-bold text-slate-500 mb-1">Alt / Caption</label>
             <input 
               type="text" 
               value={alt} 
               onChange={e=>setAlt(e.target.value)} 
               placeholder="e.g. Action shot"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" 
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm" 
             />
           </div>
           <div className="lg:col-span-1 min-w-0">
@@ -1872,41 +1885,57 @@ function GalleryView() {
           <div className="text-center py-12 text-slate-500">No media found in the gallery.</div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {items.map((item, index) => (
-              <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50">
-                {item.type === 'video' ? (
-                  <video src={item.url} className="w-full h-full object-cover" muted loop playsInline />
-                ) : (
-                  <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
-                )}
-                
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button 
-                    onClick={() => handleMove(index, 'left')}
-                    disabled={index === 0}
-                    className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
-                    title="Move Left"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-white text-rose-500 p-2 rounded-xl hover:bg-rose-50 transition-colors shadow-lg"
-                    title="Delete Media"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => handleMove(index, 'right')}
-                    disabled={index === items.length - 1}
-                    className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
-                    title="Move Right"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+            {items.map((item, index) => {
+              const isInstagram = getInstagramReelId(item.url);
+              return (
+                <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-sm">
+                  {isInstagram ? (
+                    <div className="w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-3 text-white flex flex-col justify-between">
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-[10px] font-bold w-max">
+                        <InstagramIcon className="w-3 h-3 text-pink-200" />
+                        <span>Instagram Reel</span>
+                      </div>
+                      <div className="text-center py-2">
+                        <InstagramIcon className="w-8 h-8 mx-auto text-white drop-shadow-sm opacity-90" />
+                      </div>
+                      <p className="text-[11px] font-bold line-clamp-2 text-white/90 drop-shadow-sm">
+                        {item.alt || item.url}
+                      </p>
+                    </div>
+                  ) : item.type === 'video' ? (
+                    <video src={item.url} className="w-full h-full object-cover" muted loop playsInline />
+                  ) : (
+                    <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
+                  )}
+                  
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button 
+                      onClick={() => handleMove(index, 'left')}
+                      disabled={index === 0}
+                      className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
+                      title="Move Left"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="bg-white text-rose-500 p-2 rounded-xl hover:bg-rose-50 transition-colors shadow-lg"
+                      title="Delete Media"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => handleMove(index, 'right')}
+                      disabled={index === items.length - 1}
+                      className="bg-white text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors shadow-lg disabled:opacity-30"
+                      title="Move Right"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

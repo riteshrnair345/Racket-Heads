@@ -683,7 +683,7 @@ export default function Register() {
           <section className="max-w-6xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
             
             {/* Left Sidebar: Selected Session Details & Quick Checklist (4 cols on lg) */}
-            <div className="lg:col-span-4 space-y-5 order-2 lg:order-1">
+            <div className="lg:col-span-4 space-y-5 order-1 lg:order-1">
               
               {/* Selected Session Card */}
               <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-6 shadow-[0_8px_30px_rgba(15,23,42,0.04)] relative overflow-hidden">
@@ -750,8 +750,8 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Quick Courtside Checklist Card */}
-              <div className="bg-amber-50/80 border border-amber-200/80 rounded-3xl p-5 shadow-sm">
+              {/* Quick Courtside Checklist Card (desktop view) */}
+              <div className="hidden lg:block bg-amber-50/80 border border-amber-200/80 rounded-3xl p-5 shadow-sm">
                 <h3 className="text-sm font-black text-amber-950 mb-2.5 flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-600" />
                   <span>Courtside Essentials</span>
@@ -768,8 +768,8 @@ export default function Register() {
                 </ul>
               </div>
 
-              {/* Host Support WhatsApp Card */}
-              <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-4 text-xs text-brand-purple/80 flex items-center justify-between gap-3 shadow-sm">
+              {/* Host Support WhatsApp Card (desktop view) */}
+              <div className="hidden lg:flex bg-white/90 border border-slate-200/90 rounded-3xl p-4 text-xs text-brand-purple/80 items-center justify-between gap-3 shadow-sm">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
                     <MessageCircle className="w-4 h-4" />
@@ -792,7 +792,7 @@ export default function Register() {
             </div>
 
             {/* Right: The Player Registration Form (8 cols on lg) */}
-            <div className="lg:col-span-8 order-1 lg:order-2">
+            <div className="lg:col-span-8 order-2 lg:order-2">
               <div className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-[2.5rem] p-6 sm:p-9 shadow-[0_20px_50px_rgba(15,23,42,0.06)] relative">
                 
                 {/* Form Header */}
@@ -1065,6 +1065,49 @@ export default function Register() {
                 </form>
 
               </div>
+
+              {/* Mobile-only: Quick Checklist & WhatsApp Support (placed under the form) */}
+              <div className="block lg:hidden mt-6 space-y-4">
+                {/* Quick Courtside Checklist Card */}
+                <div className="bg-amber-50/80 border border-amber-200/80 rounded-3xl p-5 shadow-sm">
+                  <h3 className="text-sm font-black text-amber-950 mb-2.5 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-600" />
+                    <span>Courtside Essentials</span>
+                  </h3>
+                  <ul className="space-y-2 text-xs font-medium text-amber-900/90 leading-relaxed">
+                    <li className="flex items-center gap-2">
+                      <span className="text-amber-600 font-bold">•</span>
+                      <span><strong>Your Racket:</strong> Bring your racket (spares available if requested).</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-amber-600 font-bold">•</span>
+                      <span><strong>Hydration:</strong> Water bottle recommended.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Host Support WhatsApp Card */}
+                <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-4 text-xs text-brand-purple/80 flex items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                      <MessageCircle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-brand-purple">Have questions?</p>
+                      <p className="text-slate-500 text-[11px]">Chat with our organizers</p>
+                    </div>
+                  </div>
+                  <a 
+                    href="https://wa.me/919037498391" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shrink-0 shadow-sm"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
+
             </div>
 
           </section>

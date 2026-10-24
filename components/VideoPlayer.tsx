@@ -44,14 +44,21 @@ export default function VideoPlayer({ src, className = "" }: { src: string, clas
 
   if (igId) {
     return (
-      <iframe
-        src={`https://www.instagram.com/reel/${igId}/embed/`}
-        className={`w-full h-full min-h-[480px] bg-white rounded-2xl ${className}`}
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        allowFullScreen
-        scrolling="no"
-        style={{ border: 'none' }}
-      />
+      <div className={`relative overflow-hidden bg-slate-950 flex items-center justify-center ${className}`}>
+        <img
+          src={`/api/gallery/ig-thumb?id=${igId}`}
+          alt="Instagram Reel"
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-xl">
+            <svg className="w-5 h-5 fill-white text-white ml-0.5" viewBox="0 0 24 24">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+          </div>
+        </div>
+      </div>
     );
   }
 

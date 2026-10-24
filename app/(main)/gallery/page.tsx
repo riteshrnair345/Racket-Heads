@@ -106,59 +106,89 @@ export default function GalleryPage() {
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-            {filteredItems.map((item) => (
-              <div 
-                key={item.id} 
-                className="break-inside-avoid group relative rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgba(58,26,93,0.06)] hover:shadow-[0_20px_45px_rgba(58,26,93,0.12)] border border-white/80 bg-black/5 transition-all duration-300"
-              >
-                {item.type === 'video' ? (
-                  <div className="relative">
-                    <VideoPlayer 
-                      src={item.url}
-                      className="w-full aspect-[9/16] object-cover transform group-hover:scale-105 transition-transform duration-700"
-                    />
-                    {getInstagramReelId(item.url) ? (
-                      <>
-                        <div className="absolute top-4 left-4 z-10 px-3 py-1 rounded-full bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white text-[11px] font-bold flex items-center gap-1.5 shadow-md">
-                          <InstagramIcon className="w-3.5 h-3.5" />
-                          <span>Instagram Reel</span>
+            {filteredItems.map((item) => {
+              const igId = getInstagramReelId(item.url);
+              return (
+                <div 
+                  key={item.id} 
+                  className="break-inside-avoid group relative rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgba(58,26,93,0.06)] hover:shadow-[0_20px_45px_rgba(58,26,93,0.12)] border border-white/80 bg-black/5 transition-all duration-300"
+                >
+                  {igId ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block relative aspect-[9/16] overflow-hidden bg-slate-950 group/reel cursor-pointer"
+                    >
+                      {/* Reel Cover Photo */}
+                      <img 
+                        src={`/api/gallery/ig-thumb?id=${igId}`}
+                        alt={item.alt && item.alt !== 'Gallery Media' ? item.alt : "RacketHeads Instagram Reel"}
+                        className="w-full h-full object-cover transform group-hover/reel:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+
+                      {/* Ambient fallback gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-[#833ab4]/30 via-slate-950 to-[#fcb045]/20 -z-10" />
+
+                      {/* Top Pill Badge matching theme */}
+                      <div className="absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5 border border-white/10 shadow-lg">
+                        <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                        <span>Instagram Reel</span>
+                      </div>
+
+                      {/* Floating Glassmorphic Play Button */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-16 h-16 rounded-full bg-black/45 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-2xl group-hover/reel:scale-110 group-hover/reel:bg-gradient-to-tr group-hover/reel:from-[#833ab4] group-hover/reel:to-[#fcb045] group-hover/reel:border-transparent transition-all duration-300">
+                          <Play className="w-6 h-6 fill-white text-white ml-0.5" />
                         </div>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="absolute bottom-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-sm transition-transform hover:scale-105"
-                        >
-                          <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C]" />
-                          <span>View on Instagram</span>
-                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                        </a>
-                      </>
-                    ) : (
+                      </div>
+
+                      {/* Bottom Gradient with Caption & Action */}
+                      <div className="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col gap-1.5 text-white">
+                        {item.alt && item.alt !== 'Gallery Media' && (
+                          <p className="text-xs font-semibold line-clamp-2 text-white/95 drop-shadow-sm">
+                            {item.alt}
+                          </p>
+                        )}
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-300 group-hover/reel:text-pink-200 transition-colors">
+                          <span>Watch on Instagram</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </a>
+                  ) : item.type === 'video' ? (
+                    <div className="relative">
+                      <VideoPlayer 
+                        src={item.url}
+                        className="w-full aspect-[9/16] object-cover transform group-hover:scale-105 transition-transform duration-700"
+                      />
                       <div className="absolute top-4 left-4 z-10 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5">
                         <Play className="w-3 h-3 fill-white" />
                         <span>Video</span>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="relative overflow-hidden">
-                    <img 
-                      src={item.url} 
-                      alt={item.alt || "RacketHeads moment"}
-                      className="w-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-4 left-4 z-10 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-[11px] font-bold">
-                      Court Photo
                     </div>
-                  </div>
-                )}
-                
-                {/* Gradient vignette on hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-              </div>
-            ))}
+                  ) : (
+                    <div className="relative overflow-hidden">
+                      <img 
+                        src={item.url} 
+                        alt={item.alt || "RacketHeads moment"}
+                        className="w-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-4 left-4 z-10 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-[11px] font-bold">
+                        Court Photo
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Gradient vignette on hover for non-reels */}
+                  {!igId && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 

@@ -1890,15 +1890,22 @@ function GalleryView() {
               return (
                 <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-sm">
                   {isInstagram ? (
-                    <div className="w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-3 text-white flex flex-col justify-between">
-                      <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-md text-[10px] font-bold w-max">
-                        <InstagramIcon className="w-3 h-3 text-pink-200" />
+                    <div className="w-full h-full relative overflow-hidden bg-slate-950 p-3 text-white flex flex-col justify-between">
+                      <img
+                        src={`/api/gallery/ig-thumb?id=${isInstagram}`}
+                        alt="Instagram Reel"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
+                      <div className="relative z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold w-max border border-white/10">
+                        <InstagramIcon className="w-3 h-3 text-pink-400" />
                         <span>Instagram Reel</span>
                       </div>
-                      <div className="text-center py-2">
+                      <div className="relative z-10 text-center py-2">
                         <InstagramIcon className="w-8 h-8 mx-auto text-white drop-shadow-sm opacity-90" />
                       </div>
-                      <p className="text-[11px] font-bold line-clamp-2 text-white/90 drop-shadow-sm">
+                      <p className="relative z-10 text-[11px] font-bold line-clamp-2 text-white/90 drop-shadow-sm">
                         {item.alt || item.url}
                       </p>
                     </div>

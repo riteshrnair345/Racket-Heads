@@ -111,24 +111,33 @@ export default function LandingPage() {
                             href={item.url} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="absolute inset-0 w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-5 sm:p-6 flex flex-col justify-between text-white group/ig cursor-pointer"
+                            className="absolute inset-0 w-full h-full relative overflow-hidden group/ig cursor-pointer bg-slate-950 flex flex-col justify-between text-white"
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-xs font-bold shadow-sm">
-                                <InstagramIcon className="w-3.5 h-3.5 text-pink-200" />
-                                <span>Instagram Reel</span>
+                            <img
+                              src={`/api/gallery/ig-thumb?id=${isInstagram}`}
+                              alt={item.alt || "Instagram Reel"}
+                              className="absolute inset-0 w-full h-full object-cover group-hover/ig:scale-105 transition-transform duration-700"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40 group-hover/ig:via-black/10 transition-colors" />
+                            <div className="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold shadow-sm border border-white/10">
+                                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                                  <span>Instagram Reel</span>
+                                </div>
+                                <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover/ig:scale-110 group-hover/ig:bg-gradient-to-tr group-hover/ig:from-[#833ab4] group-hover/ig:to-[#fcb045] transition-all shadow-md">
+                                  <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                                </div>
                               </div>
-                              <div className="w-8 h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center group-hover/ig:scale-110 transition-transform shadow-md">
-                                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                              <div>
+                                <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
+                                  {item.alt || "Watch Community Moments on Instagram"}
+                                </p>
+                                <span className="text-[11px] font-semibold text-pink-300 group-hover/ig:text-pink-200 underline decoration-pink-300/50 underline-offset-2">
+                                  Open Reel in Instagram ↗
+                                </span>
                               </div>
-                            </div>
-                            <div className="z-10">
-                              <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
-                                {item.alt || "Watch Community Moments on Instagram"}
-                              </p>
-                              <span className="text-[11px] font-semibold text-white/90 underline decoration-white/50 underline-offset-2">
-                                Open Reel in Instagram ↗
-                              </span>
                             </div>
                           </a>
                         ) : item.type === 'video' ? (
@@ -150,24 +159,33 @@ export default function LandingPage() {
                             href={item.url} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="absolute inset-0 w-full h-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045] p-5 sm:p-6 flex flex-col justify-between text-white group/ig cursor-pointer"
+                            className="absolute inset-0 w-full h-full relative overflow-hidden group/ig cursor-pointer bg-slate-950 flex flex-col justify-between text-white"
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-xs font-bold shadow-sm">
-                                <InstagramIcon className="w-3.5 h-3.5 text-pink-200" />
-                                <span>Instagram Reel</span>
+                            <img
+                              src={`/api/gallery/ig-thumb?id=${isInstagram}`}
+                              alt={item.alt || "Instagram Reel"}
+                              className="absolute inset-0 w-full h-full object-cover group-hover/ig:scale-105 transition-transform duration-700"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40 group-hover/ig:via-black/10 transition-colors" />
+                            <div className="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold shadow-sm border border-white/10">
+                                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                                  <span>Instagram Reel</span>
+                                </div>
+                                <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover/ig:scale-110 group-hover/ig:bg-gradient-to-tr group-hover/ig:from-[#833ab4] group-hover/ig:to-[#fcb045] transition-all shadow-md">
+                                  <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                                </div>
                               </div>
-                              <div className="w-8 h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center group-hover/ig:scale-110 transition-transform shadow-md">
-                                <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
+                              <div>
+                                <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
+                                  {item.alt || "Watch Community Moments on Instagram"}
+                                </p>
+                                <span className="text-[11px] font-semibold text-pink-300 group-hover/ig:text-pink-200 underline decoration-pink-300/50 underline-offset-2">
+                                  Open Reel in Instagram ↗
+                                </span>
                               </div>
-                            </div>
-                            <div className="z-10">
-                              <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
-                                {item.alt || "Watch Community Moments on Instagram"}
-                              </p>
-                              <span className="text-[11px] font-semibold text-white/90 underline decoration-white/50 underline-offset-2">
-                                Open Reel in Instagram ↗
-                              </span>
                             </div>
                           </a>
                         ) : item.type === 'video' ? (

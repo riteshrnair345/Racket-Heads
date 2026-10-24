@@ -114,6 +114,16 @@ const COMMUNITY_PERKS = [
   },
 ];
 
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    const [_, y, m, d] = match;
+    return `${d}-${m}-${y}`;
+  }
+  return dateStr;
+};
+
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
@@ -598,7 +608,7 @@ export default function Register() {
                       <div className="relative z-10 flex flex-col h-full">
                         <div className="font-extrabold text-brand-purple text-lg mb-2">{event.name}</div>
                         <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-1.5 font-medium">
-                          <Calendar className="w-4 h-4 text-brand-pink" /> {event.date}
+                          <Calendar className="w-4 h-4 text-brand-pink" /> {formatDate(event.date)}
                         </div>
                         {event.time && (
                           <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-3 font-medium">
@@ -644,7 +654,7 @@ export default function Register() {
                       <div className="relative z-10 flex flex-col h-full">
                         <div className="font-extrabold text-brand-purple text-lg mb-2">{event.name}</div>
                         <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-1.5 font-medium">
-                          <Calendar className="w-4 h-4 text-brand-pink" /> {event.date}
+                          <Calendar className="w-4 h-4 text-brand-pink" /> {formatDate(event.date)}
                         </div>
                         {event.time && (
                           <div className="flex items-center gap-2 text-brand-purple/80 text-sm mb-3 font-medium">
@@ -698,13 +708,13 @@ export default function Register() {
                 <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-brand-purple/85 mb-5">
                   <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/70 p-3 rounded-2xl">
                     <Calendar className="w-4 h-4 text-brand-pink shrink-0" />
-                    <span>{selectedEvent.date}</span>
+                    <span>{formatDate(selectedEvent.date)}</span>
                   </div>
                   
                   {selectedEvent.time && (
                     <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/70 p-3 rounded-2xl">
                       <Clock className="w-4 h-4 text-brand-pink shrink-0" />
-                      <span>{selectedEvent.time} ({getCourtDuration(selectedEvent)})</span>
+                      <span>{selectedEvent.time}</span>
                     </div>
                   )}
 
@@ -730,8 +740,7 @@ export default function Register() {
                 {/* Session Fee Summary */}
                 <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] font-extrabold text-emerald-800 uppercase tracking-wider">Session Pass</p>
-                    <p className="text-xs text-emerald-700 font-medium mt-0.5">Court fee + tournament shuttles</p>
+                    <p className="text-xs font-black text-emerald-800 uppercase tracking-wider">Session Pass</p>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-black text-emerald-800">
@@ -748,10 +757,6 @@ export default function Register() {
                   <span>Courtside Essentials</span>
                 </h3>
                 <ul className="space-y-2 text-xs font-medium text-amber-900/90 leading-relaxed">
-                  <li className="flex items-center gap-2">
-                    <span className="text-rose-600 font-bold">•</span>
-                    <span><strong>Non-Marking Shoes:</strong> Mandatory for all indoor courts.</span>
-                  </li>
                   <li className="flex items-center gap-2">
                     <span className="text-amber-600 font-bold">•</span>
                     <span><strong>Your Racket:</strong> Bring your racket (spares available if requested).</span>
@@ -803,9 +808,6 @@ export default function Register() {
                       Player Registration
                     </h2>
                   </div>
-                  <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
-                    Takes &lt; 1 minute
-                  </span>
                 </div>
 
                 {error && (
@@ -960,20 +962,7 @@ export default function Register() {
                       </div>
                     )}
 
-                    {/* 7. Non-Marking Shoes Mandatory Notice */}
-                    <div className="md:col-span-2">
-                      <div className="bg-gradient-to-r from-brand-pink/[0.08] via-amber-500/[0.04] to-transparent border border-brand-pink/20 rounded-2xl p-4 sm:p-4.5 flex items-start gap-3 text-left shadow-sm">
-                        <Zap className="w-5 h-5 text-brand-pink shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="text-brand-purple font-black text-xs sm:text-sm mb-0.5">
-                            Compulsory Non-Marking Badminton Shoes <span className="text-brand-pink">*</span>
-                          </h4>
-                          <p className="text-brand-purple/75 text-xs font-medium leading-relaxed">
-                            To protect indoor wooden and synthetic courts, strictly non-marking rubber soles are allowed. Running sneakers with black or outdoor treads are strictly barred by the venue.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+
 
                     {/* 8. How did you hear about RacketHeads Kochi? */}
                     {selectedEvent.eventType !== 'doubles' && (
@@ -1018,9 +1007,6 @@ export default function Register() {
                       <div className="mb-5 bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between">
                         <div>
                           <p className="text-xs font-black text-emerald-800 uppercase tracking-wider">Session Pass Fee</p>
-                          <p className="text-xs text-emerald-700 font-medium">
-                            Covers {getCourtDuration(selectedEvent)} reserved court time + quality tournament shuttlecocks.
-                          </p>
                         </div>
                         <span className="text-2xl font-black text-emerald-800">
                           ₹{selectedEvent.amount ?? 150}

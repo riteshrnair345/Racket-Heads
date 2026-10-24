@@ -13,13 +13,98 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success && data.items) {
-          // Take latest 10 items for performance
-          const itemsToDisplay = data.items.slice(0, 10);
-          setGalleryItems(itemsToDisplay);
+          setGalleryItems(data.items);
         }
       })
       .catch(console.error);
   }, []);
+
+  const row1 = galleryItems.filter((_, idx) => idx % 2 === 0);
+  const row2 = galleryItems.filter((_, idx) => idx % 2 !== 0);
+
+  const prepareRow = (items: any[]) => {
+    if (items.length === 0) return [];
+    let list = [...items];
+    while (list.length < 6) {
+      list = [...list, ...items];
+    }
+    return list;
+  };
+
+  const row1Items = prepareRow(row1.length ? row1 : galleryItems);
+  const row2Items = prepareRow(row2.length ? row2 : galleryItems);
+
+  const renderCard = (item: any, key: string) => {
+    const isInstagram = getInstagramReelId(item.url);
+    return (
+      <div
+        key={key}
+        className="relative w-[230px] h-[160px] sm:w-[290px] sm:h-[195px] shrink-0 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-200/80 bg-slate-900/5 group/card transition-transform duration-500 hover:scale-[1.03]"
+      >
+        {isInstagram ? (
+          <a 
+            href={item.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="absolute inset-0 w-full h-full overflow-hidden group/ig cursor-pointer bg-slate-950 flex flex-col justify-between text-white"
+          >
+            <img
+              src={`/api/gallery/ig-thumb?id=${isInstagram}`}
+              alt={item.alt || "Instagram Reel"}
+              className="absolute inset-0 w-full h-full object-cover group-hover/ig:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/35 group-hover/ig:via-black/10 transition-colors" />
+            <div className="relative z-10 p-3.5 sm:p-4 flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold shadow-sm border border-white/10">
+                  <InstagramIcon className="w-3 h-3 text-pink-400" />
+                  <span>Reel</span>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover/ig:scale-110 group-hover/ig:bg-gradient-to-tr group-hover/ig:from-[#833ab4] group-hover/ig:to-[#fcb045] transition-all shadow-md">
+                  <Play className="w-3 h-3 fill-white text-white ml-0.5" />
+                </div>
+              </div>
+              <div>
+                <p className="text-white font-extrabold text-xs sm:text-sm line-clamp-1 drop-shadow-sm mb-0.5">
+                  {item.alt || "Watch on Instagram"}
+                </p>
+                <span className="text-[10px] font-semibold text-pink-300 group-hover/ig:text-pink-200 underline decoration-pink-300/50 underline-offset-2">
+                  Open Reel ↗
+                </span>
+              </div>
+            </div>
+          </a>
+        ) : item.type === 'video' ? (
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <VideoPlayer 
+              src={item.url} 
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" 
+            />
+            {item.alt && (
+              <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none">
+                <p className="text-white text-xs font-semibold drop-shadow-sm line-clamp-1">{item.alt}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <img 
+              src={item.url} 
+              alt={item.alt || "RacketHeads court moment"} 
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" 
+              loading="lazy"
+            />
+            {item.alt && (
+              <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                <p className="text-white text-xs font-semibold drop-shadow-sm line-clamp-1">{item.alt}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -90,7 +175,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Moments from the Court (Gallery Marquee) */}
+        {/* Moments from the Court (Dual-Row Gallery Marquee) */}
         {galleryItems.length > 0 && (
           <section className="w-full py-16 overflow-hidden">
             <div className="text-center mb-10 px-4">
@@ -98,104 +183,25 @@ export default function LandingPage() {
               <p className="text-brand-purple/70 font-medium">Join the action this weekend.</p>
             </div>
             
-            {/* Feather-masked Marquee Track */}
-            <div className="relative w-full flex overflow-hidden group mask-marquee">
-              <div className="flex w-max animate-scroll gap-4 px-2 hover:[animation-play-state:paused]">
-                <div className="flex gap-4">
-                  {galleryItems.map((item, i) => {
-                    const isInstagram = getInstagramReelId(item.url);
-                    return (
-                      <div key={`a-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
-                        {isInstagram ? (
-                          <a 
-                            href={item.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="absolute inset-0 w-full h-full relative overflow-hidden group/ig cursor-pointer bg-slate-950 flex flex-col justify-between text-white"
-                          >
-                            <img
-                              src={`/api/gallery/ig-thumb?id=${isInstagram}`}
-                              alt={item.alt || "Instagram Reel"}
-                              className="absolute inset-0 w-full h-full object-cover group-hover/ig:scale-105 transition-transform duration-700"
-                              loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40 group-hover/ig:via-black/10 transition-colors" />
-                            <div className="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold shadow-sm border border-white/10">
-                                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
-                                  <span>Instagram Reel</span>
-                                </div>
-                                <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover/ig:scale-110 group-hover/ig:bg-gradient-to-tr group-hover/ig:from-[#833ab4] group-hover/ig:to-[#fcb045] transition-all shadow-md">
-                                  <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
-                                  {item.alt || "Watch Community Moments on Instagram"}
-                                </p>
-                                <span className="text-[11px] font-semibold text-pink-300 group-hover/ig:text-pink-200 underline decoration-pink-300/50 underline-offset-2">
-                                  Open Reel in Instagram ↗
-                                </span>
-                              </div>
-                            </div>
-                          </a>
-                        ) : item.type === 'video' ? (
-                          <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                        ) : (
-                          <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                        )}
-                      </div>
-                    );
-                  })}
+            {/* Dual-Row Smooth Marquee with Edge Fades */}
+            <div className="relative w-full flex flex-col gap-3 sm:gap-4 overflow-hidden marquee-fade py-2">
+              {/* Row 1: Leftward Continuous Scroll */}
+              <div className="flex w-max animate-scroll hover:[animation-play-state:paused]">
+                <div className="flex gap-3 sm:gap-4 pr-3 sm:pr-4 shrink-0">
+                  {row1Items.map((item, i) => renderCard(item, `r1-a-${i}`))}
                 </div>
-                <div className="flex gap-4">
-                  {galleryItems.map((item, i) => {
-                    const isInstagram = getInstagramReelId(item.url);
-                    return (
-                      <div key={`b-${i}`} className="relative w-[280px] h-[200px] sm:w-[350px] sm:h-[250px] shrink-0 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/80 bg-black/5">
-                        {isInstagram ? (
-                          <a 
-                            href={item.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="absolute inset-0 w-full h-full relative overflow-hidden group/ig cursor-pointer bg-slate-950 flex flex-col justify-between text-white"
-                          >
-                            <img
-                              src={`/api/gallery/ig-thumb?id=${isInstagram}`}
-                              alt={item.alt || "Instagram Reel"}
-                              className="absolute inset-0 w-full h-full object-cover group-hover/ig:scale-105 transition-transform duration-700"
-                              loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40 group-hover/ig:via-black/10 transition-colors" />
-                            <div className="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-bold shadow-sm border border-white/10">
-                                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
-                                  <span>Instagram Reel</span>
-                                </div>
-                                <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover/ig:scale-110 group-hover/ig:bg-gradient-to-tr group-hover/ig:from-[#833ab4] group-hover/ig:to-[#fcb045] transition-all shadow-md">
-                                  <Play className="w-3.5 h-3.5 fill-white text-white ml-0.5" />
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-white font-extrabold text-sm sm:text-base line-clamp-2 drop-shadow-sm mb-1">
-                                  {item.alt || "Watch Community Moments on Instagram"}
-                                </p>
-                                <span className="text-[11px] font-semibold text-pink-300 group-hover/ig:text-pink-200 underline decoration-pink-300/50 underline-offset-2">
-                                  Open Reel in Instagram ↗
-                                </span>
-                              </div>
-                            </div>
-                          </a>
-                        ) : item.type === 'video' ? (
-                          <VideoPlayer src={item.url} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                        ) : (
-                          <img src={item.url} alt={item.alt || "RacketHeads court moment"} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105" />
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="flex gap-3 sm:gap-4 pr-3 sm:pr-4 shrink-0">
+                  {row1Items.map((item, i) => renderCard(item, `r1-b-${i}`))}
+                </div>
+              </div>
+
+              {/* Row 2: Rightward Reverse Continuous Scroll */}
+              <div className="flex w-max animate-scroll-reverse hover:[animation-play-state:paused]">
+                <div className="flex gap-3 sm:gap-4 pr-3 sm:pr-4 shrink-0">
+                  {row2Items.map((item, i) => renderCard(item, `r2-a-${i}`))}
+                </div>
+                <div className="flex gap-3 sm:gap-4 pr-3 sm:pr-4 shrink-0">
+                  {row2Items.map((item, i) => renderCard(item, `r2-b-${i}`))}
                 </div>
               </div>
             </div>

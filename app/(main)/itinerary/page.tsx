@@ -6,7 +6,6 @@ import Link from 'next/link';
 export default function ItineraryPage() {
   const schedule = [
     {
-      time: "08:45 AM",
       phase: "Phase 01",
       title: "Arrival & Digital Check-in",
       desc: "Arrive at the venue desk. Present your digital ticket QR code to mark your attendance and receive your court allocation.",
@@ -15,7 +14,6 @@ export default function ItineraryPage() {
       accent: "border-l-emerald-500"
     },
     {
-      time: "09:00 AM",
       phase: "Phase 02",
       title: "Dynamic Warm-up & Introductions",
       desc: "Brief community welcome followed by a guided group warm-up to activate reflexes, stretch key muscle groups, and prevent injuries.",
@@ -24,7 +22,6 @@ export default function ItineraryPage() {
       accent: "border-l-amber-500"
     },
     {
-      time: "09:15 AM",
       phase: "Phase 03",
       title: "Skill Matchmaking & Doubles Matches",
       desc: "Players are paired based on self-reported proficiency tiers. Doubles games commence across our reserved high-grade courts.",
@@ -33,7 +30,6 @@ export default function ItineraryPage() {
       accent: "border-l-brand-pink"
     },
     {
-      time: "10:00 AM",
       phase: "Phase 04",
       title: "King of the Court & Mini-Challenges",
       desc: "Optional rapid-fire challenges like 'King of the Court' or targeted serving games for quick rallies and community bragging rights.",
@@ -42,7 +38,6 @@ export default function ItineraryPage() {
       accent: "border-l-brand-purple"
     },
     {
-      time: "10:30 AM",
       phase: "Phase 05",
       title: "Open Rotation & Network Play",
       desc: "Mix up the courts! Pair with new players, try different playing styles, network with fellow badminton fans, and push your limits.",
@@ -51,7 +46,6 @@ export default function ItineraryPage() {
       accent: "border-l-blue-500"
     },
     {
-      time: "10:50 AM",
       phase: "Phase 06",
       title: "Cool Down & Official Group Photo",
       desc: "Wrap up with light cool-down stretches, hydrated catchups, and smile for our weekend community group photo!",
@@ -102,14 +96,9 @@ export default function ItineraryPage() {
               <div className="bg-white/90 backdrop-blur-xl border border-brand-purple/10 p-6 sm:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(58,26,93,0.04)] hover:shadow-[0_16px_40px_rgba(58,26,93,0.08)] hover:-translate-y-0.5 transition-all duration-300">
                 
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-brand-purple/[0.06] text-brand-purple">
-                      {item.time}
-                    </span>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-brand-purple/50">
-                      {item.phase}
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-brand-purple/[0.06] text-brand-purple border border-brand-purple/10">
+                    {item.phase}
+                  </span>
 
                   <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${item.badge}`}>
                     Confirmed

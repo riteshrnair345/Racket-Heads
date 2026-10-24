@@ -119,7 +119,7 @@ export default function Footer() {
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
                   <Phone className="w-3.5 h-3.5" />
-                  <span>WhatsApp Organizers</span>
+                  <span>WhatsApp</span>
                 </div>
                 <div className="flex flex-col gap-1 text-xs pl-5 font-mono">
                   <a href="https://wa.me/919037498391" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300 transition-colors">

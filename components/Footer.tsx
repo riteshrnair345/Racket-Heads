@@ -122,11 +122,11 @@ export default function Footer() {
                   <span>WhatsApp Organizers</span>
                 </div>
                 <div className="flex flex-col gap-1 text-xs pl-5 font-mono">
-                  <a href="https://wa.me/918590330421" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300 transition-colors">
-                    +91 8590330421
+                  <a href="https://wa.me/919037498391" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300 transition-colors">
+                    +91 90374 98391
                   </a>
-                  <a href="https://wa.me/917012264390" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300 transition-colors">
-                    +91 7012264390
+                  <a href="https://wa.me/919745477798" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300 transition-colors">
+                    +91 97454 77798
                   </a>
                 </div>
               </div>

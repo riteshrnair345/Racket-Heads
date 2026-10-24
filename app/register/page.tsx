@@ -294,9 +294,9 @@ export default function Register() {
               <div className="pt-2 border-t border-brand-purple/10 flex flex-col gap-1 text-emerald-700">
                 <span className="font-bold text-brand-purple">Questions? WhatsApp our hosts:</span>
                 <div className="flex gap-3 font-semibold">
-                  <a href="https://wa.me/918590330421" className="hover:underline" target="_blank" rel="noopener noreferrer">+91 8590330421</a>
+                  <a href="https://wa.me/919037498391" className="hover:underline" target="_blank" rel="noopener noreferrer">+91 90374 98391</a>
                   <span>•</span>
-                  <a href="https://wa.me/917012264390" className="hover:underline" target="_blank" rel="noopener noreferrer">+91 7012264390</a>
+                  <a href="https://wa.me/919745477798" className="hover:underline" target="_blank" rel="noopener noreferrer">+91 97454 77798</a>
                 </div>
               </div>
             </div>

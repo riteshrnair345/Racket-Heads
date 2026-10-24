@@ -91,29 +91,6 @@ const SKILL_LEVELS = [
 
 const PLAYING_DURATIONS = ['< 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'];
 
-const COMMUNITY_PERKS = [
-  { 
-    icon: Trophy, 
-    title: "Tournament Shuttles", 
-    desc: "Match-grade shuttles provided for all games throughout the session." 
-  },
-  { 
-    icon: Clock, 
-    title: "2 to 3 Hours Court Time", 
-    desc: "Continuous reserved courts with structured, equal game rotations." 
-  },
-  { 
-    icon: Users, 
-    title: "Balanced Matchups", 
-    desc: "Rotations matched by skill level so every match is competitive and engaging." 
-  },
-  { 
-    icon: Sparkles, 
-    title: "High-Res Photos & Reels", 
-    desc: "Action shots and squad photos shared after every community session." 
-  },
-];
-
 const formatDate = (dateStr?: string) => {
   if (!dateStr) return '';
   const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1143,25 +1120,6 @@ export default function Register() {
                 />
               </div>
             ))}
-          </div>
-
-          {/* Community Perks Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {COMMUNITY_PERKS.map((perk, i) => {
-              const Icon = perk.icon;
-              return (
-                <div 
-                  key={i} 
-                  className="bg-white/80 border border-slate-200/80 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all"
-                >
-                  <div className="w-10 h-10 rounded-2xl bg-brand-pink/10 text-brand-pink flex items-center justify-center mb-3 font-bold border border-brand-pink/20">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-extrabold text-brand-purple text-sm mb-1">{perk.title}</h3>
-                  <p className="text-brand-purple/70 text-xs font-medium leading-relaxed">{perk.desc}</p>
-                </div>
-              );
-            })}
           </div>
 
         </section>

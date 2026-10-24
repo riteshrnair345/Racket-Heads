@@ -147,13 +147,9 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-400">
+      <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-center gap-4 text-xs font-medium text-slate-400 text-center">
         <div>
           © {currentYear} RacketHeads Kochi. All rights reserved.
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span>Crafted for Kochi's Badminton Lovers</span>
-          <span className="text-brand-pink">🏸</span>
         </div>
       </div>
     </footer>

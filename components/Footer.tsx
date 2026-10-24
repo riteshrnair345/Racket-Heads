@@ -21,11 +21,8 @@ export default function Footer() {
               className="h-12 w-12 rounded-2xl shadow-md border border-white/10 object-cover" 
             />
             <div>
-              <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-                RacketHeads
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-pink/20 text-brand-pink border border-brand-pink/30">
-                  Kochi
-                </span>
+              <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-1.5">
+                RacketHeads <span className="text-brand-pink">Kochi</span>
               </h3>
               <p className="text-xs text-slate-400 font-medium">The Weekend Badminton Community</p>
             </div>

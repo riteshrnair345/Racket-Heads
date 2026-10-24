@@ -170,7 +170,7 @@ export default function WaitlistCheckout({ params }: { params: Promise<{ playerI
               Amount Due: ₹{eventData.amount ?? 150}
             </p>
             <p className="text-emerald-700 text-xs font-medium">
-              Includes court fee + 1 premium match-grade shuttle. RacketHeads takes zero markup.
+              Includes court fee + 1 premium match-grade shuttle. RacketHeads Kochi takes zero markup.
             </p>
           </div>
         )}

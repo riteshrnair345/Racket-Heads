@@ -123,7 +123,7 @@ export default function GalleryPage() {
                       {/* Reel Cover Photo */}
                       <img 
                         src={`/api/gallery/ig-thumb?id=${igId}`}
-                        alt={item.alt && item.alt !== 'Gallery Media' ? item.alt : "RacketHeads Instagram Reel"}
+                        alt={item.alt && item.alt !== 'Gallery Media' ? item.alt : "RacketHeads Kochi Instagram Reel"}
                         className="w-full h-full object-cover transform group-hover/reel:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
@@ -172,7 +172,7 @@ export default function GalleryPage() {
                     <div className="relative overflow-hidden">
                       <img 
                         src={item.url} 
-                        alt={item.alt || "RacketHeads moment"}
+                        alt={item.alt || "RacketHeads Kochi moment"}
                         className="w-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />

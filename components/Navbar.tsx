@@ -35,14 +35,14 @@ export default function Navbar() {
         }`}
       >
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group select-none">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group select-none shrink-0">
           <img 
             src="/logo.jpg" 
             alt="RacketHeads Kochi" 
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shadow-sm group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300 object-cover border border-slate-200" 
+            className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shadow-sm group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300 object-cover border border-slate-200 shrink-0" 
           />
-          <span className="font-extrabold text-lg sm:text-xl tracking-tight text-brand-purple">
-            RacketHeads
+          <span className="font-extrabold text-base sm:text-xl tracking-tight text-brand-purple">
+            RacketHeads <span className="text-brand-pink">Kochi</span>
           </span>
         </Link>
 

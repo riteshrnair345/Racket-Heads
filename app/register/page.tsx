@@ -768,7 +768,7 @@ export default function Register() {
                 {selectedEvent?.eventType !== 'doubles' && (
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-xs sm:text-sm font-bold text-brand-purple ml-1">
-                      How did you hear about RacketHeads? <span className="text-brand-pink">*</span>
+                      How did you hear about RacketHeads Kochi? <span className="text-brand-pink">*</span>
                     </label>
                     <div className="relative">
                       <select

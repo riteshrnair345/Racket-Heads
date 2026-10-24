@@ -91,7 +91,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <img 
               src={item.url} 
-              alt={item.alt || "RacketHeads court moment"} 
+              alt={item.alt || "RacketHeads Kochi court moment"} 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-105" 
               loading="lazy"
             />

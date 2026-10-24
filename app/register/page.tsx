@@ -46,8 +46,8 @@ type EventStatus = {
 const COMMUNITY_PHOTOS = [
   {
     url: "/uploads/upload_1784529419919-496364669.jpg",
-    title: "Warmup & Squad Energy",
-    tag: "Pre-Game Vibe"
+    title: "Squad Warmup & Footwork",
+    tag: "Pre-Game Energy"
   },
   {
     url: "/uploads/upload_1784530539969-112259766.jpg",
@@ -90,6 +90,29 @@ const SKILL_LEVELS = [
 ];
 
 const PLAYING_DURATIONS = ['< 1 year', '1-3 years', '3-5 years', '5-10 years', '10+ years'];
+
+const COMMUNITY_PERKS = [
+  { 
+    icon: Trophy, 
+    title: "Tournament Shuttles", 
+    desc: "Match-grade shuttles provided for all games throughout the session." 
+  },
+  { 
+    icon: Clock, 
+    title: "2 to 3 Hours Court Time", 
+    desc: "Continuous reserved courts with structured, equal game rotations." 
+  },
+  { 
+    icon: Users, 
+    title: "Balanced Matchups", 
+    desc: "Rotations matched by skill level so every match is competitive and engaging." 
+  },
+  { 
+    icon: Sparkles, 
+    title: "High-Res Photos & Reels", 
+    desc: "Action shots and squad photos shared after every community session." 
+  },
+];
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -499,16 +522,16 @@ export default function Register() {
       {/* Global Navbar */}
       <Navbar />
 
-      <main className="flex-grow flex flex-col items-center relative z-10 w-full">
+      <main className="flex-grow flex flex-col items-center relative z-10 w-full pb-16">
         
-        {/* Breadcrumb Bar */}
+        {/* Top Header Bar */}
         <div className="max-w-6xl mx-auto px-4 w-full pt-4 sm:pt-6 flex items-center justify-between">
           <Link 
             href="/" 
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-brand-purple/75 hover:text-brand-purple bg-white/80 hover:bg-white px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-sm transition-all hover:-translate-x-0.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Home</span>
+            <span>Back to Home</span>
           </Link>
           <div className="flex items-center gap-2 text-xs font-bold text-brand-purple/70 bg-white/80 px-3 py-1 rounded-full border border-slate-200/80 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -516,64 +539,39 @@ export default function Register() {
           </div>
         </div>
 
-        {/* Community Hero Header */}
-        <section className="max-w-6xl mx-auto px-4 w-full pt-6 pb-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        {/* Compact, Clean Page Title Header (Immediate focus on booking!) */}
+        <section className="max-w-6xl mx-auto px-4 w-full pt-4 sm:pt-6 pb-4 sm:pb-6 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-pink/10 border border-brand-pink/20 text-brand-pink text-xs font-black uppercase tracking-wider mb-2.5">
-                <Trophy className="w-3.5 h-3.5" />
-                <span>RacketHeads Kochi Weekend Sessions</span>
-              </div>
-              <h1 className="text-3xl sm:text-5xl font-black text-brand-purple tracking-tight">
+              <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink px-2.5 py-0.5 rounded-full bg-brand-pink/10 border border-brand-pink/20 inline-block mb-1.5">
+                Weekend Matchup
+              </span>
+              <h1 className="text-2xl sm:text-4xl font-black text-brand-purple tracking-tight">
                 Secure Your Spot <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple via-brand-pink to-amber-500">on Court</span>
               </h1>
-              <p className="text-brand-purple/75 text-sm sm:text-base font-medium max-w-2xl mt-2 leading-relaxed">
-                Join Kochi's friendliest badminton community this weekend. Equal court time, matched skill rotations, and high community energy.
+              <p className="text-brand-purple/70 text-xs sm:text-sm font-medium mt-1">
+                Fill in your details below to lock in your spot for this weekend's session.
               </p>
             </div>
             
-            <div className="hidden sm:flex items-center gap-3 bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-slate-200/80 shadow-sm shrink-0">
-              <img src="/logo.jpg" alt="RacketHeads Kochi Logo" className="w-11 h-11 rounded-xl object-cover shadow-sm border border-slate-200" />
-              <div className="text-left">
-                <p className="text-xs font-black text-brand-purple">RacketHeads Kochi</p>
-                <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 inline text-emerald-500" /> Verified Community
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Real Community Photos Mosaic Banner */}
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            {COMMUNITY_PHOTOS.map((photo, i) => (
-              <div 
-                key={i} 
-                className="group relative h-36 sm:h-44 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-slate-200/80 bg-slate-900"
-              >
-                <img 
-                  src={photo.url} 
-                  alt={photo.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 p-3 sm:p-3.5 text-white">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-white mb-1 inline-block">
-                    {photo.tag}
-                  </span>
-                  <p className="text-xs sm:text-sm font-bold text-white line-clamp-1 drop-shadow-sm">
-                    {photo.title}
+            {selectedEvent && (
+              <div className="hidden sm:flex items-center gap-2.5 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-sm shrink-0">
+                <img src="/logo.jpg" alt="RacketHeads Kochi Logo" className="w-9 h-9 rounded-xl object-cover shadow-sm border border-slate-200" />
+                <div className="text-left">
+                  <p className="text-xs font-black text-brand-purple">{selectedEvent.name}</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3 text-emerald-500" /> Slots Open
                   </p>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </section>
 
         {/* Event Selection Screen (when multiple active events exist and none selected) */}
         {activeEvents.length > 1 && !selectedEventId && (
-          <section className="max-w-6xl mx-auto px-4 w-full py-8 animate-in fade-in slide-in-from-bottom-4">
-            <div className="text-center mb-8">
+          <section className="max-w-6xl mx-auto px-4 w-full py-6 animate-in fade-in slide-in-from-bottom-4">
+            <div className="text-center mb-6">
               <h2 className="text-2xl sm:text-3xl font-black text-brand-purple mb-2">Select a Session to Register</h2>
               <p className="text-brand-purple/70 text-sm font-medium">Pick the session that fits your weekend schedule.</p>
             </div>
@@ -670,15 +668,15 @@ export default function Register() {
           </section>
         )}
 
-        {/* Main 2-Column Registration Layout */}
+        {/* PRIMARY FORM SECTION IS RIGHT AT THE TOP */}
         {selectedEventId && selectedEvent && (
-          <section className="max-w-6xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 pb-16">
+          <section className="max-w-6xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
             
-            {/* Left Column: Session Info, Community Perks & What to Bring (5 cols) */}
-            <div className="lg:col-span-5 space-y-6">
+            {/* Left Sidebar: Selected Session Details & Quick Checklist (4 cols on lg) */}
+            <div className="lg:col-span-4 space-y-5 order-2 lg:order-1">
               
               {/* Selected Session Card */}
-              <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-[0_10px_30px_rgba(15,23,42,0.04)] relative overflow-hidden">
+              <div className="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-6 shadow-[0_8px_30px_rgba(15,23,42,0.04)] relative overflow-hidden">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] uppercase font-black tracking-widest text-brand-pink px-2.5 py-1 rounded-full bg-brand-pink/10 border border-brand-pink/20">
                     Selected Session
@@ -693,11 +691,11 @@ export default function Register() {
                   )}
                 </div>
 
-                <h2 className="text-xl sm:text-2xl font-black text-brand-purple mb-4">
+                <h2 className="text-xl font-black text-brand-purple mb-4">
                   {selectedEvent.name}
                 </h2>
 
-                <div className="space-y-2.5 text-sm font-semibold text-brand-purple/85 mb-5">
+                <div className="space-y-2.5 text-xs sm:text-sm font-semibold text-brand-purple/85 mb-5">
                   <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/70 p-3 rounded-2xl">
                     <Calendar className="w-4 h-4 text-brand-pink shrink-0" />
                     <span>{selectedEvent.date}</span>
@@ -732,7 +730,7 @@ export default function Register() {
                 {/* Session Fee Summary */}
                 <div className="bg-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-extrabold text-emerald-800 uppercase tracking-wider">Session Pass</p>
+                    <p className="text-[11px] font-extrabold text-emerald-800 uppercase tracking-wider">Session Pass</p>
                     <p className="text-xs text-emerald-700 font-medium mt-0.5">Court fee + tournament shuttles</p>
                   </div>
                   <div className="text-right">
@@ -743,71 +741,37 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* What's Included Card */}
-              <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-base font-black text-brand-purple mb-4 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-brand-pink" />
-                  <span>What's Included in Your Pass</span>
-                </h3>
-                <div className="space-y-3.5 text-xs sm:text-sm font-medium text-brand-purple/80">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</div>
-                    <div>
-                      <strong className="text-brand-purple font-bold">Match-Grade Shuttles:</strong> Quality tournament shuttles provided for every match.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</div>
-                    <div>
-                      <strong className="text-brand-purple font-bold">Full Court Time:</strong> 2 to 3 hours of reserved indoor courts with fair rotations.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</div>
-                    <div>
-                      <strong className="text-brand-purple font-bold">Balanced Matchups:</strong> Rotations organized so everyone plays engaging, competitive games.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0 mt-0.5 font-bold">✓</div>
-                    <div>
-                      <strong className="text-brand-purple font-bold">Community Photos:</strong> Match moments & squad photos uploaded to our archive.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Courtside Checklist Card */}
-              <div className="bg-amber-50/80 border border-amber-200/80 rounded-3xl p-6 shadow-sm">
-                <h3 className="text-base font-black text-amber-950 mb-3 flex items-center gap-2">
+              {/* Quick Courtside Checklist Card */}
+              <div className="bg-amber-50/80 border border-amber-200/80 rounded-3xl p-5 shadow-sm">
+                <h3 className="text-sm font-black text-amber-950 mb-2.5 flex items-center gap-2">
                   <Zap className="w-4 h-4 text-amber-600" />
-                  <span>Courtside Checklist</span>
+                  <span>Courtside Essentials</span>
                 </h3>
-                <ul className="space-y-2 text-xs sm:text-sm font-medium text-amber-900/90 leading-relaxed">
+                <ul className="space-y-2 text-xs font-medium text-amber-900/90 leading-relaxed">
                   <li className="flex items-center gap-2">
                     <span className="text-rose-600 font-bold">•</span>
-                    <span><strong>Non-Marking Shoes:</strong> Strictly mandatory to protect indoor courts.</span>
+                    <span><strong>Non-Marking Shoes:</strong> Mandatory for all indoor courts.</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-amber-600 font-bold">•</span>
-                    <span><strong>Your Racket:</strong> Bring your own racket (spares on prior request).</span>
+                    <span><strong>Your Racket:</strong> Bring your racket (spares available if requested).</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-amber-600 font-bold">•</span>
-                    <span><strong>Hydration:</strong> Water bottle recommended between rotations.</span>
+                    <span><strong>Hydration:</strong> Water bottle recommended.</span>
                   </li>
                 </ul>
               </div>
 
               {/* Host Support WhatsApp Card */}
-              <div className="bg-white/80 border border-slate-200/90 rounded-3xl p-5 text-xs text-brand-purple/80 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
-                    <MessageCircle className="w-5 h-5" />
+              <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-4 text-xs text-brand-purple/80 flex items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
+                    <MessageCircle className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-brand-purple">Questions about the session?</p>
-                    <p className="text-slate-500 text-[11px]">Chat with our organizers on WhatsApp</p>
+                    <p className="font-bold text-brand-purple">Have questions?</p>
+                    <p className="text-slate-500 text-[11px]">Chat with our organizers</p>
                   </div>
                 </div>
                 <a 
@@ -816,30 +780,32 @@ export default function Register() {
                   rel="noopener noreferrer" 
                   className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shrink-0 shadow-sm"
                 >
-                  WhatsApp Us
+                  WhatsApp
                 </a>
               </div>
 
             </div>
 
-            {/* Right Column: Player Registration Form (7 cols) */}
-            <div className="lg:col-span-7">
-              <div className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-[2.5rem] p-6 sm:p-10 shadow-[0_20px_50px_rgba(15,23,42,0.06)] relative">
+            {/* Right: The Player Registration Form (8 cols on lg) */}
+            <div className="lg:col-span-8 order-1 lg:order-2">
+              <div className="bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-[2.5rem] p-6 sm:p-9 shadow-[0_20px_50px_rgba(15,23,42,0.06)] relative">
                 
                 {/* Form Header */}
-                <div className="mb-8">
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-pink" />
-                    <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink">
+                <div className="mb-7 pb-5 border-b border-slate-100 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-pink" />
+                      <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink">
+                        Step 1 of 1
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-brand-purple">
                       Player Registration
-                    </span>
+                    </h2>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-brand-purple mb-1.5">
-                    Player Details
-                  </h2>
-                  <p className="text-brand-purple/70 text-sm font-medium">
-                    Provide your details so we can arrange balanced matchups and issue your digital check-in pass.
-                  </p>
+                  <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
+                    Takes &lt; 1 minute
+                  </span>
                 </div>
 
                 {error && (
@@ -849,7 +815,7 @@ export default function Register() {
                   </div>
                 )}
 
-                <form onSubmit={handlePayment} className="space-y-6 sm:space-y-8">
+                <form onSubmit={handlePayment} className="space-y-6 sm:space-y-7">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-5">
                     
                     {/* 1. Full Name */}
@@ -866,7 +832,7 @@ export default function Register() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="e.g. Rahul Nair"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
                       />
                     </div>
 
@@ -884,7 +850,7 @@ export default function Register() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="name@example.com"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
                       />
                     </div>
 
@@ -902,7 +868,7 @@ export default function Register() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+91 98765 43210"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
                       />
                     </div>
 
@@ -922,7 +888,7 @@ export default function Register() {
                         placeholder="e.g. 25"
                         min="1"
                         max="100"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all placeholder:text-slate-400 text-sm sm:text-base shadow-sm"
                       />
                     </div>
 
@@ -942,7 +908,7 @@ export default function Register() {
                                 type="button"
                                 key={level.id}
                                 onClick={() => handleSelect('proficiency', level.id)}
-                                className={`rounded-2xl p-4 text-left transition-all duration-200 border relative ${
+                                className={`rounded-2xl p-3.5 sm:p-4 text-left transition-all duration-200 border relative ${
                                   isSelected 
                                     ? 'bg-brand-purple text-white border-brand-purple shadow-md ring-2 ring-brand-purple/20' 
                                     : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-white hover:border-slate-300'
@@ -980,7 +946,7 @@ export default function Register() {
                                 type="button"
                                 key={time}
                                 onClick={() => handleSelect('duration', time)}
-                                className={`rounded-2xl py-3 px-2 text-center transition-all duration-200 font-extrabold text-xs sm:text-sm border ${
+                                className={`rounded-2xl py-2.5 sm:py-3 px-2 text-center transition-all duration-200 font-extrabold text-xs sm:text-sm border ${
                                   isSelected 
                                     ? 'bg-brand-purple text-white border-brand-purple shadow-md' 
                                     : 'bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-white hover:border-slate-300'
@@ -996,14 +962,14 @@ export default function Register() {
 
                     {/* 7. Non-Marking Shoes Mandatory Notice */}
                     <div className="md:col-span-2">
-                      <div className="bg-gradient-to-r from-brand-pink/[0.08] via-amber-500/[0.04] to-transparent border border-brand-pink/20 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 text-left shadow-sm">
+                      <div className="bg-gradient-to-r from-brand-pink/[0.08] via-amber-500/[0.04] to-transparent border border-brand-pink/20 rounded-2xl p-4 sm:p-4.5 flex items-start gap-3 text-left shadow-sm">
                         <Zap className="w-5 h-5 text-brand-pink shrink-0 mt-0.5" />
                         <div>
-                          <h4 className="text-brand-purple font-black text-sm mb-0.5">
+                          <h4 className="text-brand-purple font-black text-xs sm:text-sm mb-0.5">
                             Compulsory Non-Marking Badminton Shoes <span className="text-brand-pink">*</span>
                           </h4>
-                          <p className="text-brand-purple/75 text-xs sm:text-sm font-medium leading-relaxed">
-                            To protect indoor wooden and synthetic courts, strictly non-marking rubber shoes are allowed. Running sneakers with black or outdoor treads are strictly barred by the venue.
+                          <p className="text-brand-purple/75 text-xs font-medium leading-relaxed">
+                            To protect indoor wooden and synthetic courts, strictly non-marking rubber soles are allowed. Running sneakers with black or outdoor treads are strictly barred by the venue.
                           </p>
                         </div>
                       </div>
@@ -1020,7 +986,7 @@ export default function Register() {
                             name="heardFrom"
                             value={formData.heardFrom}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all appearance-none cursor-pointer shadow-sm text-sm sm:text-base"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3 sm:py-3.5 text-slate-900 font-semibold focus:outline-none focus:ring-4 focus:ring-brand-purple/10 focus:border-brand-purple focus:bg-white transition-all appearance-none cursor-pointer shadow-sm text-sm sm:text-base"
                           >
                             <option value="" disabled className="text-brand-purple/40">Select an option...</option>
                             <option value="Friend/Word of Mouth">Friend / Word of Mouth</option>
@@ -1117,6 +1083,68 @@ export default function Register() {
 
           </section>
         )}
+
+        {/* BOTTOM SECTION: COMMUNITY HIGHLIGHTS & REAL PHOTOS */}
+        <section className="max-w-6xl mx-auto px-4 w-full pt-16 mt-10 border-t border-slate-200/80">
+          
+          <div className="text-center mb-8">
+            <span className="text-[11px] uppercase font-black tracking-widest text-brand-pink px-3.5 py-1.5 rounded-full bg-brand-pink/10 border border-brand-pink/20 inline-block mb-2">
+              The Weekend Experience
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-brand-purple">
+              Life at RacketHeads Kochi
+            </h2>
+            <p className="text-brand-purple/70 text-xs sm:text-sm font-medium max-w-xl mx-auto mt-1 leading-relaxed">
+              Real community moments from our weekend courts — fast rallies, supportive teammates, and lifelong connections.
+            </p>
+          </div>
+
+          {/* Real Community Photos Mosaic */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
+            {COMMUNITY_PHOTOS.map((photo, i) => (
+              <div 
+                key={i} 
+                className="group relative h-40 sm:h-52 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-slate-200/80 bg-slate-900"
+              >
+                <img 
+                  src={photo.url} 
+                  alt={photo.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 text-white">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-white mb-1 inline-block">
+                    {photo.tag}
+                  </span>
+                  <p className="text-xs sm:text-sm font-bold text-white line-clamp-1 drop-shadow-sm">
+                    {photo.title}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Community Perks Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {COMMUNITY_PERKS.map((perk, i) => {
+              const Icon = perk.icon;
+              return (
+                <div 
+                  key={i} 
+                  className="bg-white/80 border border-slate-200/80 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all"
+                >
+                  <div className="w-10 h-10 rounded-2xl bg-brand-pink/10 text-brand-pink flex items-center justify-center mb-3 font-bold border border-brand-pink/20">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-extrabold text-brand-purple text-sm mb-1">{perk.title}</h3>
+                  <p className="text-brand-purple/70 text-xs font-medium leading-relaxed">{perk.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+
+        </section>
 
       </main>
 

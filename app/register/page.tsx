@@ -45,24 +45,24 @@ type EventStatus = {
 
 const COMMUNITY_PHOTOS = [
   {
-    url: "/uploads/upload_1784529419919-496364669.jpg",
-    title: "Squad Warmup & Footwork",
-    tag: "Pre-Game Energy"
+    url: "/uploads/gallery_community_event.jpg",
+    title: "Weekend Community Session",
+    tag: "Community"
   },
   {
-    url: "/uploads/upload_1784530539969-112259766.jpg",
-    title: "Smiles on the Court",
-    tag: "Inclusive & Friendly"
+    url: "/uploads/court_doubles_action.jpg",
+    title: "High-Paced Doubles Rallies",
+    tag: "Matchplay"
   },
   {
-    url: "/uploads/upload_1784529488207-659977027.jpg",
-    title: "Post-Match Community",
-    tag: "Weekend Family"
+    url: "/uploads/court_shuttle_challenge.jpg",
+    title: "Tournament Shuttles & Drills",
+    tag: "Training"
   },
   {
     url: "/uploads/upload_1784530584477-865641431.jpg",
-    title: "High-Paced Doubles Rallies",
-    tag: "Fast Action"
+    title: "Smiles on the Court",
+    tag: "Squad"
   }
 ];
 

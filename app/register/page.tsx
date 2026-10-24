@@ -736,6 +736,10 @@ export default function Register() {
                 <ul className="space-y-2 text-xs font-medium text-amber-900/90 leading-relaxed">
                   <li className="flex items-center gap-2">
                     <span className="text-amber-600 font-bold">•</span>
+                    <span><strong>Non-Marking Shoes:</strong> Mandatory for all indoor courts.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-amber-600 font-bold">•</span>
                     <span><strong>Your Racket:</strong> Bring your racket (spares available if requested).</span>
                   </li>
                   <li className="flex items-center gap-2">
@@ -1052,6 +1056,10 @@ export default function Register() {
                     <span>Courtside Essentials</span>
                   </h3>
                   <ul className="space-y-2 text-xs font-medium text-amber-900/90 leading-relaxed">
+                    <li className="flex items-center gap-2">
+                      <span className="text-amber-600 font-bold">•</span>
+                      <span><strong>Non-Marking Shoes:</strong> Mandatory for all indoor courts.</span>
+                    </li>
                     <li className="flex items-center gap-2">
                       <span className="text-amber-600 font-bold">•</span>
                       <span><strong>Your Racket:</strong> Bring your racket (spares available if requested).</span>

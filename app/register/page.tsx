@@ -1137,19 +1137,10 @@ export default function Register() {
               >
                 <img 
                   src={photo.url} 
-                  alt={photo.title}
+                  alt="RacketHeads Kochi community moment"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 text-white">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-white mb-1 inline-block">
-                    {photo.tag}
-                  </span>
-                  <p className="text-xs sm:text-sm font-bold text-white line-clamp-1 drop-shadow-sm">
-                    {photo.title}
-                  </p>
-                </div>
               </div>
             ))}
           </div>

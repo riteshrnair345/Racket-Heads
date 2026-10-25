@@ -1013,7 +1013,8 @@ function EventsView() {
   const [eventType, setEventType] = useState<'community' | 'doubles'>('community');
   const [creating, setCreating] = useState(false);
   
-  const VENUE_DATA: Record<string, { price: number, courts: number }> = {
+  const VENUE_DATA: Record<string, { price: number; courts: number }> = {
+    "Pro Badminton Academy": { price: 350, courts: 4 },
     "Prosmash Maradu": { price: 350, courts: 2 },
     "Play 2 Win Kadavanthra": { price: 350, courts: 4 },
     "Olympus Arena Thammanam": { price: 400, courts: 4 },
@@ -1168,41 +1169,123 @@ function EventsView() {
     }
   };
 
+  const selectedVenueData = venue ? VENUE_DATA[venue] : null;
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
-      <div className="lg:col-span-1 min-w-0">
-        <div className="bg-white rounded-[2rem] p-6 border border-brand-purple/10 shadow-[0_8px_30px_rgba(58,26,93,0.04)]">
-          <h2 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
-            <CalendarPlus className="text-brand-purple" /> Create Event
-          </h2>
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full items-start">
+      
+      {/* Left Column: Create Event Form */}
+      <div className="lg:col-span-5 xl:col-span-4 min-w-0">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+          <div className="mb-5">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">Create Event</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Schedule a new badminton session.</p>
+          </div>
+
           <form onSubmit={handleCreate} className="space-y-4">
+            
+            {/* Session Type Segmented Control */}
             <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Event Name</label>
-              <input required type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Sunday Morning Bash" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Session Type</label>
+              <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEventType('community');
+                    setLimit(28);
+                    setWaitlistThreshold(6);
+                  }}
+                  className={`py-2 px-3 rounded-lg transition-all text-center ${
+                    eventType === 'community'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Community Session
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEventType('doubles');
+                    const matchedVenueKey = Object.keys(VENUE_DATA).find(
+                      key => key.toLowerCase() === venue.toLowerCase()
+                    );
+                    if (matchedVenueKey) {
+                      setLimit(VENUE_DATA[matchedVenueKey].courts * 6);
+                    } else {
+                      setLimit(24);
+                    }
+                    setWaitlistThreshold(0);
+                  }}
+                  className={`py-2 px-3 rounded-lg transition-all text-center ${
+                    eventType === 'doubles'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Doubles Match
+                </button>
+              </div>
             </div>
+
+            {/* Event Name */}
             <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Date</label>
-              <input required type="date" value={date} onChange={e=>setDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Event Name</label>
+              <input
+                required
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g. Sunday Morning Bash"
+                className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all"
+              />
             </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Time</label>
-              <select required value={time} onChange={e=>setTime(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
-                <option value="" disabled>Select a time...</option>
-                <option value="6:00 AM - 8:00 AM">6:00 AM - 8:00 AM</option>
-                <option value="7:00 AM - 9:00 AM">7:00 AM - 9:00 AM</option>
-                <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
-                <option value="9:00 AM - 11:00 AM">9:00 AM - 11:00 AM</option>
-                <option value="5:00 PM - 8:00 PM">5:00 PM - 8:00 PM</option>
-                <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
-                <option value="7:00 PM - 9:00 PM">7:00 PM - 9:00 PM</option>
-                <option value="8:00 PM - 10:00 PM">8:00 PM - 10:00 PM</option>
-                <option value="9:00 PM - 10:00 PM">9:00 PM - 10:00 PM</option>
-                <option value="9:00 PM - 11:00 PM">9:00 PM - 11:00 PM</option>
-              </select>
+
+            {/* Date & Time (2 Cols) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Date</label>
+                <input
+                  required
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Time</label>
+                <select
+                  required
+                  value={time}
+                  onChange={e => setTime(e.target.value)}
+                  className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all cursor-pointer"
+                >
+                  <option value="" disabled>Select time...</option>
+                  <option value="6:00 AM - 8:00 AM">6:00 AM - 8:00 AM</option>
+                  <option value="7:00 AM - 9:00 AM">7:00 AM - 9:00 AM</option>
+                  <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
+                  <option value="9:00 AM - 11:00 AM">9:00 AM - 11:00 AM</option>
+                  <option value="5:00 PM - 8:00 PM">5:00 PM - 8:00 PM</option>
+                  <option value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</option>
+                  <option value="7:00 PM - 9:00 PM">7:00 PM - 9:00 PM</option>
+                  <option value="8:00 PM - 10:00 PM">8:00 PM - 10:00 PM</option>
+                  <option value="9:00 PM - 10:00 PM">9:00 PM - 10:00 PM</option>
+                  <option value="9:00 PM - 11:00 PM">9:00 PM - 11:00 PM</option>
+                </select>
+              </div>
             </div>
+
+            {/* Venue */}
             <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Venue</label>
-              <select required value={venue} onChange={e=>setVenue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Venue</label>
+              <select
+                required
+                value={venue}
+                onChange={e => setVenue(e.target.value)}
+                className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all cursor-pointer"
+              >
                 <option value="" disabled>Select a venue...</option>
                 <option value="Pro Badminton Academy">Pro Badminton Academy</option>
                 <option value="Prosmash Maradu">Prosmash Maradu</option>
@@ -1213,190 +1296,324 @@ function EventsView() {
                 <option value="Smash Arena, Kathrikadavu">Smash Arena, Kathrikadavu</option>
                 <option value="Feather Touch, Kathrikadavu">Feather Touch, Kathrikadavu</option>
               </select>
+              {selectedVenueData && (
+                <p className="text-[11px] text-slate-500 font-medium mt-1">
+                  {selectedVenueData.courts} courts • Standard rate: ₹{selectedVenueData.price}
+                </p>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Event Type</label>
-              <select value={eventType} onChange={e=>setEventType(e.target.value as any)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20">
-                <option value="community">Community Event</option>
-                <option value="doubles">Doubles Match-up Session</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-500 mb-1">Participant Limit</label>
-              <input required type="number" value={limit || ''} onChange={e=>setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
-            </div>
-            {eventType !== 'doubles' && (
+
+            {/* Limits (2 Cols) */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-bold text-slate-500 mb-1">Waitlist Auto-Unlock Threshold</label>
-                <input required type="number" value={waitlistThreshold || ''} onChange={e=>setWaitlistThreshold(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Player Limit</label>
+                <input
+                  required
+                  type="number"
+                  min="1"
+                  value={limit || ''}
+                  onChange={e => setLimit(e.target.value === '' ? 0 : parseInt(e.target.value))}
+                  className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all"
+                />
               </div>
-            )}
-            <div className="flex items-center gap-3">
-              <label className="block text-sm font-bold text-slate-500">Requires Payment</label>
-              <button
-                type="button"
-                onClick={() => setRequiresPayment(!requiresPayment)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
-              </button>
+
+              {eventType !== 'doubles' ? (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Waitlist Threshold</label>
+                  <input
+                    required
+                    type="number"
+                    min="0"
+                    value={waitlistThreshold || ''}
+                    onChange={e => setWaitlistThreshold(e.target.value === '' ? 0 : parseInt(e.target.value))}
+                    className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5">Waitlist</label>
+                  <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-400 flex items-center h-[38px]">
+                    Not used in doubles
+                  </div>
+                </div>
+              )}
             </div>
-            {requiresPayment && (
-              <div>
-                <label className="block text-sm font-bold text-slate-500 mb-1">Payment Amount (₹)</label>
-                <input required type="number" value={amount || ''} onChange={e=>setAmount(e.target.value === '' ? 0 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20" />
+
+            {/* Requires Payment Toggle */}
+            <div className="pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block">Requires Payment</span>
+                  <span className="text-[11px] text-slate-400">Collect fee upon registration</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRequiresPayment(!requiresPayment)}
+                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+                    requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
+                      requiresPayment ? 'translate-x-4' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
-            )}
-            <button disabled={creating} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md mt-2">
-              {creating ? "Creating..." : "Create Event"}
+
+              {requiresPayment && (
+                <div className="mt-3">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Fee Amount (₹)</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-sm font-semibold text-slate-400">
+                      ₹
+                    </span>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      value={amount || ''}
+                      onChange={e => setAmount(e.target.value === '' ? 0 : parseInt(e.target.value))}
+                      className="w-full bg-slate-50/50 hover:bg-slate-50 focus:bg-white border border-slate-200 rounded-xl pl-7 pr-3 py-2 text-sm font-medium text-slate-900 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              disabled={creating}
+              type="submit"
+              className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-xs active:scale-[0.99] disabled:opacity-60 text-sm mt-3 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {creating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                "Create Event"
+              )}
             </button>
           </form>
         </div>
       </div>
 
-      <div className="lg:col-span-2 min-w-0 space-y-8">
+      {/* Right Column: Active & Closed Events Tables */}
+      <div className="lg:col-span-7 xl:col-span-8 min-w-0 space-y-6">
         {[
           { title: "Active Events", data: events.filter(e => e.isActive), isClosed: false },
           { title: "Closed Events", data: events.filter(e => !e.isActive), isClosed: true }
         ].map((group, groupIdx) => {
           if (group.isClosed && group.data.length === 0) return null;
           return (
-            <div key={groupIdx} className={`bg-white border border-slate-200/80 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${group.isClosed ? 'opacity-75 hover:opacity-100 transition-opacity' : ''}`}>
-              <div className="px-6 py-5 border-b border-slate-100 bg-white flex justify-between items-center">
-                <h2 className="text-lg font-black text-slate-800">{group.title}</h2>
+            <div 
+              key={groupIdx} 
+              className={`bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs ${
+                group.isClosed ? 'opacity-80 hover:opacity-100 transition-opacity' : ''
+              }`}
+            >
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-slate-900">{group.title}</h2>
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                    {group.data.length}
+                  </span>
+                </div>
+                {group.isClosed && (
+                  <span className="text-xs text-slate-400 font-medium">Archived</span>
+                )}
               </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                  <thead className="bg-slate-50/60 text-slate-500 border-b border-slate-100 text-xs">
                     <tr>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Event Name</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Date & Time</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Venue</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Limit</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Payment</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Signups</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Status</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs">Feedback</th>
-                      <th className="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Actions</th>
+                      <th className="px-5 py-3 font-semibold">Event Name</th>
+                      <th className="px-5 py-3 font-semibold">Date & Time</th>
+                      <th className="px-5 py-3 font-semibold">Venue</th>
+                      <th className="px-5 py-3 font-semibold">Capacity</th>
+                      <th className="px-5 py-3 font-semibold">Fee</th>
+                      <th className="px-5 py-3 font-semibold">Status</th>
+                      <th className="px-5 py-3 font-semibold">Feedback</th>
+                      <th className="px-5 py-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {loading ? (
-                      <tr><td colSpan={9} className="px-6 py-8 text-center">Loading...</td></tr>
+                      <tr>
+                        <td colSpan={8} className="px-6 py-8 text-center text-slate-400 font-medium text-xs">
+                          Loading events...
+                        </td>
+                      </tr>
                     ) : group.data.length === 0 ? (
-                      <tr><td colSpan={9} className="px-6 py-8 text-center text-slate-500 font-medium">No {group.title.toLowerCase()} found.</td></tr>
+                      <tr>
+                        <td colSpan={8} className="px-6 py-8 text-center text-slate-400 font-medium text-xs">
+                          No {group.title.toLowerCase()} found.
+                        </td>
+                      </tr>
                     ) : (
                       group.data.map(event => (
-                        <tr key={event.id} className="hover:bg-slate-50/80">
+                        <tr key={event.id} className="hover:bg-slate-50/50 transition-colors">
                           {editingEventId === event.id ? (
                             <>
-                              <td className="px-6 py-5 space-y-2">
-                                <input type="text" value={editForm.name} onChange={e=>setEditForm({...editForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
-                                <select value={editForm.eventType} onChange={e=>setEditForm({...editForm, eventType: e.target.value as any})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold text-xs focus:ring-2 focus:ring-brand-purple/20">
+                              <td className="px-5 py-3 space-y-1.5">
+                                <input 
+                                  type="text" 
+                                  value={editForm.name} 
+                                  onChange={e=>setEditForm({...editForm, name: e.target.value})} 
+                                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                />
+                                <select 
+                                  value={editForm.eventType} 
+                                  onChange={e=>setEditForm({...editForm, eventType: e.target.value as any})} 
+                                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple"
+                                >
                                   <option value="community">Community</option>
                                   <option value="doubles">Doubles Match</option>
                                 </select>
                               </td>
-                              <td className="px-6 py-5 space-y-2">
-                                <input type="date" value={editForm.date} onChange={e=>setEditForm({...editForm, date: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
-                                <input type="text" value={editForm.time} onChange={e=>setEditForm({...editForm, time: e.target.value})} placeholder="Time" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                              <td className="px-5 py-3 space-y-1.5">
+                                <input 
+                                  type="date" 
+                                  value={editForm.date} 
+                                  onChange={e=>setEditForm({...editForm, date: e.target.value})} 
+                                  className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                />
+                                <input 
+                                  type="text" 
+                                  value={editForm.time} 
+                                  onChange={e=>setEditForm({...editForm, time: e.target.value})} 
+                                  placeholder="Time" 
+                                  className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                />
                               </td>
-                              <td className="px-6 py-5">
-                                <input type="text" value={editForm.venue} onChange={e=>setEditForm({...editForm, venue: e.target.value})} placeholder="Venue" className="w-[120px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" />
+                              <td className="px-5 py-3">
+                                <input 
+                                  type="text" 
+                                  value={editForm.venue} 
+                                  onChange={e=>setEditForm({...editForm, venue: e.target.value})} 
+                                  placeholder="Venue" 
+                                  className="w-[120px] bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                />
                               </td>
-                              <td className="px-6 py-5 space-y-2">
-                                <input type="number" value={editForm.participantLimit || ''} onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Limit" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Participant Limit" />
-                                {editForm.eventType !== 'doubles' && (
-                                  <input type="number" value={editForm.waitlistThreshold || ''} onChange={e=>setEditForm({...editForm, waitlistThreshold: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Waitlist Unlock Threshold" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20" title="Waitlist Auto-Unlock Threshold" />
-                                )}
+                              <td className="px-5 py-3 space-y-1.5">
+                                <input 
+                                  type="number" 
+                                  value={editForm.participantLimit || ''} 
+                                  onChange={e=>setEditForm({...editForm, participantLimit: e.target.value === '' ? 0 : parseInt(e.target.value)})} 
+                                  placeholder="Limit" 
+                                  className="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                  title="Participant Limit" 
+                                />
                               </td>
-                              <td className="px-6 py-5 space-y-2">
+                              <td className="px-5 py-3 space-y-1.5">
                                 <button
                                   type="button"
                                   onClick={() => setEditForm({...editForm, requiresPayment: !editForm.requiresPayment})}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editForm.requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'}`}
+                                  className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${editForm.requiresPayment ? 'bg-brand-purple' : 'bg-slate-200'}`}
                                 >
-                                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.requiresPayment ? 'translate-x-6' : 'translate-x-1'}`} />
+                                  <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${editForm.requiresPayment ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                 </button>
                                 {editForm.requiresPayment && (
-                                  <input type="number" value={editForm.amount || ''} onChange={e=>setEditForm({...editForm, amount: e.target.value === '' ? 0 : parseInt(e.target.value)})} placeholder="Amt" className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 font-semibold focus:ring-2 focus:ring-brand-purple/20 text-xs" />
+                                  <input 
+                                    type="number" 
+                                    value={editForm.amount || ''} 
+                                    onChange={e=>setEditForm({...editForm, amount: e.target.value === '' ? 0 : parseInt(e.target.value)})} 
+                                    placeholder="Amt" 
+                                    className="w-16 bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-medium focus:ring-1 focus:ring-brand-purple" 
+                                  />
                                 )}
                               </td>
-                              <td className="px-6 py-5"></td>
-                              <td className="px-6 py-5"></td>
-                              <td className="px-6 py-5"></td>
-                              <td className="px-6 py-5 text-right">
-                                <button onClick={() => handleEditSave(event)} className="text-emerald-600 font-bold hover:underline">Save</button>
-                                <button onClick={() => setEditingEventId(null)} className="ml-3 text-slate-400 font-bold hover:underline">Cancel</button>
+                              <td className="px-5 py-3"></td>
+                              <td className="px-5 py-3"></td>
+                              <td className="px-5 py-3 text-right space-x-2">
+                                <button onClick={() => handleEditSave(event)} className="text-emerald-600 font-semibold text-xs hover:underline">Save</button>
+                                <button onClick={() => setEditingEventId(null)} className="text-slate-400 font-semibold text-xs hover:underline">Cancel</button>
                               </td>
                             </>
                           ) : (
                             <>
-                              <td className="px-6 py-5">
-                                <div className="font-bold text-slate-800">{event.name}</div>
-                                <div className="text-xs font-semibold mt-1 px-2 py-0.5 inline-block rounded-md bg-slate-100 text-slate-600">
-                                  {event.eventType === 'doubles' ? '🏸 Doubles Match' : '🌍 Community'}
+                              <td className="px-5 py-3.5">
+                                <div className="font-semibold text-slate-900">{event.name}</div>
+                                <div className="text-[11px] font-medium text-slate-500 mt-0.5">
+                                  {event.eventType === 'doubles' ? 'Doubles Match' : 'Community Session'}
                                 </div>
                               </td>
-                              <td className="px-6 py-5">
-                                <div className="text-slate-600 font-medium">{event.date}</div>
-                                {event.time && <div className="text-slate-400 text-xs mt-1">{event.time}</div>}
+                              <td className="px-5 py-3.5 whitespace-nowrap">
+                                <div className="text-xs font-medium text-slate-800">{event.date}</div>
+                                {event.time && <div className="text-[11px] text-slate-400 mt-0.5">{event.time}</div>}
                               </td>
-                              <td className="px-6 py-5 text-slate-600 font-medium">{event.venue || '-'}</td>
-                              <td className="px-6 py-5 text-slate-600 font-medium">{event.participantLimit}</td>
-                              <td className="px-6 py-5">
-                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.requiresPayment ?? true ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
-                                  {event.requiresPayment ?? true ? `₹${event.amount ?? 150}` : 'Free'}
-                                </span>
+                              <td className="px-5 py-3.5 text-xs text-slate-600">
+                                {event.venue || '-'}
                               </td>
-                              <td className="px-6 py-5">
-                                <div className="flex flex-col gap-1 text-xs font-bold">
-                                  <span className="text-emerald-600">{event.confirmedCount ?? 0} Confirmed</span>
-                                  {event.eventType !== 'doubles' && (event.waitlistedCount ?? 0) > 0 && (
-                                    <span className="text-amber-600">{event.waitlistedCount} Waitlisted</span>
-                                  )}
+                              <td className="px-5 py-3.5 whitespace-nowrap">
+                                <div className="text-xs font-semibold text-slate-800">
+                                  {event.confirmedCount ?? 0} <span className="text-slate-400 font-normal">/ {event.participantLimit}</span>
                                 </div>
+                                {event.eventType !== 'doubles' && (event.waitlistedCount ?? 0) > 0 && (
+                                  <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                                    {event.waitlistedCount} waitlisted
+                                  </div>
+                                )}
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="px-5 py-3.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+                                {event.requiresPayment ?? true ? `₹${event.amount ?? 150}` : 'Free'}
+                              </td>
+                              <td className="px-5 py-3.5 whitespace-nowrap">
                                 <button
                                   onClick={() => toggleActive(event)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors w-full text-center ${
-                                    event.isActive ? 'bg-emerald-100 text-emerald-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100 hover:text-emerald-700'
+                                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                                    event.isActive 
+                                      ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50' 
+                                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
                                   }`}
                                 >
-                                  {event.isActive ? '🟢 Open' : '🔴 Closed'}
+                                  <span className={`w-1.5 h-1.5 rounded-full ${event.isActive ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                                  {event.isActive ? 'Open' : 'Closed'}
                                 </button>
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="px-5 py-3.5 whitespace-nowrap">
                                 <button
                                   onClick={() => toggleFeedbackActive(event)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors w-full text-center ${
-                                    event.isFeedbackOpen ? 'bg-brand-purple/10 text-brand-purple hover:bg-rose-100 hover:text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-brand-purple/10 hover:text-brand-purple'
+                                  className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                                    event.isFeedbackOpen 
+                                      ? 'bg-purple-50 text-brand-purple hover:bg-purple-100 border border-purple-200/50' 
+                                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200'
                                   }`}
                                 >
-                                  {event.isFeedbackOpen ? '🟢 Live' : '🔴 Closed'}
+                                  {event.isFeedbackOpen ? 'Live' : 'Off'}
                                 </button>
                               </td>
-                              <td className="px-6 py-5 text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <button onClick={() => {
-                                    setEditingEventId(event.id);
-                                    setEditForm({
-                                      name: event.name, 
-                                      date: event.date, 
-                                      time: event.time || "",
-                                      venue: event.venue || "",
-                                      requiresPayment: event.requiresPayment ?? true,
-                                      amount: event.amount ?? 150,
-                                      participantLimit: event.participantLimit,
-                                      waitlistThreshold: event.eventType === 'doubles' ? 0 : ((event as any).waitlistThreshold ?? 6),
-                                      eventType: event.eventType || 'community'
-                                    });
-                                  }} className="p-2 text-slate-400 hover:text-brand-purple hover:bg-brand-purple/10 rounded-xl transition-colors">
-                                    <Edit2 className="w-4 h-4" />
+                              <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1">
+                                  <button 
+                                    onClick={() => {
+                                      setEditingEventId(event.id);
+                                      setEditForm({
+                                        name: event.name, 
+                                        date: event.date, 
+                                        time: event.time || "",
+                                        venue: event.venue || "",
+                                        requiresPayment: event.requiresPayment ?? true,
+                                        amount: event.amount ?? 150,
+                                        participantLimit: event.participantLimit,
+                                        waitlistThreshold: event.eventType === 'doubles' ? 0 : ((event as any).waitlistThreshold ?? 6),
+                                        eventType: event.eventType || 'community'
+                                      });
+                                    }} 
+                                    className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
                                   </button>
-                                  <button onClick={() => handleDelete(event)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
-                                    <Trash2 className="w-4 h-4" />
+                                  <button 
+                                    onClick={() => handleDelete(event)} 
+                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                               </td>
@@ -1415,6 +1632,8 @@ function EventsView() {
     </div>
   );
 }
+
+
 
 function MasterDBView() {
   const [db, setDb] = useState<MasterDBItem[]>([]);

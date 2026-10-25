@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Trophy, Zap, Users, Play } from 'lucide-react';
+import { ArrowRight, Trophy, Zap, Users, Play, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import VideoPlayer, { getInstagramReelId, InstagramIcon } from '@/components/VideoPlayer';
 
@@ -108,8 +108,8 @@ export default function LandingPage() {
 
   return (
     <>
-      {/* Ambient background glows & subtle court lines */}
-      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.05] pointer-events-none mix-blend-multiply" />
+      {/* Ambient background glows */}
+      <div className="fixed inset-0 bg-[url('/badminton-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.04] pointer-events-none mix-blend-multiply" />
       <div className="fixed top-[-6%] left-[12%] w-[550px] h-[450px] rounded-full bg-yellow-400/[0.22] blur-[140px] pointer-events-none" />
       <div className="fixed top-[18%] right-[-5%] w-[500px] h-[500px] rounded-full bg-amber-300/[0.18] blur-[150px] pointer-events-none" />
       <div className="fixed top-[-8%] right-[-6%] w-[550px] h-[550px] rounded-full bg-brand-purple/[0.06] blur-[130px] pointer-events-none" />
@@ -119,52 +119,105 @@ export default function LandingPage() {
       {/* Main Content */}
       <main className="flex-grow relative z-10 flex flex-col items-center">
         
-        {/* Hero Section */}
-        <section className="w-full max-w-5xl mx-auto px-4 py-20 sm:py-28 flex flex-col items-center text-center">
+        {/* HERO SECTION */}
+        <section className="w-full max-w-5xl mx-auto px-4 py-16 sm:py-24 flex flex-col items-center text-center relative">
+          
+          {/* Subtle Aesthetic Badminton Court Lines in Background */}
+          <div className="absolute inset-x-8 top-12 bottom-8 border border-brand-purple/[0.04] rounded-3xl pointer-events-none hidden sm:block">
+            <div className="absolute inset-x-0 top-1/2 h-px bg-brand-pink/[0.06]" />
+            <div className="absolute inset-y-0 left-1/2 w-px bg-brand-purple/[0.04]" />
+            <div className="absolute inset-y-0 left-12 w-px border-r border-dashed border-brand-purple/[0.04]" />
+            <div className="absolute inset-y-0 right-12 w-px border-l border-dashed border-brand-purple/[0.04]" />
+          </div>
+
+
+          {/* Logo with Ambient Glow and Floating Shuttle Accent */}
           <div className="relative mb-8 group">
-            <div className="absolute inset-0 bg-yellow-400/30 blur-2xl rounded-full scale-110 pointer-events-none group-hover:bg-yellow-400/40 transition-all" />
+            {/* Soft Ambient Radiance */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/40 via-brand-pink/25 to-amber-300/40 blur-2xl rounded-full scale-125 pointer-events-none group-hover:scale-135 transition-transform duration-500" />
+            
+            {/* The Logo */}
             <img 
               src="/logo.jpg" 
               alt="RacketHeads Kochi Logo" 
-              className="relative h-28 w-auto rounded-3xl shadow-[0_12px_36px_rgba(250,204,21,0.25)] rotate-3 hover:rotate-6 transition-transform object-contain border border-amber-200/90" 
+              className="relative h-28 sm:h-32 w-auto rounded-3xl shadow-[0_16px_40px_rgba(250,204,21,0.25)] rotate-3 hover:rotate-6 hover:scale-105 transition-all duration-300 object-contain border border-amber-200/90" 
             />
+
+            {/* Aesthetic Floating Shuttlecock Icon (Top-Right) */}
+            <div className="absolute -top-3 -right-6 text-2xl select-none animate-float pointer-events-none filter drop-shadow-sm">
+              🏸
+            </div>
+            
+            {/* Aesthetic Sparkle (Bottom-Left) */}
+            <div className="absolute -bottom-2 -left-4 w-7 h-7 rounded-xl bg-white/90 border border-brand-pink/20 shadow-sm flex items-center justify-center text-brand-pink animate-float-slow pointer-events-none">
+              <Sparkles className="w-4 h-4 fill-brand-pink/20" />
+            </div>
           </div>
           
-          <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-brand-purple mb-6 drop-shadow-sm">
+          {/* Main Title */}
+          <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-brand-purple mb-5 drop-shadow-sm">
             RacketHeads <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple via-brand-pink to-amber-500">Kochi</span>
           </h1>
           
-          <p className="text-lg sm:text-xl text-brand-purple/70 font-medium max-w-2xl mb-12 leading-relaxed">
+          {/* Tagline */}
+          <p className="text-lg sm:text-xl text-brand-purple/75 font-semibold max-w-2xl mb-10 leading-relaxed">
             A Badminton Community — Play, Compete, Connect.
           </p>
           
-          <Link 
-            href="/register" 
-            className="group relative inline-flex items-center justify-center gap-3 bg-brand-purple text-white font-bold text-lg px-8 py-4 rounded-2xl overflow-hidden transition-all hover:scale-105 hover:shadow-[0_20px_40px_rgba(46,16,101,0.2)] active:scale-95 shadow-sm"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Book Your Spot <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-pink opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </Link>
+          {/* Action CTA with Glow & Arrow Micro-motion */}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <Link 
+              href="/register" 
+              className="group relative inline-flex items-center justify-center gap-3 bg-brand-purple hover:bg-brand-purple-deep text-brand-yellow-light font-black text-lg px-9 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_45px_rgba(46,16,101,0.28)] active:scale-95 shadow-md"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <span>Book Your Spot</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-purple via-[#4e1d7d] to-brand-pink opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+
+            <Link
+              href="/gallery"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand-purple/70 hover:text-brand-purple hover:underline px-4 py-2 transition-colors"
+            >
+              <Play className="w-3.5 h-3.5 text-brand-pink fill-brand-pink" />
+              <span>Explore Court Moments</span>
+            </Link>
+          </div>
         </section>
 
-        {/* Why Join Us Section */}
+        {/* WHY JOIN US SECTION (3 Clean Aesthetic Pillars) */}
         <section className="w-full bg-white/80 backdrop-blur-xl border-y border-slate-200/80 py-20">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">Why Join Us?</h2>
-              <p className="text-brand-purple/70 font-medium">Everything you need for a perfect session.</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-brand-purple mb-3">Why Join Us?</h2>
+              <p className="text-brand-purple/70 font-semibold text-sm sm:text-base">Everything you need for a perfect session.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { icon: Trophy, title: "All Skill Levels", desc: "Whether you're an amateur or a seasoned pro, we match you with the right players." },
-                { icon: Zap, title: "Premium Courts", desc: "Play on high-quality courts with excellent lighting and ventilation." },
-                { icon: Users, title: "Great Community", desc: "Meet like-minded individuals, network, and enjoy a healthy weekend activity." }
+                { 
+                  icon: Trophy, 
+                  title: "All Skill Levels", 
+                  desc: "Whether you're an amateur or a seasoned pro, we match you with the right players." 
+                },
+                { 
+                  icon: Zap, 
+                  title: "Premium Courts", 
+                  desc: "Play on high-quality courts with excellent lighting, ventilation, and tournament shuttles." 
+                },
+                { 
+                  icon: Users, 
+                  title: "Great Community", 
+                  desc: "Meet like-minded individuals, network, and enjoy an energetic weekend activity." 
+                }
               ].map((feature, i) => (
-                <div key={i} className="bg-white/70 border border-slate-200/80 p-8 rounded-3xl text-center hover:shadow-lg transition-all duration-300">
-                  <div className="w-14 h-14 bg-brand-pink/10 text-brand-pink rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-pink/20">
+                <div 
+                  key={i} 
+                  className="group bg-white/70 backdrop-blur-md border border-slate-200/80 p-8 rounded-3xl text-center hover:shadow-[0_16px_36px_rgba(46,16,101,0.06)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+                >
+                  <div className="w-14 h-14 bg-brand-pink/10 text-brand-pink rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-pink/20 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
                     <feature.icon className="w-7 h-7" />
                   </div>
                   <h3 className="text-xl font-bold text-brand-purple mb-3">{feature.title}</h3>
@@ -175,12 +228,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Moments from the Court (Dual-Row Gallery Marquee) */}
+        {/* MOMENTS FROM THE COURT (DUAL-ROW GALLERY MARQUEE) */}
         {galleryItems.length > 0 && (
           <section className="w-full py-16 overflow-hidden">
             <div className="text-center mb-10 px-4">
-              <h2 className="text-3xl font-bold text-brand-purple mb-4">Moments from the Court</h2>
-              <p className="text-brand-purple/70 font-medium">Join the action this weekend.</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-brand-purple mb-3">Moments from the Court</h2>
+              <p className="text-brand-purple/70 font-semibold text-sm sm:text-base">Join the action this weekend.</p>
             </div>
             
             {/* Dual-Row Smooth Marquee with Edge Fades */}
@@ -207,7 +260,10 @@ export default function LandingPage() {
             </div>
             
             <div className="text-center mt-10">
-              <Link href="/gallery" className="inline-flex items-center gap-2 text-brand-pink font-bold hover:text-brand-purple transition-colors">
+              <Link 
+                href="/gallery" 
+                className="inline-flex items-center gap-2 text-brand-pink font-bold hover:text-brand-purple transition-colors text-sm sm:text-base"
+              >
                 <span>View Full Gallery</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -215,24 +271,24 @@ export default function LandingPage() {
           </section>
         )}
 
-        {/* Pricing / Session Details Section */}
+        {/* SESSION DETAILS SECTION */}
         <section className="w-full max-w-5xl mx-auto px-4 py-20 text-center">
-          <h2 className="text-3xl font-bold text-brand-purple mb-4">Session Details</h2>
-          <p className="text-brand-purple/70 font-medium mb-12">Everything you get when you book a slot.</p>
+          <h2 className="text-3xl sm:text-4xl font-black text-brand-purple mb-3">Session Details</h2>
+          <p className="text-brand-purple/70 font-semibold mb-12 text-sm sm:text-base">Everything you get when you book a slot.</p>
           
-          <div className="max-w-md mx-auto bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-[0_8px_40px_rgba(46,16,101,0.06)] border border-slate-200/80 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-purple to-brand-pink" />
+          <div className="max-w-md mx-auto bg-white/95 backdrop-blur-xl rounded-[2.5rem] p-8 sm:p-12 shadow-[0_12px_40px_rgba(46,16,101,0.06)] border border-slate-200/80 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-brand-purple via-brand-pink to-amber-400" />
             
-            <h3 className="text-2xl font-bold text-brand-purple mb-8">Session Inclusions</h3>
+            <h3 className="text-2xl font-black text-brand-purple mb-8">Session Inclusions</h3>
             <ul className="text-left space-y-4 mb-10">
               {[
-                "2hrs court time",
-                "Shuttles and refreshments included.",
-                "Opponent matchmaking.",
-                "Access to community.",
-                "Fun games and challenges."
+                "2 to 3 hrs court time",
+                "Tournament shuttles included",
+                "Opponent matchmaking by skill",
+                "Access to WhatsApp community",
+                "High-res match photos & highlights"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-brand-purple/80 font-medium">
+                <li key={i} className="flex items-center gap-3 text-brand-purple/85 font-semibold text-sm">
                   <div className="w-6 h-6 rounded-full bg-brand-pink/10 text-brand-pink flex items-center justify-center shrink-0">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -245,7 +301,7 @@ export default function LandingPage() {
             
             <Link 
               href="/register" 
-              className="block w-full bg-brand-purple hover:bg-brand-purple-deep text-white font-bold py-4 rounded-2xl transition-all shadow-sm hover:shadow hover:-translate-y-0.5 active:translate-y-0 text-center"
+              className="block w-full bg-brand-purple hover:bg-brand-purple-deep text-brand-yellow-light font-black py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 text-center"
             >
               Book Now
             </Link>

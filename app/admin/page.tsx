@@ -1899,7 +1899,7 @@ function GalleryView() {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; message: string } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; message: string; percentage?: number; loaded?: number; fileSize?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -2051,46 +2051,59 @@ function GalleryView() {
             message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}...`
           });
 
-          // Upload file: Try direct Vercel Blob client upload first (streams up to 250MB directly from browser)
+          // Upload file: Try direct Vercel Blob client upload first (streams up to 500MB directly from browser)
           let uploadedUrl = "";
           try {
             const newBlob = await upload(fileToUpload.name, fileToUpload, {
               access: 'public',
               handleUploadUrl: '/api/upload/blob',
-              headers: {
-                'Authorization': `Bearer ${ADMIN_PIN}`
+              onUploadProgress: (progress) => {
+                const pct = Math.round(progress.percentage);
+                setUploadProgress({
+                  current: i + 1,
+                  total,
+                  message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}`,
+                  percentage: pct,
+                  loaded: progress.loaded,
+                  fileSize: progress.total
+                });
               }
             });
             uploadedUrl = newBlob.url;
           } catch (blobErr: any) {
-            console.warn("Direct blob upload failed or not available, falling back to /api/upload:", blobErr);
-            const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${ADMIN_PIN}`
-              },
-              body: fileToUpload
-            });
+            console.warn("Direct blob upload error, checking fallback:", blobErr);
+            // Only try /api/upload if file is <= 4.5MB
+            if (fileToUpload.size <= 4.5 * 1024 * 1024) {
+              const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${ADMIN_PIN}`
+                },
+                body: fileToUpload
+              });
 
-            if (!uploadRes.ok) {
-              const errText = await uploadRes.text();
-              let errMsg = `Upload failed (${uploadRes.status})`;
-              try {
-                const parsed = JSON.parse(errText);
-                if (parsed.error) errMsg = parsed.error;
-              } catch {
-                if (uploadRes.status === 413) {
-                  errMsg = `File too large (${(fileToUpload.size / (1024 * 1024)).toFixed(1)}MB). Max 4.5MB for serverless fallback.`;
+              if (!uploadRes.ok) {
+                const errText = await uploadRes.text();
+                let errMsg = `Upload failed (${uploadRes.status})`;
+                try {
+                  const parsed = JSON.parse(errText);
+                  if (parsed.error) errMsg = parsed.error;
+                } catch {
+                  if (uploadRes.status === 413) {
+                    errMsg = `File too large (${(fileToUpload.size / (1024 * 1024)).toFixed(1)}MB). Max 4.5MB.`;
+                  }
                 }
+                throw new Error(errMsg);
               }
-              throw new Error(errMsg);
-            }
 
-            const uploadData = await uploadRes.json();
-            if (!uploadData.success || !uploadData.url) {
-              throw new Error(uploadData.error || "Upload failed");
+              const uploadData = await uploadRes.json();
+              if (!uploadData.success || !uploadData.url) {
+                throw new Error(uploadData.error || "Upload failed");
+              }
+              uploadedUrl = uploadData.url;
+            } else {
+              throw new Error(`Upload failed: ${blobErr.message || 'Direct upload error'}`);
             }
-            uploadedUrl = uploadData.url;
           }
 
           const fileCaption = alt
@@ -2286,7 +2299,13 @@ function GalleryView() {
                 {adding ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                    <span>{uploadProgress ? `${uploadProgress.current}/${uploadProgress.total}` : 'Uploading...'}</span>
+                    <span>
+                      {uploadProgress ? (
+                        uploadProgress.percentage !== undefined
+                          ? `${uploadProgress.percentage}% • ${uploadProgress.current}/${uploadProgress.total}`
+                          : `${uploadProgress.current}/${uploadProgress.total}`
+                      ) : 'Uploading...'}
+                    </span>
                   </>
                 ) : files.length > 1 ? (
                   `Upload (${files.length})`
@@ -2336,10 +2355,37 @@ function GalleryView() {
                   );
                 })}
               </div>
+
+              {files.some(f => f.size > 50 * 1024 * 1024) && (
+                <div className="mt-2 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg p-2 flex items-start gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                  <span>
+                    Large video(s) detected (over 50 MB each). Upload time will vary based on your internet connection's upload speed.
+                  </span>
+                </div>
+              )}
+
               {uploadProgress && (
-                <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center gap-2 text-xs font-bold text-brand-purple">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                  <span className="truncate">{uploadProgress.message}</span>
+                <div className="mt-3 pt-3 border-t border-slate-200 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold text-brand-purple">
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-brand-purple" />
+                      <span className="truncate">{uploadProgress.message}</span>
+                    </span>
+                    {uploadProgress.percentage !== undefined && (
+                      <span className="text-brand-purple shrink-0 font-black ml-2">
+                        {uploadProgress.percentage}%
+                      </span>
+                    )}
+                  </div>
+                  {uploadProgress.percentage !== undefined && (
+                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-brand-purple h-full transition-all duration-150 rounded-full"
+                        style={{ width: `${Math.max(2, Math.min(100, uploadProgress.percentage))}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

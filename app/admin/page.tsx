@@ -1895,10 +1895,11 @@ function GalleryView() {
   const [items, setItems] = useState<any[]>([]);
   const [url, setUrl] = useState("");
   const [alt, setAlt] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [converting, setConverting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; message: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchItems();
@@ -1919,50 +1920,236 @@ function GalleryView() {
     }
   };
 
+  const processImageForUpload = async (file: File): Promise<File> => {
+    const lower = file.name.toLowerCase();
+    const isHeic = lower.endsWith('.heic') || lower.endsWith('.heif');
+
+    if (isHeic) {
+      // 1. Try native browser decode (supported in Safari, macOS Chrome with system decoder)
+      try {
+        const bitmap = await createImageBitmap(file);
+        let { width, height } = bitmap;
+        const maxDim = 2048;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(bitmap, 0, 0, width, height);
+          bitmap.close();
+          const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+          if (blob) {
+            return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
+          }
+        }
+      } catch {
+        // 2. Native decode failed, try heic2any fallback
+        try {
+          const heic2any = (await import('heic2any')).default;
+          const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 });
+          const blob = Array.isArray(converted) ? converted[0] : converted;
+          return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
+        } catch (e) {
+          // 3. Fallback: return original HEIC file; server Sharp will convert it seamlessly
+          console.warn("Client HEIC conversion failed, server Sharp will handle conversion:", e);
+          return file;
+        }
+      }
+    }
+
+    // Standard web image: resize down to max 2048px to prevent huge payloads and fast upload
+    const isWebImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(file.name);
+    if (isWebImage) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          let { width, height } = img;
+          const maxDim = 2048;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(file);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                resolve(file);
+                return;
+              }
+              const cleanName = file.name.replace(/\.(png|webp)$/i, '.jpg');
+              resolve(new File([blob], cleanName, { type: 'image/jpeg' }));
+            },
+            'image/jpeg',
+            0.85
+          );
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(file);
+        };
+        img.src = objectUrl;
+      });
+    }
+
+    return file;
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url && !file) return;
+    if (!url && files.length === 0) return;
     setAdding(true);
-    try {
-      let finalUrl = url;
-      let finalType = "";
 
-      if (file) {
-        const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
-          },
-          body: file
+    if (files.length > 0) {
+      const total = files.length;
+      let successCount = 0;
+      const errorList: string[] = [];
+
+      for (let i = 0; i < total; i++) {
+        const currentFile = files[i];
+        const isVideo = currentFile.type.startsWith('video/') || /\.(mp4|webm|ogg|mov|m4v|avi)$/i.test(currentFile.name);
+
+        setUploadProgress({
+          current: i + 1,
+          total,
+          message: `Optimizing ${i + 1}/${total}: ${currentFile.name}...`
         });
-        const uploadData = await uploadRes.json();
-        if (!uploadData.success) {
-          throw new Error(uploadData.error || "Upload failed");
+
+        try {
+          let fileToUpload = currentFile;
+          if (!isVideo) {
+            fileToUpload = await processImageForUpload(currentFile);
+          }
+
+          setUploadProgress({
+            current: i + 1,
+            total,
+            message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}...`
+          });
+
+          const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${ADMIN_PIN}`
+            },
+            body: fileToUpload
+          });
+
+          if (!uploadRes.ok) {
+            const errText = await uploadRes.text();
+            let errMsg = `Upload failed (${uploadRes.status})`;
+            try {
+              const parsed = JSON.parse(errText);
+              if (parsed.error) errMsg = parsed.error;
+            } catch {
+              if (uploadRes.status === 413) {
+                errMsg = `File too large (${(fileToUpload.size / (1024 * 1024)).toFixed(1)}MB). Max 4.5MB for direct upload.`;
+              }
+            }
+            throw new Error(errMsg);
+          }
+
+          const uploadData = await uploadRes.json();
+          if (!uploadData.success || !uploadData.url) {
+            throw new Error(uploadData.error || "Upload failed");
+          }
+
+          const fileCaption = alt
+            ? (total > 1 ? `${alt} (${i + 1})` : alt)
+            : currentFile.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+
+          const galRes = await fetch('/api/gallery', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${ADMIN_PIN}`
+            },
+            body: JSON.stringify({
+              url: uploadData.url,
+              alt: fileCaption,
+              type: isVideo ? 'video' : 'image'
+            })
+          });
+
+          const galData = await galRes.json();
+          if (!galData.success) {
+            throw new Error(galData.error || "Failed to save to gallery");
+          }
+
+          successCount++;
+        } catch (fileErr: any) {
+          console.error(`Error uploading ${currentFile.name}:`, fileErr);
+          errorList.push(`${currentFile.name}: ${fileErr.message || 'Failed'}`);
         }
-        finalUrl = uploadData.url;
-        finalType = file.type.startsWith('video/') ? 'video' : 'image';
-      } else if (getInstagramReelId(url)) {
-        finalType = 'video';
       }
 
-      await fetch('/api/gallery', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
-        },
-        body: JSON.stringify({ url: finalUrl, alt, type: finalType || undefined })
-      });
-      setUrl("");
+      setUploadProgress(null);
+      setFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setAlt("");
-      setFile(null);
-      fetchItems();
-    } catch (err) {
-      console.error(err);
-      alert("Error adding media. Check console.");
-    } finally {
-      setAdding(false);
+      await fetchItems();
+
+      if (errorList.length === 0) {
+        alert(`Successfully added ${successCount} item${successCount > 1 ? 's' : ''} to the gallery!`);
+      } else if (successCount > 0) {
+        alert(`Added ${successCount} item${successCount > 1 ? 's' : ''} successfully.\n\nFailed (${errorList.length}):\n${errorList.join('\n')}`);
+      } else {
+        alert(`Failed to add media:\n\n${errorList.join('\n')}`);
+      }
+    } else if (url) {
+      try {
+        const isVideo = !!getInstagramReelId(url) || /\.(mp4|webm|ogg|mov|m4v|avi)$/i.test(url);
+        const galRes = await fetch('/api/gallery', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ADMIN_PIN}`
+          },
+          body: JSON.stringify({
+            url: url.trim(),
+            alt: alt.trim(),
+            type: isVideo ? 'video' : 'image'
+          })
+        });
+
+        const data = await galRes.json();
+        if (!data.success) {
+          throw new Error(data.error || "Failed to add media URL");
+        }
+
+        setUrl("");
+        setAlt("");
+        await fetchItems();
+      } catch (err: any) {
+        console.error(err);
+        alert(`Error adding media URL: ${err.message || 'Check console.'}`);
+      }
     }
+
+    setAdding(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -1971,7 +2158,7 @@ function GalleryView() {
       await fetch(`/api/gallery?id=${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`
+          'Authorization': `Bearer ${ADMIN_PIN}`
         }
       });
       fetchItems();
@@ -1996,7 +2183,7 @@ function GalleryView() {
       await fetch('/api/gallery/reorder', {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || "0000"}`,
+          'Authorization': `Bearer ${ADMIN_PIN}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ orderedIds: newItems.map(i => i.id) })
@@ -2014,82 +2201,133 @@ function GalleryView() {
           <ImageIcon className="w-5 h-5 text-brand-pink" /> Add Media to Gallery
         </h2>
         <p className="text-xs text-slate-500 mb-6 font-medium">
-          Upload local images/videos or paste an Instagram Reel / Post link to embed community content directly.
+          Upload local images/videos (single or bulk) or paste an Instagram Reel / Post link to embed community content directly.
         </p>
-        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end min-w-0">
-          <div className="lg:col-span-2 min-w-0">
-            <label className="block text-sm font-bold text-slate-500 mb-1">Local File (Overrides URL)</label>
-            <input 
-              type="file" 
-              accept="image/jpeg, image/png, image/webp, video/mp4, video/webm, video/quicktime, .mov, .heic"
-              onChange={async (e) => {
-                const selected = e.target.files ? e.target.files[0] : null;
-                if (!selected) {
-                  setFile(null);
-                  return;
-                }
-                
-                if (selected.name.toLowerCase().endsWith('.heic')) {
-                  try {
-                    setConverting(true);
-                    const heic2any = (await import('heic2any')).default;
-                    const convertedBlob = await heic2any({
-                      blob: selected,
-                      toType: "image/jpeg",
-                      quality: 0.8
-                    });
-                    
-                    const blobToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                    const newFile = new File([blobToUse], selected.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
-                    setFile(newFile);
-                  } catch (err) {
-                    console.error("HEIC conversion error:", err);
-                    alert("Failed to convert HEIC image. Please manually convert it to JPG.");
-                    e.target.value = "";
-                    setFile(null);
-                  } finally {
-                    setConverting(false);
-                  }
-                } else {
-                  setFile(selected);
-                }
-              }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm" 
-            />
+        <form onSubmit={handleAdd} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end min-w-0">
+            <div className="lg:col-span-2 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-bold text-slate-500">
+                  Local Photos / Videos {files.length > 0 && <span className="text-brand-purple font-black">({files.length} selected)</span>}
+                </label>
+                {files.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFiles([]);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    className="text-xs text-rose-500 hover:text-rose-600 font-bold"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                multiple
+                accept="image/jpeg, image/png, image/webp, image/heic, image/heif, video/mp4, video/webm, video/quicktime, .mov, .heic, .heif, .jpg, .jpeg, .png, .webp"
+                onChange={(e) => {
+                  const selected = e.target.files ? Array.from(e.target.files) : [];
+                  setFiles(selected);
+                }}
+                disabled={adding}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-[9px] font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-purple/10 file:text-brand-purple hover:file:bg-brand-purple/20 cursor-pointer disabled:opacity-50" 
+              />
+            </div>
+            <div className="lg:col-span-2 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-bold text-slate-500">OR Media / Reel URL</label>
+                {getInstagramReelId(url) && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200 animate-in fade-in">
+                    <InstagramIcon className="w-3 h-3 text-[#E1306C]" /> Reel Detected
+                  </span>
+                )}
+              </div>
+              <input 
+                type="url" 
+                value={url} 
+                onChange={e=>setUrl(e.target.value)} 
+                placeholder="https://... or Instagram Reel link"
+                disabled={files.length > 0 || adding}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50 text-sm" 
+              />
+            </div>
+            <div className="lg:col-span-1 min-w-0">
+              <label className="block text-sm font-bold text-slate-500 mb-1">Alt / Caption</label>
+              <input 
+                type="text" 
+                value={alt} 
+                onChange={e=>setAlt(e.target.value)} 
+                placeholder="e.g. Action shot"
+                disabled={adding}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm disabled:opacity-50" 
+              />
+            </div>
+            <div className="lg:col-span-1 min-w-0">
+              <button disabled={adding || (!url && files.length === 0)} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50 text-sm flex items-center justify-center gap-1.5">
+                {adding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                    <span>{uploadProgress ? `${uploadProgress.current}/${uploadProgress.total}` : 'Uploading...'}</span>
+                  </>
+                ) : files.length > 1 ? (
+                  `Upload (${files.length})`
+                ) : (
+                  "Add Media"
+                )}
+              </button>
+            </div>
           </div>
-          <div className="lg:col-span-2 min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-bold text-slate-500">OR Media / Reel URL</label>
-              {getInstagramReelId(url) && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200 animate-in fade-in">
-                  <InstagramIcon className="w-3 h-3 text-[#E1306C]" /> Reel Detected
+
+          {/* Selected files preview tray */}
+          {files.length > 0 && (
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+                <span>
+                  {files.length} file{files.length > 1 ? 's' : ''} selected: {files.filter(f => f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name)).length} video(s), {files.filter(f => !f.type.startsWith('video/') && !/\.(mp4|webm|mov|m4v)$/i.test(f.name)).length} photo(s)
                 </span>
+                <span>
+                  {(files.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(1)} MB total
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
+                {files.map((f, i) => {
+                  const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/i.test(f.name);
+                  const isHeic = f.name.toLowerCase().endsWith('.heic') || f.name.toLowerCase().endsWith('.heif');
+                  return (
+                    <span key={i} className="inline-flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-700 shadow-2xs">
+                      <span className={`text-[10px] font-black uppercase px-1 py-0.5 rounded ${isVid ? 'bg-amber-100 text-amber-800' : isHeic ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'}`}>
+                        {isVid ? 'Video' : isHeic ? 'HEIC' : 'Photo'}
+                      </span>
+                      <span className="truncate max-w-[130px] font-semibold">{f.name}</span>
+                      <span className="text-[10px] text-slate-400">({(f.size / (1024 * 1024)).toFixed(1)}M)</span>
+                      {!adding && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = files.filter((_, idx) => idx !== i);
+                            setFiles(updated);
+                            if (updated.length === 0 && fileInputRef.current) fileInputRef.current.value = "";
+                          }}
+                          className="text-slate-400 hover:text-rose-500 font-bold ml-1 hover:bg-slate-100 rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+              {uploadProgress && (
+                <div className="mt-2.5 pt-2 border-t border-slate-200 flex items-center gap-2 text-xs font-bold text-brand-purple">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                  <span className="truncate">{uploadProgress.message}</span>
+                </div>
               )}
             </div>
-            <input 
-              type="url" 
-              value={url} 
-              onChange={e=>setUrl(e.target.value)} 
-              placeholder="https://... or Instagram Reel link"
-              disabled={!!file}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 disabled:opacity-50 text-sm" 
-            />
-          </div>
-          <div className="lg:col-span-1 min-w-0">
-            <label className="block text-sm font-bold text-slate-500 mb-1">Alt / Caption</label>
-            <input 
-              type="text" 
-              value={alt} 
-              onChange={e=>setAlt(e.target.value)} 
-              placeholder="e.g. Action shot"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 text-sm" 
-            />
-          </div>
-          <div className="lg:col-span-1 min-w-0">
-            <button disabled={adding || converting} type="submit" className="w-full bg-brand-purple hover:bg-[#2A1244] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:opacity-50">
-              {adding ? "Adding..." : converting ? "Converting..." : "Add Media"}
-            </button>
-          </div>
+          )}
         </form>
       </div>
 
@@ -2107,7 +2345,16 @@ function GalleryView() {
             {items.map((item, index) => {
               const isInstagram = getInstagramReelId(item.url);
               return (
-                <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-50 shadow-sm">
+                <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-slate-200 aspect-square bg-slate-100 shadow-sm">
+                  {/* Media Type Badge */}
+                  <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                    {item.type === 'video' && !isInstagram && (
+                      <span className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 shadow-sm flex items-center gap-1">
+                        ▶ Video
+                      </span>
+                    )}
+                  </div>
+
                   {isInstagram ? (
                     <div className="w-full h-full relative overflow-hidden bg-slate-950 p-3 text-white flex flex-col justify-between">
                       <img
@@ -2129,9 +2376,20 @@ function GalleryView() {
                       </p>
                     </div>
                   ) : item.type === 'video' ? (
-                    <video src={item.url} className="w-full h-full object-cover" muted loop playsInline />
+                    <video 
+                      src={item.url} 
+                      className="w-full h-full object-cover" 
+                      muted 
+                      loop 
+                      playsInline 
+                    />
                   ) : (
-                    <img src={item.url} alt={item.alt} className="w-full h-full object-cover" />
+                    <img 
+                      src={item.url} 
+                      alt={item.alt || 'Gallery photo'} 
+                      className="w-full h-full object-cover" 
+                      loading="lazy"
+                    />
                   )}
                   
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">

@@ -24,17 +24,25 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { url, alt, type } = body;
 
-    if (!url) {
-      return NextResponse.json({ success: false, error: 'Missing media URL' }, { status: 400 });
+    if (!url || typeof url !== 'string' || !url.trim() || url === 'undefined' || url === 'null') {
+      return NextResponse.json({ success: false, error: 'Valid media URL is required' }, { status: 400 });
     }
 
     const items = await getGalleryItems();
     
+    const isVideo = type === 'video' || (
+      url.match(/\.(mp4|webm|ogg|mov|m4v|avi)$/i) || 
+      url.includes('/video/upload/') ||
+      url.includes('youtube.com') || 
+      url.includes('youtu.be') || 
+      /instagram\.com\/(?:reel|reels|p)\//i.test(url)
+    );
+
     const newItem: GalleryItem = {
-      id: `gal_${Date.now()}`,
-      url,
-      alt: alt || 'Gallery Media',
-      type: type || (url.match(/\.(mp4|webm|ogg|mov|m4v|avi)$/i) || url.includes('youtube.com') || url.includes('youtu.be') || /instagram\.com\/(?:reel|reels|p)\//i.test(url) ? 'video' : 'image'),
+      id: `gal_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+      url: url.trim(),
+      alt: alt?.trim() || 'Gallery Media',
+      type: isVideo ? 'video' : 'image',
       createdAt: new Date().toISOString()
     };
     

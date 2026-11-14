@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
+import { upload } from "@vercel/blob/client";
 import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X, Mail, CreditCard, AlertTriangle } from "lucide-react";
 import VideoPlayer, { getInstagramReelId, InstagramIcon } from "@/components/VideoPlayer";
 
@@ -2050,31 +2051,46 @@ function GalleryView() {
             message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}...`
           });
 
-          const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${ADMIN_PIN}`
-            },
-            body: fileToUpload
-          });
-
-          if (!uploadRes.ok) {
-            const errText = await uploadRes.text();
-            let errMsg = `Upload failed (${uploadRes.status})`;
-            try {
-              const parsed = JSON.parse(errText);
-              if (parsed.error) errMsg = parsed.error;
-            } catch {
-              if (uploadRes.status === 413) {
-                errMsg = `File too large (${(fileToUpload.size / (1024 * 1024)).toFixed(1)}MB). Max 4.5MB for direct upload.`;
+          // Upload file: Try direct Vercel Blob client upload first (streams up to 250MB directly from browser)
+          let uploadedUrl = "";
+          try {
+            const newBlob = await upload(fileToUpload.name, fileToUpload, {
+              access: 'public',
+              handleUploadUrl: '/api/upload/blob',
+              headers: {
+                'Authorization': `Bearer ${ADMIN_PIN}`
               }
-            }
-            throw new Error(errMsg);
-          }
+            });
+            uploadedUrl = newBlob.url;
+          } catch (blobErr: any) {
+            console.warn("Direct blob upload failed or not available, falling back to /api/upload:", blobErr);
+            const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${ADMIN_PIN}`
+              },
+              body: fileToUpload
+            });
 
-          const uploadData = await uploadRes.json();
-          if (!uploadData.success || !uploadData.url) {
-            throw new Error(uploadData.error || "Upload failed");
+            if (!uploadRes.ok) {
+              const errText = await uploadRes.text();
+              let errMsg = `Upload failed (${uploadRes.status})`;
+              try {
+                const parsed = JSON.parse(errText);
+                if (parsed.error) errMsg = parsed.error;
+              } catch {
+                if (uploadRes.status === 413) {
+                  errMsg = `File too large (${(fileToUpload.size / (1024 * 1024)).toFixed(1)}MB). Max 4.5MB for serverless fallback.`;
+                }
+              }
+              throw new Error(errMsg);
+            }
+
+            const uploadData = await uploadRes.json();
+            if (!uploadData.success || !uploadData.url) {
+              throw new Error(uploadData.error || "Upload failed");
+            }
+            uploadedUrl = uploadData.url;
           }
 
           const fileCaption = alt
@@ -2088,7 +2104,7 @@ function GalleryView() {
               'Authorization': `Bearer ${ADMIN_PIN}`
             },
             body: JSON.stringify({
-              url: uploadData.url,
+              url: uploadedUrl,
               alt: fileCaption,
               type: isVideo ? 'video' : 'image'
             })

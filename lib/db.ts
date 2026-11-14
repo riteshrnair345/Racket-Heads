@@ -413,8 +413,8 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
       items = data as any as GalleryItem[];
     }
 
-    // Filter out broken discontinued vercel-storage blob URLs if any
-    const validItems = items.filter(it => it && it.url && !it.url.includes('gzjt0cyyan0lyo3j.public.blob.vercel-storage.com'));
+    // Filter out invalid or empty items
+    const validItems = items.filter(it => it && it.url && typeof it.url === 'string' && it.url.trim().length > 0);
     if (validItems.length === 0) {
       return DEFAULT_GALLERY_ITEMS;
     }

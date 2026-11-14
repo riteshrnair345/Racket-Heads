@@ -2051,18 +2051,38 @@ function GalleryView() {
             message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}...`
           });
 
+          // Clean filename and resolve MIME type
+          const safeName = fileToUpload.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const ext = safeName.split('.').pop()?.toLowerCase() || '';
+          const mimeMap: Record<string, string> = {
+            mov: 'video/quicktime',
+            mp4: 'video/mp4',
+            webm: 'video/webm',
+            m4v: 'video/mp4',
+            jpg: 'image/jpeg',
+            jpeg: 'image/jpeg',
+            png: 'image/png',
+            webp: 'image/webp',
+            heic: 'image/heic',
+            heif: 'image/heif',
+          };
+          const resolvedMime = (fileToUpload.type && fileToUpload.type !== 'application/octet-stream')
+            ? fileToUpload.type
+            : (mimeMap[ext] || 'application/octet-stream');
+
           // Upload file: Try direct Vercel Blob client upload first (streams up to 500MB directly from browser)
           let uploadedUrl = "";
           try {
-            const newBlob = await upload(fileToUpload.name, fileToUpload, {
+            const newBlob = await upload(safeName, fileToUpload, {
               access: 'public',
               handleUploadUrl: '/api/upload/blob',
+              contentType: resolvedMime,
               onUploadProgress: (progress) => {
                 const pct = Math.round(progress.percentage);
                 setUploadProgress({
                   current: i + 1,
                   total,
-                  message: `Uploading ${i + 1}/${total}: ${fileToUpload.name}`,
+                  message: `Uploading ${i + 1}/${total}: ${safeName}`,
                   percentage: pct,
                   loaded: progress.loaded,
                   fileSize: progress.total
@@ -2074,7 +2094,7 @@ function GalleryView() {
             console.warn("Direct blob upload error, checking fallback:", blobErr);
             // Only try /api/upload if file is <= 4.5MB
             if (fileToUpload.size <= 4.5 * 1024 * 1024) {
-              const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(fileToUpload.name)}`, {
+              const uploadRes = await fetch(`/api/upload?filename=${encodeURIComponent(safeName)}`, {
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${ADMIN_PIN}`

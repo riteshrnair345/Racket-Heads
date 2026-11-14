@@ -87,7 +87,23 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ success: true, url: (uploadResult as any).secure_url });
     }
 
-    // 2. In local dev or environments with a persistent filesystem, save to public/uploads/
+    // 2. If Vercel Blob token is available, store in Vercel Blob
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN || "vercel_blob_rw_GzJt0cYYan0Lyo3j_jIsfvggmKDh7YesB9HREod5uBqrJOw";
+    if (blobToken) {
+      try {
+        const { put } = await import('@vercel/blob');
+        const blobResult = await put(filename, buffer, {
+          access: 'public',
+          token: blobToken,
+          addRandomSuffix: true,
+        });
+        return NextResponse.json({ success: true, url: blobResult.url });
+      } catch (blobErr) {
+        console.warn("Vercel Blob server upload fallback error:", blobErr);
+      }
+    }
+
+    // 3. In local dev or environments with a persistent filesystem, save to public/uploads/
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     if (fs.existsSync(uploadsDir)) {
       try {

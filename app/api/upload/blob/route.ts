@@ -1,11 +1,14 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
 
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "vercel_blob_rw_GzJt0cYYan0Lyo3j_jIsfvggmKDh7YesB9HREod5uBqrJOw";
+
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const body = (await request.json()) as HandleUploadBody;
 
     const jsonResponse = await handleUpload({
+      token: BLOB_TOKEN,
       body,
       request,
       onBeforeGenerateToken: async () => {

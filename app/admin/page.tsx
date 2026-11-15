@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Html5Qrcode } from "html5-qrcode";
 import { upload } from "@vercel/blob/client";
-import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X, Mail, CreditCard, AlertTriangle } from "lucide-react";
+import { Camera, Users, CheckCircle, XCircle, RefreshCw, Loader2, Lock, LogOut, Trophy, Clock, Phone, Zap, Download, CalendarPlus, Database, Calendar, Trash2, Image as ImageIcon, ChevronDown, Edit2, Save, MessageSquare, Star, ChevronLeft, ChevronRight, BarChart3, MapPin, Settings, X, Mail, CreditCard, AlertTriangle, Copy } from "lucide-react";
 import VideoPlayer, { getInstagramReelId, InstagramIcon } from "@/components/VideoPlayer";
 
 const ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "0000";
@@ -20,6 +20,7 @@ type RosterItem = {
   checkInTime: string | null;
   status: "Checked In" | "Pending";
   registrationStatus?: "Confirmed" | "Waitlisted";
+  paymentStatus?: "Paid" | "Pending" | "Failed";
 };
 
 type EventItem = {
@@ -481,6 +482,8 @@ function DashboardView() {
   const [addFormData, setAddFormData] = useState({ name: "", email: "", phone: "" });
   const [isAdding, setIsAdding] = useState(false);
   const [sendingEmailPlayerId, setSendingEmailPlayerId] = useState<string | null>(null);
+  const [paymentLinkPlayerId, setPaymentLinkPlayerId] = useState<string | null>(null);
+  const [promotingPlayerId, setPromotingPlayerId] = useState<string | null>(null);
   const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false);
   const [reconcilePayments, setReconcilePayments] = useState<any[]>([]);
   const [isFetchingReconcile, setIsFetchingReconcile] = useState(false);
@@ -548,6 +551,7 @@ function DashboardView() {
   }, [selectedEventId]);
 
   const checkedInCount = roster.filter(r => r.status === "Checked In").length;
+  const currentEvent = events.find(e => e.id === selectedEventId);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -709,34 +713,108 @@ function DashboardView() {
                             Confirmed (Pending)
                           </span>
                         )}
+                        {currentEvent?.requiresPayment !== false && (currentEvent?.amount ?? 0) > 0 && (
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide ${
+                              person.paymentStatus === "Paid" 
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                            }`}>
+                              {person.paymentStatus === "Paid" ? "✓ Paid" : "Payment Pending"}
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-5 hidden sm:table-cell text-slate-600 font-medium text-sm">
                         {person.registrationStatus === "Waitlisted" ? (
-                          <button
-                            onClick={async () => {
-                              try {
-                                const res = await fetch('/api/promote', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${ADMIN_PIN}`
-                                  },
-                                  body: JSON.stringify({ playerId: person.id, eventId: selectedEventId })
-                                });
-                                if (res.ok) {
-                                  fetchRoster();
-                                } else {
-                                  const text = await res.text();
-                                  alert(`Failed to promote player: ${text}`);
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              disabled={paymentLinkPlayerId === person.id || promotingPlayerId === person.id}
+                              onClick={async () => {
+                                const amount = currentEvent?.amount ?? 150;
+                                if (!confirm(`Send payment link email to ${person.name} (${person.email})?\n\nThey will receive an email to pay ₹${amount} via Razorpay to confirm their spot.`)) return;
+                                setPaymentLinkPlayerId(person.id);
+                                try {
+                                  const res = await fetch('/api/admin/send-payment-link', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${ADMIN_PIN}`
+                                    },
+                                    body: JSON.stringify({ playerId: person.id, eventId: selectedEventId })
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    if (navigator.clipboard && data.checkoutLink) {
+                                      try { await navigator.clipboard.writeText(data.checkoutLink); } catch (_) {}
+                                    }
+                                    alert(`Payment link emailed to ${person.email}!\n\nLink copied to clipboard:\n${data.checkoutLink}\n\n(You can also share this directly on WhatsApp)`);
+                                  } else {
+                                    alert(`Failed to send payment link: ${data.error}`);
+                                  }
+                                } catch (e: any) {
+                                  alert(`Failed to send payment link: ${e.message}`);
+                                } finally {
+                                  setPaymentLinkPlayerId(null);
                                 }
-                              } catch (e: any) {
-                                alert(`Failed to promote player: ${e.message}`);
-                              }
-                            }}
-                            className="bg-brand-purple text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-brand-purple/90 transition-colors"
-                          >
-                            Promote
-                          </button>
+                              }}
+                              className="bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors inline-flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                              title="Email payment link to player (they pay online to confirm)"
+                            >
+                              {paymentLinkPlayerId === person.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <CreditCard className="w-3.5 h-3.5" />
+                              )}
+                              <span>Send Payment Link</span>
+                            </button>
+
+                            <button
+                              disabled={paymentLinkPlayerId === person.id || promotingPlayerId === person.id}
+                              onClick={async () => {
+                                const confirmed = confirm(
+                                  `Directly confirm ${person.name} without online payment?\n\n` +
+                                  `• Promotes status to Confirmed\n` +
+                                  `• Marks payment as Paid (Cash / Offline)\n` +
+                                  `• Instantly emails check-in QR code ticket\n\n` +
+                                  `Click OK to proceed, or Cancel to abort.`
+                                );
+                                if (!confirmed) return;
+
+                                setPromotingPlayerId(person.id);
+                                try {
+                                  const res = await fetch('/api/promote', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': `Bearer ${ADMIN_PIN}`
+                                    },
+                                    body: JSON.stringify({ playerId: person.id, eventId: selectedEventId, markPaid: true })
+                                  });
+                                  if (res.ok) {
+                                    fetchRoster();
+                                    alert(`${person.name} has been confirmed and their QR ticket was emailed!`);
+                                  } else {
+                                    const text = await res.text();
+                                    alert(`Failed to confirm player: ${text}`);
+                                  }
+                                } catch (e: any) {
+                                  alert(`Failed to confirm player: ${e.message}`);
+                                } finally {
+                                  setPromotingPlayerId(null);
+                                }
+                              }}
+                              className="bg-brand-purple/10 text-brand-purple hover:bg-brand-purple hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+                              title="Directly confirm player and email ticket (Cash / Complimentary)"
+                            >
+                              {promotingPlayerId === person.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-3.5 h-3.5" />
+                              )}
+                              <span>Direct Confirm</span>
+                            </button>
+                          </div>
                         ) : person.checkInTime ? (
                           <span>{new Date(person.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         ) : (

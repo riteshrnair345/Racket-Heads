@@ -29,7 +29,8 @@ export async function GET(request: Request) {
         shoes: player.shoes,
         checkInTime: registration.timeWhenCheckedIn,
         status: registration.checkInStatus,
-        registrationStatus: registration.registrationStatus || 'Confirmed'
+        registrationStatus: registration.registrationStatus || 'Confirmed',
+        paymentStatus: registration.paymentStatus || 'Pending'
       };
     });
     

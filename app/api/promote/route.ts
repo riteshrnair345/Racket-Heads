@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { playerId, eventId } = await request.json();
+    const { playerId, eventId, markPaid } = await request.json();
 
     if (!playerId || !eventId) {
       return NextResponse.json({ success: false, error: 'Missing playerId or eventId' }, { status: 400 });
@@ -34,6 +34,9 @@ export async function POST(request: Request) {
 
     // Update status
     player.registrations[regIndex].registrationStatus = 'Confirmed';
+    if (markPaid) {
+      player.registrations[regIndex].paymentStatus = 'Paid';
+    }
     await upsertPlayer(player);
 
     // Send confirmation email
